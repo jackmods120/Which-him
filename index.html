@@ -5,9 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سینەما هاوبەشەکەمان 🎬</title>
     <style>
+        /* ----- فۆنتی تایبەتی Jack ----- */
+        @font-face {
+            font-family: 'Jack';
+            src: url('jack.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            /* فۆنتی Jack لە پێشەوە دانراوە */
+            font-family: 'Jack', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1025 0%, #0a0a14 100%);
             color: #fff; min-height: 100vh; direction: rtl;
         }
@@ -53,6 +63,10 @@
             background: rgba(255,255,255,0.08); color: #fff;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        /* ستایلی دوگمەی ناچالاک */
+        .btn:disabled {
+            opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none;
+        }
         .video-container {
             width: 100%; aspect-ratio: 16/9; background: #000;
             border-radius: 16px; overflow: hidden; margin-bottom: 16px;
@@ -61,8 +75,18 @@
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
         .room-info {
             background: rgba(255,255,255,0.05); padding: 10px 16px;
-            border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between;
+            border-radius: 12px; margin-bottom: 16px; display: flex;
+            justify-content: space-between; align-items: center;
         }
+        /* شوێنی دوگمەی کۆپی */
+        .room-code-box {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .copy-btn {
+            background: rgba(255,255,255,0.1); border: none; border-radius: 10px;
+            padding: 6px 14px; color: #fff; cursor: pointer; font-size: 0.9rem;
+        }
+        .copy-btn:active { background: rgba(255,255,255,0.2); }
         .chat-box {
             flex: 1; background: rgba(0,0,0,0.2); border-radius: 14px;
             padding: 14px; overflow-y: auto; max-height: 400px;
@@ -71,12 +95,10 @@
         .chat-input-wrap { display: flex; gap: 8px; }
         .chat-input-wrap input { flex: 1; }
         .error-msg { color: #ff6b6b; font-size: 0.9rem; margin: 10px 0; }
-        .note {
-            background: rgba(124,58,237,0.15); border-radius: 12px;
-            padding: 14px; margin: 16px 0; font-size: 0.9rem; color: #ccc;
-            border: 1px solid rgba(124,58,237,0.3);
+        /* پەیامی قفڵ بوون */
+        .locked-hint {
+            font-size: 0.85rem; color: #ffaaaa; margin-top: 8px;
         }
-        .note a { color: #c084fc; text-decoration: none; }
         @media (max-width: 768px) {
             .main-layout { flex-direction: column; }
             header h1 { font-size: 2.2rem; }
@@ -91,12 +113,7 @@
         </header>
 
         <div id="homePage">
-            <div class="note">
-                💡 <b>بۆ لینکی تێلیگرام:</b> پەیامی ڤیدیۆکە <b>فۆروارد</b> بکە بۆ
-                <a href="https://t.me/FileStreamBot" target="_blank">@FileStreamBot</a>،
-                لینکی پەخش (Stream) وەربگرە و لێرە دایبنێ.<br>
-                (ئەگەر لینکی ڕاستەوخۆت هەیە، ڕاستەوخۆ دابنێ.)
-            </div>
+            <!-- هیچ ڕێنماییەک نیشان نادرێت -->
             <div class="input-group">
                 <input type="text" class="input-field" id="videoLinkInput" placeholder="لینکی فیلم (یوتیوب، لینکی پەخشی ڕاستەوخۆ)">
                 <button class="btn btn-primary" id="createRoomBtn">دروستکردنی ژوور 💗</button>
@@ -113,11 +130,17 @@
                 <div class="video-section">
                     <div class="room-info">
                         <span>💗 ژووری: <b id="roomCodeDisplay">------</b></span>
-                        <button class="btn btn-secondary" id="leaveRoomBtn">گەڕانەوە</button>
+                        <div class="room-code-box">
+                            <button class="copy-btn" id="copyRoomBtn">📋 کۆپی</button>
+                            <button class="btn btn-secondary" id="leaveRoomBtn">گەڕانەوە</button>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <input type="text" class="input-field" id="roomVideoLinkInput" placeholder="لینکی نوێی فیلم">
-                        <button class="btn btn-primary" id="updateVideoBtn">نوێکردنەوە</button>
+                    <div id="videoUpdateArea">
+                        <div class="input-group">
+                            <input type="text" class="input-field" id="roomVideoLinkInput" placeholder="لینکی نوێی فیلم">
+                            <button class="btn btn-primary" id="updateVideoBtn">نوێکردنەوە</button>
+                        </div>
+                        <p class="locked-hint" id="lockedHint" style="display:none;">🔒 تەنها خاوەنی ژوور دەتوانێت ڤیدیۆ بگۆڕێت</p>
                     </div>
                     <div class="video-container" id="playerContainer">
                         <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#aaa;">چاوەڕوانی ڤیدیۆ...</div>
@@ -158,6 +181,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // ناسنامەی بەکارهێنەر (هەر کەسێک UUIDـی تایبەتی هەیە)
+        function getUserId() {
+            let uid = localStorage.getItem('cine_user_id');
+            if (!uid) {
+                uid = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem('cine_user_id', uid);
+            }
+            return uid;
+        }
+        const myUserId = getUserId();
+
         const homePage = document.getElementById('homePage');
         const roomPage = document.getElementById('roomPage');
         const createRoomBtn = document.getElementById('createRoomBtn');
@@ -175,8 +209,12 @@
         const pauseBtn = document.getElementById('pauseBtn');
         const homeError = document.getElementById('homeError');
         const playerContainer = document.getElementById('playerContainer');
+        const copyRoomBtn = document.getElementById('copyRoomBtn');
+        const lockedHint = document.getElementById('lockedHint');
 
         let currentRoomId = null;
+        let currentRoomOwnerId = null;
+        let isOwner = false;
         let player = null;
         let playerType = null;
         let syncInProgress = false;
@@ -195,7 +233,6 @@
             playerContainer.innerHTML = '';
             const youtubeId = getYouTubeId(url);
             if (youtubeId) {
-                // YouTube handling
                 playerType = 'youtube';
                 const iframe = document.createElement('iframe');
                 iframe.id = 'youtube-player';
@@ -224,7 +261,6 @@
                     });
                 }
             } else {
-                // ✨ نەک یوتیوب: هەر لینکێکی تر هەوڵ دەدەین وەک ڤیدیۆی ڕاستەوخۆ پیشانی بدەین
                 playerType = 'direct';
                 const video = document.createElement('video');
                 video.id = 'direct-player';
@@ -237,7 +273,6 @@
                 playerContainer.appendChild(video);
                 player = video;
 
-                // دووپاتکردنەوەی کۆنترۆڵی سینک
                 video.addEventListener('play', () => {
                     if (syncInProgress || !currentRoomId) return;
                     update(ref(db, `rooms/${currentRoomId}/player`), {
@@ -296,21 +331,39 @@
             setTimeout(() => { syncInProgress = false; }, 200);
         }
 
+        // ڕێکخستنی ڕووکار بەپێی ڕۆڵ
+        function setOwnerUI() {
+            if (isOwner) {
+                roomVideoLinkInput.disabled = false;
+                updateVideoBtn.disabled = false;
+                lockedHint.style.display = 'none';
+            } else {
+                roomVideoLinkInput.disabled = true;
+                updateVideoBtn.disabled = true;
+                lockedHint.style.display = 'block';
+            }
+        }
+
         createRoomBtn.addEventListener('click', async () => {
             const url = videoLinkInput.value.trim();
             if (!url) { homeError.textContent = 'تکایە لینکێک بنووسە.'; return; }
             const code = generateRoomCode();
-            await set(ref(db, `rooms/${code}`), {
+            const roomData = {
                 videoUrl: url,
+                ownerId: myUserId,
                 createdAt: Date.now(),
                 player: { state: 'paused', time: 0, timestamp: Date.now() },
                 messages: {}
-            });
+            };
+            await set(ref(db, `rooms/${code}`), roomData);
             currentRoomId = code;
+            currentRoomOwnerId = myUserId;
+            isOwner = true;
             roomCodeDisplay.textContent = code;
             homePage.style.display = 'none';
             roomPage.style.display = 'block';
             roomVideoLinkInput.value = url;
+            setOwnerUI();
             loadVideo(url);
             listenToRoom(code);
         });
@@ -323,6 +376,8 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     currentRoomId = code;
+                    currentRoomOwnerId = data.ownerId || null;
+                    isOwner = (myUserId === data.ownerId);
                     roomCodeDisplay.textContent = code;
                     homePage.style.display = 'none';
                     roomPage.style.display = 'block';
@@ -330,6 +385,7 @@
                         roomVideoLinkInput.value = data.videoUrl;
                         loadVideo(data.videoUrl);
                     }
+                    setOwnerUI();
                     listenToRoom(code);
                 } else {
                     homeError.textContent = 'ژوور نەدۆزرایەوە.';
@@ -338,6 +394,7 @@
         });
 
         updateVideoBtn.addEventListener('click', async () => {
+            if (!isOwner) return;
             const newUrl = roomVideoLinkInput.value.trim();
             if (!newUrl || !currentRoomId) return;
             await update(ref(db, `rooms/${currentRoomId}`), {
@@ -349,6 +406,8 @@
 
         leaveRoomBtn.addEventListener('click', () => {
             currentRoomId = null;
+            currentRoomOwnerId = null;
+            isOwner = false;
             roomPage.style.display = 'none';
             homePage.style.display = 'block';
             playerContainer.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#aaa;">چاوەڕوانی ڤیدیۆ...</div>';
@@ -356,27 +415,45 @@
             playerType = null;
         });
 
+        // کۆپیکردنی ژمارەی ژوور
+        copyRoomBtn.addEventListener('click', () => {
+            if (currentRoomId) {
+                navigator.clipboard.writeText(currentRoomId).then(() => {
+                    alert('ژمارەی ژوور کۆپی کرا!');
+                }).catch(() => {
+                    prompt('ژمارەی ژوور:', currentRoomId);
+                });
+            }
+        });
+
         function listenToRoom(roomId) {
             const roomRef = ref(db, `rooms/${roomId}`);
             onValue(roomRef, (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
+                // نوێکردنەوەی ڕۆڵ ئەگەر پێویست بکات
+                if (data.ownerId !== currentRoomOwnerId) {
+                    currentRoomOwnerId = data.ownerId;
+                    isOwner = (myUserId === data.ownerId);
+                    setOwnerUI();
+                }
                 if (data.videoUrl && roomVideoLinkInput.value !== data.videoUrl) {
                     roomVideoLinkInput.value = data.videoUrl;
                     loadVideo(data.videoUrl);
                 }
                 if (data.player) syncPlayer(data.player);
-                if (data.messages) renderMessages(data.messages);
+                if (data.messages) renderMessages(data.messages, data.ownerId);
             });
         }
 
-        function renderMessages(messagesObj) {
+        function renderMessages(messagesObj, ownerId) {
             chatMessages.innerHTML = '';
             if (!messagesObj) return;
             const sorted = Object.values(messagesObj).sort((a,b) => a.timestamp - b.timestamp);
             sorted.forEach(msg => {
                 const div = document.createElement('div');
-                div.innerHTML = `<strong style="color:#c084fc;">${msg.sender || 'هاوڕێ'}:</strong> ${msg.text}`;
+                const role = (msg.senderId === ownerId) ? 'خاوەنی ژوور' : 'ئەندام';
+                div.innerHTML = `<strong style="color:#c084fc;">${role}:</strong> ${msg.text}`;
                 chatMessages.appendChild(div);
             });
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -387,7 +464,7 @@
             if (!text || !currentRoomId) return;
             push(ref(db, `rooms/${currentRoomId}/messages`), {
                 text,
-                sender: 'من',
+                senderId: myUserId,
                 timestamp: Date.now()
             });
             chatInput.value = '';
@@ -407,4 +484,4 @@
         });
     </script>
 </body>
-</html>
+    </html>
