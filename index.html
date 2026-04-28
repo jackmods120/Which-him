@@ -116,16 +116,17 @@
         .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .collapsible-content.open { max-height: 500px; }
         
-        .error-overlay {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; color: #ff8a8a; gap: 20px;
+        /* Popup بۆ ئەدمین */
+        .admin-popup {
+            position: fixed; background: rgba(0,0,0,0.9); border: 1px solid var(--primary);
+            border-radius: 16px; padding: 15px; z-index: 200; display: flex; flex-direction: column; gap: 8px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- هەموو بەشی loginView و homeView و privateChatView و roomView وەک پێشتر -->
+    <!-- loginView, homeView, privateChatView, roomView بێ گۆڕانکاری -->
     <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
         <header>
             <h1>بەخێربێیتەوە!</h1>
@@ -282,6 +283,7 @@
     let myShortId = null;
     let currentRoomId = null;
     let activeDmChatId = null;
+    let adminPopup = null;
 
     const loginView = document.getElementById('loginView');
     const homeView = document.getElementById('homeView');
@@ -300,7 +302,6 @@
         return snap.exists() ? snap.val() : null;
     }
 
-    // ئۆتنتیکەیشن
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             myId = user.uid;
@@ -355,7 +356,7 @@
     });
     document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
 
-    // سیستەمی هاوڕێیەتی
+    // هاوڕێیەتی و داواکاری
     document.getElementById('addFriendBtn').addEventListener('click', async () => {
         const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
         if (!targetShortId) return alert('ئایدی کورت بنووسە!');
@@ -576,13 +577,67 @@
                 const badge = (msg.senderId === roomDataGlobal?.ownerId) ? '👑' : ((roomDataGlobal?.admins && roomDataGlobal.admins[msg.senderId]) ? '🛡️' : '');
                 const div = document.createElement('div');
                 div.className = `message ${isMe ? 'mine' : ''}`;
-                div.innerHTML = `<span class="msg-name">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
+                div.innerHTML = `<span class="msg-name ${isMe ? '' : 'clickable-name'}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
                 box.appendChild(div);
+            });
+            // زیادکردنی کلیک بۆ ئەدمین کردن
+            box.querySelectorAll('.msg-name.clickable-name').forEach(span => {
+                span.addEventListener('click', (e) => {
+                    const uid = e.target.dataset.uid;
+                    const name = e.target.dataset.name;
+                    if (isAdmin && uid && uid !== myId) showAdminPopup(e, uid, name);
+                });
             });
             box.scrollTop = box.scrollHeight;
         });
 
         loadInviteList();
+    }
+
+    // پاپ-ئەپی ئەدمین
+    function showAdminPopup(event, targetUid, targetName) {
+        if (adminPopup) adminPopup.remove();
+        adminPopup = document.createElement('div');
+        adminPopup.className = 'admin-popup';
+        const isAlreadyAdmin = roomDataGlobal.admins && roomDataGlobal.admins[targetUid];
+        adminPopup.innerHTML = `
+            <span style="color:white; margin-bottom:5px;">${targetName}</span>
+            <button id="toggleAdminBtn" class="glass-btn ${isAlreadyAdmin ? 'btn-danger' : 'btn-white'}" style="width:auto; padding:8px 15px;">
+                ${isAlreadyAdmin ? 'لابردنی ئەدمین' : 'کردن بە ئەدمین'}
+            </button>
+            <button id="closeAdminPopup" class="glass-btn btn-outline" style="width:auto; padding:5px 10px;">داخستن</button>
+        `;
+        adminPopup.style.left = event.clientX + 'px';
+        adminPopup.style.top = event.clientY + 'px';
+        document.body.appendChild(adminPopup);
+
+        adminPopup.querySelector('#toggleAdminBtn').addEventListener('click', async () => {
+            const admins = roomDataGlobal.admins || {};
+            if (isAlreadyAdmin) {
+                delete admins[targetUid];
+            } else {
+                admins[targetUid] = true;
+            }
+            await update(ref(db, `rooms_ku/${currentRoomId}`), { admins });
+            adminPopup.remove();
+            adminPopup = null;
+        });
+
+        adminPopup.querySelector('#closeAdminPopup').addEventListener('click', () => {
+            adminPopup.remove();
+            adminPopup = null;
+        });
+
+        // کلیک لە دەرەوە پاپەکە دایخات
+        setTimeout(() => {
+            document.addEventListener('click', function closeHandler(e) {
+                if (adminPopup && !adminPopup.contains(e.target)) {
+                    adminPopup.remove();
+                    adminPopup = null;
+                    document.removeEventListener('click', closeHandler);
+                }
+            });
+        }, 100);
     }
 
     let inviteListenerUnsub = null;
@@ -626,14 +681,13 @@
         arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     });
 
-    // ✅ ئەم بەشە بە تەواوی گۆڕاوە بۆ پشتگیری لە لینکە ناڕاستەوخۆکان
+    // بارکردنی ڤیدیۆ بە پشتگیری لە لینکی ناڕاستەوخۆ (وەک filetoh)
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
         videoPlayer = null;
 
         const cleanUrl = url.trim();
-        // یوتیوب
         const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
         if (isYoutube) {
             wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
@@ -641,7 +695,6 @@
             return;
         }
 
-        // ماڵپەڕە پارێزراوەکان
         const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('youtube') || cleanUrl.includes('vimeo');
         if (isSafeWebpage) {
             wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
@@ -649,43 +702,9 @@
             return;
         }
 
-        // هەوڵدان بۆ ڤیدیۆ ڕاستەوخۆ
-        const video = document.createElement('video');
-        video.src = cleanUrl;
-        video.dataset.url = cleanUrl;
-        video.controls = true;
-        video.preload = "auto";
-        video.setAttribute('playsinline', '');
-        video.setAttribute('controlsList', 'nodownload');
-        video.oncontextmenu = () => false;
-        
-        video.onerror = function() {
-            // ئەگەر ڤیدیۆ شکستی هێنا، iframe ی fallback بە sandbox بۆ دانگرتن نیشان دەدەین
-            wrapper.innerHTML = `
-                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:20px; padding:20px;">
-                    <div style="color:#ff8a8a; text-align:center; font-size:1.2rem;">⚠️ ئەم لینکە ڕاستەوخۆ ڤیدیۆ نییە</div>
-                    <div style="display:flex; gap:15px;">
-                        <button onclick="window.open('${cleanUrl}', '_blank')" style="background:var(--primary); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-family: 'JackFont';">🔗 کردنەوە لە تابێکی نوێ</button>
-                        <a href="${cleanUrl}" download style="background:#10B981; color:white; border:none; padding:10px 25px; border-radius:12px; text-decoration:none; cursor:pointer; font-family: 'JackFont';">⬇️ دانگرتن</a>
-                    </div>
-                    <div style="color:#aaa; font-size:0.9rem;">تکایە لینکی ڕاستەوخۆی mp4/m3u8 بەکاربهێنە</div>
-                </div>
-            `;
-            videoPlayer = null;
-        };
-
-        wrapper.appendChild(video);
-        videoPlayer = video;
-
-        video.addEventListener('play', () => { if (isAdmin && !isSeeking && videoPlayer?.tagName === 'VIDEO') updateState('playing'); });
-        video.addEventListener('pause', () => { if (isAdmin && !isSeeking && videoPlayer?.tagName === 'VIDEO') updateState('paused'); });
-        video.addEventListener('seeked', () => { if (isAdmin && videoPlayer?.tagName === 'VIDEO') updateState(videoPlayer.paused?'paused':'playing'); isSeeking=false; });
-        video.addEventListener('seeking', () => { isSeeking=true; });
-
-        if (!isAdmin) {
-            video.addEventListener('play', (e) => { if (roomDataGlobal?.state?.status==='paused') { e.preventDefault(); video.pause(); } });
-            video.addEventListener('pause', (e) => { if (roomDataGlobal?.state?.status==='playing') { e.preventDefault(); video.play(); } });
-        }
+        // بۆ هەر لینکێکی دەرەکی (وەک filetoh, herokuapp)، ڕاستەوخۆ iframe بەکار دەهێنین
+        wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
+        videoPlayer = wrapper.firstChild;
     }
 
     function updateState(status) {
@@ -717,9 +736,10 @@
     function leaveRoom() {
         currentRoomId = null; videoPlayer = null;
         if (inviteListenerUnsub) { inviteListenerUnsub(); inviteListenerUnsub = null; }
+        if (adminPopup) { adminPopup.remove(); adminPopup = null; }
         roomView.classList.add('hidden');
         homeView.classList.remove('hidden');
     }
 </script>
 </body>
-                        </html>
+</html>
