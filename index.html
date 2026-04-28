@@ -83,6 +83,12 @@
         }
         .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; object-fit: contain; }
 
+        /* ستایلی ئیرۆر بۆ ئەوەی دانەبەزێت */
+        .video-error-msg {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; padding: 20px; text-align: center; color: #ff8a8a; font-size: 1.1rem; background: #1a0f14;
+        }
+
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
         .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
@@ -281,10 +287,8 @@
         const list = document.getElementById('friendsList');
         const inviteList = document.getElementById('inviteFriendsList');
         list.innerHTML = ''; inviteList.innerHTML = '';
-        
         const keys = Object.keys(myFriends);
         if (keys.length === 0) return;
-
         keys.forEach(id => {
             list.innerHTML += `<div class="friend-item"><span>👤 ${myFriends[id].name} (ID: ${id})</span></div>`;
             inviteList.innerHTML += `<div class="friend-item">
@@ -297,7 +301,6 @@
     document.getElementById('createRoomBtn').addEventListener('click', async () => {
         const url = document.getElementById('newVideoInput').value.trim();
         if(!url) return alert("تکایە لینکێک بنووسە!");
-        
         const roomId = Math.random().toString(36).substr(2, 5).toUpperCase();
         await set(ref(db, `rooms_ku/${roomId}`), {
             ownerId: myId, videoUrl: url, chatLocked: false, admins: { [myId]: true },
@@ -309,7 +312,6 @@
     document.getElementById('joinRoomBtn').addEventListener('click', async () => {
         const code = document.getElementById('joinRoomInput').value.trim().toUpperCase();
         if(!code) return alert("کۆد بنووسە!");
-        
         const snap = await get(ref(db, `rooms_ku/${code}`));
         if (snap.exists()) { enterRoom(code); } 
         else { alert("ژوورەکە بوونی نییە!"); }
@@ -375,15 +377,9 @@
                 const isMsgOwner = msg.senderId === roomDataGlobal.ownerId;
                 const isMsgAdmin = roomDataGlobal.admins && roomDataGlobal.admins[msg.senderId];
                 let badge = isMsgOwner ? '👑' : (isMsgAdmin ? '🛡️' : '');
-                
                 const div = document.createElement('div');
                 div.className = `message ${isMe ? 'mine' : ''}`;
-                div.innerHTML = `
-                    <span class="msg-name ${isMsgOwner?'owner':''}" data-uid="${msg.senderId}" data-name="${msg.name}">
-                        ${badge} ${msg.name}
-                    </span>
-                    <div class="msg-text">${msg.text}</div>
-                `;
+                div.innerHTML = `<span class="msg-name ${isMsgOwner?'owner':''}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
                 box.appendChild(div);
             });
             box.scrollTop = box.scrollHeight;
@@ -402,7 +398,7 @@
         });
     }
 
-    // سیستەمی زیرەکی ئەندازیاری بۆ کردنەوەی خێرای ڤیدیۆ یان وێبسایت بێ کێشە
+    // ئەندازیاری تەواوەتی بۆ ڕێگریکردن لە داگرتن (100% No-Download Policy)
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
@@ -410,51 +406,56 @@
 
         const cleanUrl = url.trim();
         const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
-        // لێرەدا دەزانێت کە ئایا ئەمە ڤیدیۆیەکی ڕاستەقینەیە یان وێبسایتی بۆتە
-        const isRawVideo = cleanUrl.match(/\.(mp4|webm|ogg|mov)$/i);
+        // تەنها ئەو ماڵپەڕانەی دڵنیاین داگرتن نین دەچنە ناو Iframe
+        const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('youtube') || cleanUrl.includes('vimeo');
 
-        // 1. ئەگەر یوتیوب بوو
         if (isYoutube) {
             wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
             return;
         }
 
-        // 2. ئەگەر لینکەکە ڤیدیۆ نەبوو (وەک ئەوەی بۆتی تێلیگرام کە پەڕەیەکە)
-        if (!isRawVideo) {
-            // ڕاستەوخۆ دەیکاتە پەنجەرە (Iframe) بۆ ئەوەی هەرگیز وێنەی شکاو نەیەت و زۆر خێرا بێت
+        if (isSafeWebpage && !isYoutube) {
             wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
             return;
         }
 
-        // 3. ئەگەر ڕاستەوخۆ ڤیدیۆی خاو بوو (mp4) ئەوا بە خێراییەکی زۆر دەیکاتەوە
+        // ئەگەر لینکی یوتیوب و کوردسەب نەبوو (واتە لینکی تێلیگرام یان فایلی تر بوو)
+        // ئێمە هەرگیز نایکەین بە Iframe چونکە Iframe هۆکاری داگرتنەکەیە!
         videoPlayer = document.createElement('video');
         videoPlayer.src = cleanUrl;
         videoPlayer.controls = true;
-        videoPlayer.preload = "auto"; // خێرایی باوەڕپێنەکراو لە هێنان
+        videoPlayer.preload = "auto";
         videoPlayer.setAttribute('playsinline', '');
-        videoPlayer.setAttribute('controlsList', 'nodownload'); // ڕێگری لە داگرتن
-        videoPlayer.oncontextmenu = () => false;
+        videoPlayer.setAttribute('controlsList', 'nodownload'); // شاردنەوەی دوگمەی داگرتن
+        videoPlayer.oncontextmenu = () => false; // ڕێگری لە ڕایت کلیک
         videoPlayer.style.width = "100%";
         videoPlayer.style.height = "100%";
         
-        // ئەمە گرنگترین بەشە: ئەگەر هاتوو ڤیدیۆ پلەیەرەکە شکستی هێنا لە کردنەوەی، ئۆتۆماتیک دەیگۆڕێت بۆ Iframe!
+        // ئەگەر ڤیدیۆکە لینکی داگرتن بوو یان ئیشی نەکرد:
+        // لەبری ئەوەی وێبگەڕەکە دایبەزێنێت، نامەیەکی جوانی بۆ دەنووسین.
         videoPlayer.onerror = function() {
-            wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
-            videoPlayer = null; // ئیتر ناتوانرێت کۆنترۆڵ بکرێت چونکە بوو بە پەنجەرە
+            wrapper.innerHTML = `
+                <div class="video-error-msg">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#ff8a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span>ئەم لینکە کارناکات یان تەنها بۆ داگرتنە (Download) پێکهاتووە!</span>
+                    <span style="font-size:0.9rem; color:#aaa; margin-top:8px;">تکایە بۆتی <b>@FileStreamBot</b> بەکاربهێنە بۆ دروستکردنی لینکی سەیرکردن (Stream).</span>
+                </div>
+            `;
+            videoPlayer = null;
         };
 
         wrapper.appendChild(videoPlayer);
 
-        // کۆنترۆڵی خاوەن/ئەدمین
-        videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
-        videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
-        videoPlayer.addEventListener('seeked', () => { if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); isSeeking = false; });
-        videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
+        if (videoPlayer) {
+            videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
+            videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
+            videoPlayer.addEventListener('seeked', () => { if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); isSeeking = false; });
+            videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
 
-        // کۆنترۆڵی ئەندامان
-        if (!isAdmin) {
-            videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
-            videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
+            if (!isAdmin) {
+                videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
+                videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
+            }
         }
     }
 
@@ -505,4 +506,4 @@
 
 </script>
 </body>
-                            </html>
+</html>
