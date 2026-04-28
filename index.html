@@ -69,6 +69,9 @@
         .btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.4); }
         .btn-danger { background: var(--danger); color: white; }
 
+        .btn-accept { background: #10B981; color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; }
+        .btn-reject { background: var(--danger); color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; margin-right: 8px; }
+
         .room-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
 
@@ -91,6 +94,8 @@
         .friend-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;}
         .friend-item:hover { background: rgba(167, 139, 250, 0.2); }
         .dm-btn { background: var(--primary); border: none; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+
+        .request-item { display: flex; justify-content: space-between; align-items: center; background: rgba(167, 139, 250, 0.15); padding: 12px; border-radius: 12px; margin-bottom: 10px; }
 
         .ios-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 24px; cursor: pointer; transition: 0.3s; }
         .ios-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; }
@@ -142,7 +147,7 @@
             <div>
                 <h2 style="font-size: 1.5rem;">سەکۆی سینەما</h2>
                 <p style="font-size: 0.9rem; color: var(--text-muted);">سڵاو <span id="displayMyName" style="color:var(--primary);"></span></p>
-                <p style="font-size: 0.8rem; color: #aaa;">ئایدی تۆ (بۆ هاوڕێکردن): <span id="displayMyId" style="user-select:all; cursor:pointer; color: #fff;"></span></p>
+                <p style="font-size: 0.8rem; color: #aaa;">ئایدی تۆ: <span id="displayMyShortId" style="user-select:all; cursor:pointer; color: #fff; font-weight: bold;"></span></p>
             </div>
             <button id="logoutBtn" class="glass-btn btn-danger" style="width: auto; padding: 8px 15px; font-size: 1rem;">دەرچوون</button>
         </header>
@@ -162,14 +167,20 @@
                 <button id="joinRoomBtn" class="glass-btn btn-outline">چوونە ناو ژوور</button>
             </div>
 
-            <!-- بەشی هاوڕێیان و چاتی تایبەت -->
+            <!-- بەشی هاوڕێیان و چات و داواکاری -->
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">💬 هاوڕێکانم و چات</h3>
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="friendIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت لێرە بنووسە...">
+                    <input type="text" id="friendShortIdInput" class="glass-input" placeholder="ئایدی کورتی هاوڕێکەت...">
                     <button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button>
                 </div>
-                <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">لیستی چاتەکان (کلیک بکە بۆ نامەگۆڕینەوە)</h4>
+
+                <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">داواکارییە هاوڕێیەتییەکان</h4>
+                <div id="friendRequestsContainer" style="margin-bottom: 20px; max-height: 200px; overflow-y: auto;">
+                    <p style="color:#aaa;">هیچ داواکارییەکت نییە.</p>
+                </div>
+
+                <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">لیستی هاوڕێیان</h4>
                 <div id="friendsList" style="max-height: 250px; overflow-y: auto;">
                     <!-- هاوڕێکان لێرە دەردەکەون -->
                 </div>
@@ -235,10 +246,10 @@
 </div>
 
 <script type="module">
-    // هێنانی مۆدیوڵەکانی فایەربەیس (Auth + Database)
+    // هێنانی مۆدیوڵەکانی فایەربەیس
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set, onValue, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, set, onValue, push, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8",
@@ -255,38 +266,76 @@
     const db = getDatabase(app);
     const googleProvider = new GoogleAuthProvider();
 
-    // گۆڕاوەکانی بەکارهێنەر
     let myId = null;
     let myName = null;
+    let myShortId = null;
     let currentRoomId = null;
     let activeDmChatId = null;
 
-    // ڕووکارەکان
     const loginView = document.getElementById('loginView');
     const homeView = document.getElementById('homeView');
     const roomView = document.getElementById('roomView');
     const privateChatView = document.getElementById('privateChatView');
 
+    // دروستکردنی ئایدی کورت (6 پیتی گەورە)
+    function generateShortId() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    // گەڕانەوەی UID لە ئایدی کورتەوە
+    async function getUidByShortId(shortId) {
+        const snap = await get(ref(db, `shortIds/${shortId}`));
+        return snap.exists() ? snap.val() : null;
+    }
+
     // ==========================================
-    // 1. بەشی چوونە ژوورەوە و فایەربەیس ئۆت
+    // 1. بەشی چوونە ژوورەوە و ئایدی کورت
     // ==========================================
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             myId = user.uid;
-            // ئەگەر ناوی نەبوو (میوان بوو) ناوێکی بۆ دروست دەکەین
             myName = user.displayName || localStorage.getItem('guestName') || "میوان_" + Math.floor(Math.random()*1000);
+
+            // دڵنیابوون لەوەی ئایدی کورت هەیە
+            const userSnap = await get(ref(db, `users/${myId}`));
+            const userData = userSnap.val() || {};
             
-            // پاشەکەوتکردنی زانیاری لە داتابەیس بۆ ئەوەی خەڵک بیدۆزێتەوە
-            set(ref(db, `users/${myId}`), { name: myName, email: user.email || 'نهێنی' });
+            if (!userData.shortId) {
+                // دروستکردنی ئایدی کورتی ناوازە
+                let shortId = generateShortId();
+                let exists = true;
+                while (exists) {
+                    const check = await get(ref(db, `shortIds/${shortId}`));
+                    if (!check.exists()) exists = false;
+                    else shortId = generateShortId();
+                }
+                myShortId = shortId;
+                // پاشەکەوتکردن لە دوو شوێن
+                await set(ref(db, `users/${myId}`), { 
+                    name: myName, 
+                    email: user.email || 'نهێنی',
+                    shortId: myShortId
+                });
+                await set(ref(db, `shortIds/${myShortId}`), myId);
+            } else {
+                myShortId = userData.shortId;
+            }
 
             document.getElementById('displayMyName').textContent = myName;
-            document.getElementById('displayMyId').textContent = myId;
-            
+            document.getElementById('displayMyShortId').textContent = myShortId;
+
             loginView.classList.add('hidden');
             homeView.classList.remove('hidden');
             loadFriends();
+            loadFriendRequests(); // گوێگرتن لە داواکارییە نوێیەکان
         } else {
+            myShortId = null;
             loginView.classList.remove('hidden');
             homeView.classList.add('hidden');
             roomView.classList.add('hidden');
@@ -303,7 +352,7 @@
     document.getElementById('signupEmailBtn').addEventListener('click', () => {
         const e = document.getElementById('emailInput').value;
         const p = document.getElementById('passwordInput').value;
-        if(e && p) createUserWithEmailAndPassword(auth, e, p).then((u)=>{
+        if(e && p) createUserWithEmailAndPassword(auth, e, p).then(() => {
             const name = prompt("ناوی خۆت بنووسە:");
             localStorage.setItem('guestName', name || "بەکارهێنەر");
         }).catch(err => alert(err.message));
@@ -324,29 +373,121 @@
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
     // ==========================================
-    // 2. بەشی هاوڕێیان و چاتی تایبەت (DM)
+    // 2. سیستەمی داواکاری هاوڕێیەتی
     // ==========================================
 
+    // ناردنی داواکاری هاوڕێیەتی
     document.getElementById('addFriendBtn').addEventListener('click', async () => {
-        const friendId = document.getElementById('friendIdInput').value.trim();
-        if (!friendId || friendId === myId) return alert('ئایدی هەڵەیە یان ئایدی خۆتە!');
+        const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
+        if (!targetShortId) return alert('ئایدی کورت بنووسە!');
+        if (targetShortId === myShortId) return alert('ناتوانیت خۆت زیاد بکەیت!');
+
+        const targetUid = await getUidByShortId(targetShortId);
+        if (!targetUid) return alert('هیچ کەسێک بەم ئایدییە نەدۆزرایەوە!');
+
+        // ڕێگری لە دووبارە ناردن
+        const alreadyPending = await get(ref(db, `users/${myId}/sentRequests/${targetUid}`));
+        if (alreadyPending.exists()) return alert('پێشتر داواکاری بۆ ئەم کەسە ناردووە!');
         
-        // دڵنیابوون لەوەی هاوڕێکە لە داتابەیس هەیە
-        const snap = await get(ref(db, `users/${friendId}`));
-        if (snap.exists()) {
-            const fName = snap.val().name;
-            // زیادکردن بۆ لیستی خۆم
-            await update(ref(db, `users/${myId}/friends`), { [friendId]: fName });
-            // زیادکردنی خۆم بۆ لیستی ئەو (بۆ ئەوەی لای ئەویش دەربکەوم)
-            await update(ref(db, `users/${friendId}/friends`), { [myId]: myName });
-            
-            document.getElementById('friendIdInput').value = '';
-            alert(`هاوڕێکەت (${fName}) زیادکرا!`);
-        } else {
-            alert('هیچ کەسێک بەم ئایدییە نەدۆزرایەوە!');
-        }
+        // دروستکردنی داواکاری
+        const requestId = push(ref(db, 'friend_requests')).key;
+        const requestData = {
+            fromUid: myId,
+            fromName: myName,
+            fromShortId: myShortId,
+            toUid: targetUid,
+            status: 'pending',
+            timestamp: Date.now()
+        };
+
+        await set(ref(db, `friend_requests/${requestId}`), requestData);
+        await set(ref(db, `users/${targetUid}/pendingRequests/${requestId}`), true);
+        await set(ref(db, `users/${myId}/sentRequests/${targetUid}`), true); // نیشانەی نێردراو
+
+        document.getElementById('friendShortIdInput').value = '';
+        alert('داواکاری نێردرا!');
     });
 
+    function loadFriendRequests() {
+        // گوێگرتن لە لیستی داواکارییە هاتووەکان
+        onValue(ref(db, `users/${myId}/pendingRequests`), async (snap) => {
+            const container = document.getElementById('friendRequestsContainer');
+            container.innerHTML = '';
+
+            if (!snap.exists()) {
+                container.innerHTML = '<p style="color:#aaa;">هیچ داواکارییەکت نییە.</p>';
+                return;
+            }
+
+            const requestIds = Object.keys(snap.val());
+            for (const reqId of requestIds) {
+                const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+                if (!reqSnap.exists()) continue;
+                const req = reqSnap.val();
+                if (req.status !== 'pending') continue;
+
+                const div = document.createElement('div');
+                div.className = 'request-item';
+                div.innerHTML = `
+                    <span>👤 ${req.fromName} (${req.fromShortId})</span>
+                    <div>
+                        <button class="btn-reject" data-reqid="${reqId}">ڕەتکردنەوە</button>
+                        <button class="btn-accept" data-reqid="${reqId}">قبوڵکردن</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+
+            // ئیڤێنتی قبوڵ و ڕەتکردنەوە
+            container.querySelectorAll('.btn-accept').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const reqId = e.target.dataset.reqid;
+                    await acceptFriendRequest(reqId);
+                });
+            });
+
+            container.querySelectorAll('.btn-reject').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const reqId = e.target.dataset.reqid;
+                    await rejectFriendRequest(reqId);
+                });
+            });
+        });
+    }
+
+    async function acceptFriendRequest(reqId) {
+        const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+        if (!reqSnap.exists()) return;
+        const req = reqSnap.val();
+        if (req.toUid !== myId) return;
+
+        // زیادکردنی هاوڕێ بۆ هەردوولا
+        await update(ref(db, `users/${myId}/friends`), { [req.fromUid]: req.fromName });
+        await update(ref(db, `users/${req.fromUid}/friends`), { [myId]: myName });
+
+        // سڕینەوەی داواکاری
+        await remove(ref(db, `friend_requests/${reqId}`));
+        await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`));
+        await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
+
+        alert(`${req.fromName} بوو بە هاوڕێ!`);
+    }
+
+    async function rejectFriendRequest(reqId) {
+        const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+        if (!reqSnap.exists()) return;
+        const req = reqSnap.val();
+        if (req.toUid !== myId) return;
+
+        // سڕینەوەی داواکاری
+        await remove(ref(db, `friend_requests/${reqId}`));
+        await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`));
+        await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
+
+        alert('داواکاری ڕەتکرایەوە.');
+    }
+
+    // بارکردنی لیستی هاوڕێیان (وەک پێشوو)
     function loadFriends() {
         onValue(ref(db, `users/${myId}/friends`), (snap) => {
             const list = document.getElementById('friendsList');
@@ -364,22 +505,19 @@
                 div.className = 'friend-item';
                 div.innerHTML = `<span>👤 ${fName}</span> <button class="dm-btn">نامە ناردن</button>`;
                 
-                // کاتێک کلیک دەکات، چاتی تایبەت دەکرێتەوە
                 div.addEventListener('click', () => openPrivateChat(fId, fName));
                 list.appendChild(div);
             });
         });
     }
 
+    // چاتی تایبەت (DM) - بێ گۆڕانکاری
     function openPrivateChat(friendId, friendName) {
-        // دروستکردنی ئایدی ژووری چات (هەمیشە وەک یەکە بۆ هەردووکیان)
         activeDmChatId = [myId, friendId].sort().join('_');
-        
         document.getElementById('dmFriendName').textContent = friendName;
         privateChatView.classList.remove('hidden');
         homeView.classList.add('hidden');
 
-        // گوێگرتن لە نامەکانی ئەم چاتە تایبەتە
         onValue(ref(db, `direct_messages/${activeDmChatId}`), (snap) => {
             const box = document.getElementById('dmMessagesBox');
             box.innerHTML = '';
@@ -404,9 +542,7 @@
             document.getElementById('dmInput').value = '';
         }
     });
-
     document.getElementById('dmInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('sendDmBtn').click(); });
-    
     document.getElementById('closeDmBtn').addEventListener('click', () => {
         activeDmChatId = null;
         privateChatView.classList.add('hidden');
@@ -414,7 +550,7 @@
     });
 
     // ==========================================
-    // 3. بەشی ژووری ڤیدیۆ (وەک خۆی و بێ کێشە)
+    // 3. بەشی ژووری ڤیدیۆ (وەک خۆی)
     // ==========================================
     
     let roomDataGlobal = null;
@@ -489,7 +625,7 @@
                 
                 const div = document.createElement('div');
                 div.className = `message ${isMe ? 'mine' : ''}`;
-                div.innerHTML = `<span class="msg-name ${isMsgOwner?'owner':''}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
+                div.innerHTML = `<span class="msg-name ${isMsgOwner?'owner':''}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
                 box.appendChild(div);
             });
             box.scrollTop = box.scrollHeight;
@@ -578,7 +714,6 @@
         roomView.classList.add('hidden');
         homeView.classList.remove('hidden');
     }
-
 </script>
 </body>
-                                                                                                                               </html>
+                    </html>
