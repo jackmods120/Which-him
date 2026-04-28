@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>🎬 سینەما هاوبەشەکەمان | بەیەکەوە تەماشا بکەین</title>
+    <style>
+        /* ----- iOS Style Base (RTL) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(170deg, #2D1B69 0%, #1B1B2F 45%, #0F0F1A 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 430px;
+            min-height: 800px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 44px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .status-bar {
+            padding: 12px 30px 6px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            opacity: 0.9;
+        }
+
+        .page {
+            display: none;
+            flex-direction: column;
+            padding: 0 24px 30px;
+            height: 100%;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px 18px;
+            font-size: 17px;
+            color: #fff;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .ios-btn {
+            background: #6C4CFF;
+            border: none;
+            border-radius: 30px;
+            padding: 18px 24px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #fff;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 12px;
+            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #7C5CFF, #5B3EFF);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .ios-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .video-container {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .video-container iframe,
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+        }
+
+        .room-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 14px 18px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .room-code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 6px 14px;
+            border-radius: 14px;
+            letter-spacing: 1px;
+        }
+
+        .chat-box {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 14px;
+            margin-top: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 15px;
+            color: #fff;
+            outline: none;
+        }
+
+        .chat-send {
+            background: #6C4CFF;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 18px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-message {
+            color: #FF6482;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            <span>٩:٤١</span>
+            <span>📶 🔋 ٪٩١</span>
+        </div>
+
+        <!-- لاپەڕەی سەرەکی: دروستکردن/چوونەژوورەوە -->
+        <div id="homePage" class="page active">
+            <h1 style="font-size:34px; font-weight:700; margin-bottom:8px;">🎥 سینەماکەمان</h1>
+            <p style="font-size:17px; color:rgba(255,255,255,0.65); margin-bottom:28px;">لینکی فیلمەکە دابنێ و پێکەوە تەماشا بکەین</p>
+            
+            <input type="text" class="input-field" id="videoLinkInput" placeholder="لینکی فیلم (یوتیوب، لینکی ڕاستەوخۆ)" />
+            <button class="ios-btn" id="createRoomBtn">دروستکردنی ژوور 💗</button>
+            <p style="text-align:center; font-size:13px; color:rgba(255,255,255,0.5); margin: 8px 0 20px;">ژمارەی ژوورەکەت بۆ هاوڕێکەت دەنێریت</p>
+            
+            <div style="display:flex; gap:10px;">
+                <input type="text" class="input-field" id="roomCodeInput" placeholder="ژمارەی ژوور" style="flex:1;" />
+                <button class="ios-btn" id="joinRoomBtn" style="flex:1;">چوونەژوورەوە</button>
+            </div>
+            <p class="error-message" id="homeError"></p>
+        </div>
+
+        <!-- لاپەڕەی ژووری تەماشاکردن -->
+        <div id="roomPage" class="page">
+            <div class="room-info">
+                <span>💗 ژووری هاوبەش</span>
+                <span class="room-code" id="roomCodeDisplay">------</span>
+            </div>
+
+            <div id="videoInputSection" style="margin-bottom:16px;">
+                <input type="text" class="input-field" id="roomVideoLinkInput" placeholder="لینکی فیلمی هاوبەش" />
+                <button class="ios-btn" id="updateVideoBtn" style="margin-bottom:0;">نوێکردنەوەی ڤیدیۆ</button>
+            </div>
+            
+            <div class="video-container" id="playerContainer">
+                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#aaa;">
+                    چاوەڕوانی ڤیدیۆ...
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin: 8px 0;">
+                <button id="playBtn" class="ios-btn" style="flex:1;">پەخش ▶️</button>
+                <button id="pauseBtn" class="ios-btn secondary" style="flex:1;">وەستان ⏸️</button>
+            </div>
+
+            <div class="chat-box" id="chatMessages">
+                <div style="color:#aaa; font-size:13px;">💬 پەیامەکان لێرە دەردەکەون...</div>
+            </div>
+
+            <div class="chat-input-wrap">
+                <input type="text" class="chat-input" id="chatInput" placeholder="پەیامێک بنووسە..." />
+                <button class="chat-send" id="sendChatBtn">➤</button>
+            </div>
+            <button class="ios-btn secondary" id="leaveRoomBtn" style="margin-top:12px;">🔙 گەڕانەوە</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push, serverTimestamp, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+        // 🔥 Firebase configuration - DATABASE_URLـەکەت لێرە زیاد بکە
+        const firebaseConfig = {
+            apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8",
+            authDomain: "whith-him.firebaseapp.com",
+            databaseURL: "https://whith-him-default-rtdb.firebaseio.com/",  // گۆڕیبێتیت؟
+            projectId: "whith-him",
+            storageBucket: "whith-him.firebasestorage.app",
+            messagingSenderId: "677366602778",
+            appId: "1:677366602778:web:db312776554c5bba9945a3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ----- UI Elements -----
+        const homePage = document.getElementById('homePage');
+        const roomPage = document.getElementById('roomPage');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const leaveRoomBtn = document.getElementById('leaveRoomBtn');
+        const videoLinkInput = document.getElementById('videoLinkInput');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const roomCodeDisplay = document.getElementById('roomCodeDisplay');
+        const roomVideoLinkInput = document.getElementById('roomVideoLinkInput');
+        const updateVideoBtn = document.getElementById('updateVideoBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const playBtn = document.getElementById('playBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const homeError = document.getElementById('homeError');
+        const playerContainer = document.getElementById('playerContainer');
+
+        let currentRoomId = null;
+        let player = null; // YouTube player instance
+        let playerType = null; // 'youtube' or 'direct'
+        let syncInProgress = false; // to avoid echo when syncing
+
+        // ----- Helper: generate short room code -----
+        function generateRoomCode() {
+            return Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+
+        // ----- Helper: extract YouTube ID -----
+        function getYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // ----- Load video based on URL -----
+        function loadVideo(url, autoplay = false) {
+            playerContainer.innerHTML = ''; // clear previous
+            const youtubeId = getYouTubeId(url);
+            if (youtubeId) {
+                // YouTube iframe
+                playerType = 'youtube';
+                const iframe = document.createElement('iframe');
+                iframe.id = 'youtube-player';
+                iframe.src = `https://www.youtube.com/embed/${youtubeId}?enablejsapi=1&autoplay=${autoplay ? 1 : 0}`;
+                iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+                iframe.allowFullscreen = true;
+                playerContainer.appendChild(iframe);
+                // Initialize YouTube API listener
+                if (window.YT && window.YT.Player) {
+                    player = new YT.Player('youtube-player', {
+                        events: {
+                            'onReady': onPlayerReady,
+                            'onStateChange': onPlayerStateChange
+                        }
+                    });
+                } else {
+                    // Load YT API if not already
+                    if (!document.getElementById('yt-script')) {
+                        const tag = document.createElement('script');
+                        tag.id = 'yt-script';
+                        tag.src = "https://www.youtube.com/iframe_api";
+                        const firstScriptTag = document.getElementsByTagName('script')[0];
+                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                    }
+                    // Wait for API ready
+                    window.onYouTubeIframeAPIReady = () => {
+                        player = new YT.Player('youtube-player', {
+                            events: {
+                                'onReady': onPlayerReady,
+                                'onStateChange': onPlayerStateChange
+                            }
+                        });
+                    };
+                }
+            } else if (url.match(/\.(mp4|webm|ogg)$/i)) {
+                // Direct video file
+                playerType = 'direct';
+                const video = document.createElement('video');
+                video.id = 'direct-player';
+                video.src = url;
+                video.controls = true;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.autoplay = autoplay;
+                playerContainer.appendChild(video);
+                player = video;
+            } else {
+                playerType = null;
+                playerContainer.innerHTML = '<p style="color:#aaa; text-align:center; padding:40px;">❌ جۆری لینک پشتگیری ناکرێت. تکایە لینکی یوتیوب یان لینکی ڕاستەوخۆی ڤیدیۆ (بە .mp4) بهێنە.</p>';
+            }
+        }
+
+        function onPlayerReady(event) {
+            // Player is ready
+        }
+
+        function onPlayerStateChange(event) {
+            if (syncInProgress) return;
+            if (!currentRoomId) return;
+            if (event.data === YT.PlayerState.PLAYING) {
+                // Update Firebase with current time and playing state
+                const currentTime = player.getCurrentTime();
+                update(ref(db, `rooms/${currentRoomId}/player`), {
+                    state: 'playing',
+                    time: currentTime,
+                    timestamp: Date.now()
+                });
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                update(ref(db, `rooms/${currentRoomId}/player`), {
+                    state: 'paused',
+                    time: player.getCurrentTime(),
+                    timestamp: Date.now()
+                });
+            }
+        }
+
+        // Sync player from Firebase data
+        function syncPlayer(data) {
+            if (!data || !player) return;
+            syncInProgress = true;
+            if (playerType === 'youtube' && player && player.seekTo) {
+                const serverTime = data.time || 0;
+                // Only seek if time difference is > 1 second to avoid jitter
+                if (Math.abs(player.getCurrentTime() - serverTime) > 1) {
+                    player.seekTo(serverTime, true);
+                }
+                if (data.state === 'playing') {
+                    player.playVideo();
+                } else if (data.state === 'paused') {
+                    player.pauseVideo();
+                }
+            } else if (playerType === 'direct' && player) {
+                // Direct video: only sync if time difference is large
+                if (Math.abs(player.currentTime - (data.time || 0)) > 2) {
+                    player.currentTime = data.time || 0;
+                }
+                if (data.state === 'playing' && player.paused) {
+                    player.play().catch(()=>{});
+                } else if (data.state === 'paused' && !player.paused) {
+                    player.pause();
+                }
+            }
+            setTimeout(() => { syncInProgress = false; }, 200);
+        }
+
+        // ----- Create Room -----
+        createRoomBtn.addEventListener('click', async () => {
+            const videoUrl = videoLinkInput.value.trim();
+            if (!videoUrl) {
+                homeError.textContent = 'تکایە لینکی فیلمەکە بنووسە.';
+                return;
+            }
+            const roomCode = generateRoomCode();
+            const roomRef = ref(db, `rooms/${roomCode}`);
+            try {
+                await set(roomRef, {
+                    videoUrl: videoUrl,
+                    createdAt: serverTimestamp(),
+                    player: {
+                        state: 'paused',
+                        time: 0,
+                        timestamp: Date.now()
+                    },
+                    messages: {}
+                });
+                currentRoomId = roomCode;
+                roomCodeDisplay.textContent = roomCode;
+                homePage.classList.remove('active');
+                roomPage.classList.add('active');
+                roomVideoLinkInput.value = videoUrl;
+                loadVideo(videoUrl);
+                // Listen for changes
+                listenToRoom(roomCode);
+            } catch (error) {
+                homeError.textContent = 'هەڵە ڕوویدا: ' + error.message;
+            }
+        });
+
+        // ----- Join Room -----
+        joinRoomBtn.addEventListener('click', () => {
+            const code = roomCodeInput.value.trim().toUpperCase();
+            if (!code) {
+                homeError.textContent = 'تکایە ژمارەی ژوور بنووسە.';
+                return;
+            }
+            // Check if room exists
+            const roomRef = ref(db, `rooms/${code}`);
+            onValue(roomRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    currentRoomId = code;
+                    roomCodeDisplay.textContent = code;
+                    homePage.classList.remove('active');
+                    roomPage.classList.add('active');
+                    if (data.videoUrl) {
+                        roomVideoLinkInput.value = data.videoUrl;
+                        loadVideo(data.videoUrl);
+                    }
+                    listenToRoom(code);
+                } else {
+                    homeError.textContent = 'ژوور نەدۆزرایەوە.';
+                }
+            }, { onlyOnce: true });
+        });
+
+        // ----- Update Video in Room -----
+        updateVideoBtn.addEventListener('click', async () => {
+            const newUrl = roomVideoLinkInput.value.trim();
+            if (!newUrl || !currentRoomId) return;
+            await update(ref(db, `rooms/${currentRoomId}`), {
+                videoUrl: newUrl,
+                player: {
+                    state: 'paused',
+                    time: 0,
+                    timestamp: Date.now()
+                }
+            });
+            loadVideo(newUrl);
+        });
+
+        // ----- Leave Room -----
+        leaveRoomBtn.addEventListener('click', () => {
+            currentRoomId = null;
+            roomPage.classList.remove('active');
+            homePage.classList.add('active');
+            playerContainer.innerHTML = '<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#aaa;">چاوەڕوانی ڤیدیۆ...</div>';
+            player = null;
+            playerType = null;
+        });
+
+        // ----- Real-time listeners -----
+        function listenToRoom(roomId) {
+            const roomRef = ref(db, `rooms/${roomId}`);
+            onValue(roomRef, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+                // Update video if changed
+                if (data.videoUrl && (!roomVideoLinkInput.value || roomVideoLinkInput.value !== data.videoUrl)) {
+                    roomVideoLinkInput.value = data.videoUrl;
+                    loadVideo(data.videoUrl);
+                }
+                // Sync player state
+                if (data.player) {
+                    syncPlayer(data.player);
+                }
+                // Update chat
+                if (data.messages) {
+                    renderMessages(data.messages);
+                }
+            });
+        }
+
+        function renderMessages(messagesObj) {
+            chatMessages.innerHTML = '';
+            if (!messagesObj) return;
+            const messages = Object.values(messagesObj).sort((a, b) => a.timestamp - b.timestamp);
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.style.marginBottom = '6px';
+                div.innerHTML = `<strong style="color:#C0B0FF;">${msg.sender || 'هاوڕێ'}:</strong> ${msg.text}`;
+                chatMessages.appendChild(div);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // ----- Send Chat -----
+        sendChatBtn.addEventListener('click', () => {
+            const text = chatInput.value.trim();
+            if (!text || !currentRoomId) return;
+            const messagesRef = ref(db, `rooms/${currentRoomId}/messages`);
+            push(messagesRef, {
+                text: text,
+                sender: 'من',
+                timestamp: Date.now()
+            });
+            chatInput.value = '';
+        });
+
+        // ----- Play/Pause buttons -----
+        playBtn.addEventListener('click', () => {
+            if (!player) return;
+            if (playerType === 'youtube') {
+                player.playVideo();
+            } else {
+                player.play().catch(()=>{});
+            }
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (!player) return;
+            if (playerType === 'youtube') {
+                player.pauseVideo();
+            } else {
+                player.pause();
+            }
+        });
+
+        // Also handle direct player events for sync
+        document.addEventListener('play', (e) => {
+            if (e.target.id === 'direct-player' && !syncInProgress && currentRoomId) {
+                update(ref(db, `rooms/${currentRoomId}/player`), {
+                    state: 'playing',
+                    time: e.target.currentTime,
+                    timestamp: Date.now()
+                });
+            }
+        });
+        document.addEventListener('pause', (e) => {
+            if (e.target.id === 'direct-player' && !syncInProgress && currentRoomId) {
+                update(ref(db, `rooms/${currentRoomId}/player`), {
+                    state: 'paused',
+                    time: e.target.currentTime,
+                    timestamp: Date.now()
+                });
+            }
+        });
+    </script>
+</body>
+              </html>
