@@ -25,13 +25,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JackFont', sans-serif !important; }
         
         body {
-            /* دانانی باکگراوندەکەی خۆت */
             background-image: url('./web_bg.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            background-color: #0f0f1a; /* ڕەنگی یەدەگ */
+            background-color: #0f0f1a;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -39,7 +38,6 @@
             align-items: center;
         }
 
-        /* ستایلی شوشەیی (Glassmorphism) */
         .glass-panel {
             background: var(--bg-glass);
             backdrop-filter: blur(20px);
@@ -91,13 +89,12 @@
         .room-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
 
-        /* شوێنی ڤیدیۆ یان ماڵپەڕ */
         .video-wrapper {
             background: #000; border-radius: 20px; overflow: hidden;
             aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             border: 1px solid var(--border-glass); position: relative;
         }
-        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; }
+        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
         .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; }
@@ -127,24 +124,19 @@
 <body>
 
 <div class="container">
-
-    <!-- شاشەی چوونە ژوورەوە -->
     <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
         <header>
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
             <h1>بەخێربێیتەوە!</h1>
             <p>بچۆ ژوورەوە بۆ بەکارهێنانی سەکۆی سینەما</p>
         </header>
-
         <div class="input-group">
             <label class="input-label">ناوی خۆت بنووسە</label>
             <input type="text" id="userNameInput" class="glass-input" placeholder="نموونە: جاک...">
         </div>
-
         <button id="loginBtn" class="glass-btn btn-white">چوونە ژوورەوە</button>
     </div>
 
-    <!-- شاشەی سەرەکی -->
     <div id="homeView" class="hidden">
         <header>
             <h1>سەکۆی بینین</h1>
@@ -154,16 +146,11 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">🎬 ژووری سەیرکردن</h3>
-                
                 <div class="input-group">
-                    <input type="text" id="newVideoInput" class="glass-input" placeholder="لینکی فیلم (Kurdsub, Youtube, mp4)...">
+                    <input type="text" id="newVideoInput" class="glass-input" placeholder="لینک لێرە دابنێ...">
                 </div>
                 <button id="createRoomBtn" class="glass-btn btn-white" style="margin-bottom: 20px;">دروستکردنی ژوور</button>
-
-                <div class="input-group" style="text-align: center; color: rgba(255,255,255,0.5);">
-                    یان
-                </div>
-
+                <div class="input-group" style="text-align: center; color: rgba(255,255,255,0.5);">یان</div>
                 <div class="input-group">
                     <input type="text" id="joinRoomInput" class="glass-input" placeholder="کۆدی ژووری هاوڕێکەت...">
                 </div>
@@ -173,10 +160,9 @@
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">👥 هاوڕێیان</h3>
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="friendIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت لێرە بنووسە...">
+                    <input type="text" id="friendIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت...">
                     <button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button>
                 </div>
-                
                 <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.2rem;">لیستی هاوڕێکانم</h4>
                 <div id="friendsList" style="max-height: 200px; overflow-y: auto;">
                     <p style="color: rgba(255,255,255,0.5); font-size:1rem;">هیچ هاوڕێیەکت زیاد نەکردووە.</p>
@@ -185,7 +171,6 @@
         </div>
     </div>
 
-    <!-- شاشەی ناو ژوور -->
     <div id="roomView" class="hidden">
         <div class="glass-panel" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
             <div>
@@ -196,56 +181,46 @@
         </div>
 
         <div class="room-grid">
-            <!-- لای ڕاست (ڤیدیۆ) -->
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 <div class="video-wrapper" id="playerWrapper">
                     <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size: 1.2rem;">چاوەڕێی ڤیدیۆ...</div>
                 </div>
 
-                <!-- سێتینگی ئەدمین -->
                 <div id="adminControls" class="glass-panel hidden" style="padding: 20px;">
                     <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.3rem;">⚙️ ڕێکخستنی ئەدمین</h3>
-                    
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.1rem;">
                         <span>قوفڵکردنی چات</span>
                         <div id="chatLockSwitch" class="ios-switch"></div>
                     </div>
-
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ (ماڵپەڕ، یوتیوب، mp4)...">
+                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ دابنێ...">
                         <button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button>
                     </div>
                 </div>
             </div>
 
-            <!-- لای چەپ (چات و بانگهێشت) -->
             <div class="glass-panel" style="display: flex; flex-direction: column; padding: 20px;">
                 <div class="tabs">
                     <button class="tab-btn active" id="tabChat">چات</button>
                     <button class="tab-btn" id="tabInvite">بانگهێشت</button>
                 </div>
-
                 <div id="chatSection" style="flex:1; display:flex; flex-direction:column;">
                     <div class="chat-container" id="chatBox"></div>
-                    
                     <div id="chatLockedMsg" style="text-align:center; color:var(--danger); padding:10px; display:none; font-size:1.1rem;">
                         🔒 چات داخراوە
                     </div>
-
                     <div class="chat-input-box" id="chatInputArea">
                         <input type="text" id="chatInput" class="glass-input" placeholder="نامە بنووسە...">
                         <button id="sendChatBtn" class="send-btn">ناردن</button>
                     </div>
                 </div>
-
                 <div id="inviteSection" class="hidden" style="flex:1; overflow-y:auto;">
-                    <p style="font-size:1.1rem; color:var(--text-muted); margin-bottom:10px;">بانگهێشتی هاوڕێکانت بکە بۆ ئەم ژوورە:</p>
+                    <p style="font-size:1.1rem; color:var(--text-muted); margin-bottom:10px;">بانگهێشتی هاوڕێکانت بکە:</p>
                     <div id="inviteFriendsList"></div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 <script type="module">
@@ -440,20 +415,37 @@
         });
     }
 
-    // سیستەمی زیرەک بۆ جیاکردنەوەی جۆری لینکەکان (mp4, Kurdsub, Youtube)
+    // لێرەدا چارەسەری کێشەی "داگرتن" کراوە بە زۆرەملێ
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
         videoPlayer = null;
 
-        const isMp4 = url.match(/\.(mp4|webm|ogg|m3u8)$/i);
         const isYoutube = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+        // ئەگەر سایتێکی دیاریکراو بێت وەک کوردسەب
+        const isWebpage = url.includes('kurdsub') || url.includes('embed') || url.includes('iframe');
 
-        if (isMp4) {
-            // ئەگەر لینکی ڕاستەوخۆ بوو، دەتوانرێت کۆنترۆڵ و سینک بکرێت
+        if (isYoutube) {
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1`;
+            iframe.allowFullscreen = true;
+            wrapper.appendChild(iframe);
+        }
+        else if (isWebpage) {
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.allow = "fullscreen; autoplay";
+            iframe.allowFullscreen = true;
+            wrapper.appendChild(iframe);
+        }
+        else {
+            // هەر لینکێکی تر بێت (بۆ نمونە لینکی بۆتی تێلیگرام)، بە زۆر دەیخاتە ناو ڤیدیۆ پلەیەر
+            // ئەمە وادەکات داینەبەزێنێت، بەڵکو پەخشی بکات.
             videoPlayer = document.createElement('video');
             videoPlayer.src = url;
             videoPlayer.controls = true;
+            videoPlayer.setAttribute('playsinline', ''); // گرنگە بۆ مۆبایل
+            videoPlayer.style.backgroundColor = "black";
             wrapper.appendChild(videoPlayer);
 
             videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
@@ -465,21 +457,6 @@
                 videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
                 videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
             }
-        } 
-        else if (isYoutube) {
-            // یوتیوب
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1`;
-            iframe.allowFullscreen = true;
-            wrapper.appendChild(iframe);
-        }
-        else {
-            // بۆ ماڵپەڕەکانی تر وەک Kurdsub
-            const iframe = document.createElement('iframe');
-            iframe.src = url;
-            iframe.allow = "fullscreen; autoplay";
-            iframe.allowFullscreen = true;
-            wrapper.appendChild(iframe);
         }
     }
 
@@ -530,4 +507,4 @@
 
 </script>
 </body>
-</html>
+                            </html>
