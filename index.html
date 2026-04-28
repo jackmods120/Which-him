@@ -5,19 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سینەما هاوبەشەکەمان 🎬</title>
     <style>
-        /* ----- فۆنتی تایبەتی Jack ----- */
-        @font-face {
-            font-family: 'Jack';
-            src: url('jack.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-            font-display: swap;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            /* فۆنتی Jack لە پێشەوە دانراوە */
-            font-family: 'Jack', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1025 0%, #0a0a14 100%);
             color: #fff; min-height: 100vh; direction: rtl;
         }
@@ -63,7 +53,6 @@
             background: rgba(255,255,255,0.08); color: #fff;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        /* ستایلی دوگمەی ناچالاک */
         .btn:disabled {
             opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none;
         }
@@ -78,7 +67,6 @@
             border-radius: 12px; margin-bottom: 16px; display: flex;
             justify-content: space-between; align-items: center;
         }
-        /* شوێنی دوگمەی کۆپی */
         .room-code-box {
             display: flex; align-items: center; gap: 10px;
         }
@@ -95,7 +83,12 @@
         .chat-input-wrap { display: flex; gap: 8px; }
         .chat-input-wrap input { flex: 1; }
         .error-msg { color: #ff6b6b; font-size: 0.9rem; margin: 10px 0; }
-        /* پەیامی قفڵ بوون */
+        .note {
+            background: rgba(124,58,237,0.15); border-radius: 12px;
+            padding: 14px; margin: 16px 0; font-size: 0.9rem; color: #ccc;
+            border: 1px solid rgba(124,58,237,0.3);
+        }
+        .note a { color: #c084fc; text-decoration: none; }
         .locked-hint {
             font-size: 0.85rem; color: #ffaaaa; margin-top: 8px;
         }
@@ -113,7 +106,12 @@
         </header>
 
         <div id="homePage">
-            <!-- هیچ ڕێنماییەک نیشان نادرێت -->
+            <div class="note">
+                💡 <b>بۆ لینکی تێلیگرام:</b> پەیامی ڤیدیۆکە <b>فۆروارد</b> بکە بۆ
+                <a href="https://t.me/FileStreamBot" target="_blank">@FileStreamBot</a>،
+                لینکی پەخش (Stream) وەربگرە و لێرە دایبنێ.<br>
+                (ئەگەر لینکی ڕاستەوخۆت هەیە، ڕاستەوخۆ دابنێ.)
+            </div>
             <div class="input-group">
                 <input type="text" class="input-field" id="videoLinkInput" placeholder="لینکی فیلم (یوتیوب، لینکی پەخشی ڕاستەوخۆ)">
                 <button class="btn btn-primary" id="createRoomBtn">دروستکردنی ژوور 💗</button>
@@ -211,6 +209,7 @@
         const playerContainer = document.getElementById('playerContainer');
         const copyRoomBtn = document.getElementById('copyRoomBtn');
         const lockedHint = document.getElementById('lockedHint');
+        const videoUpdateArea = document.getElementById('videoUpdateArea');
 
         let currentRoomId = null;
         let currentRoomOwnerId = null;
@@ -290,7 +289,7 @@
                     });
                 });
                 video.addEventListener('error', () => {
-                    playerContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding:40px;">❌ نەتوانرا ڤیدیۆکە پەخش بکرێت. دڵنیابە لەوەی لینکەکە ڕاستەوخۆی پەخشە (بە FileStreamBot فۆروارد بکە).</p>';
+                    playerContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding:40px;">❌ نەتوانرا ڤیدیۆکە پەخش بکرێت. دڵنیابە لەوەی لینکەکە ڕاستەوخۆی پەخشە.</p>';
                 });
             }
         }
@@ -439,6 +438,9 @@
                 }
                 if (data.videoUrl && roomVideoLinkInput.value !== data.videoUrl) {
                     roomVideoLinkInput.value = data.videoUrl;
+                    if (isOwner) {
+                        // خاوەن ڕێگەی پێدەدرێت بیگۆڕێت، بەڵام پلەیەر نوێ دەکەینەوە
+                    }
                     loadVideo(data.videoUrl);
                 }
                 if (data.player) syncPlayer(data.player);
