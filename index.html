@@ -3,241 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GroupWatch - iOS 17 Edition</title>
+    <title>CineSync Pro - Glass UI</title>
     <style>
-        /* فۆنتی سیستەمی ئەپڵ و ڕێکخستنی سەرەتایی */
+        /* ڕێکخستنی سەرەتایی و فۆنت */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        
         :root {
-            --bg-color: #000000;
-            --surface: #1C1C1E;
-            --surface-blur: rgba(28, 28, 30, 0.7);
-            --primary: #0A84FF;
-            --danger: #FF453A;
-            --text-main: #FFFFFF;
-            --text-sec: #EBEBF599;
-            --border: rgba(84, 84, 88, 0.65);
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --bg-glass: rgba(30, 20, 50, 0.4);
+            --border-glass: rgba(255, 255, 255, 0.15);
+            --text-main: #ffffff;
+            --text-muted: #e2e8f0;
+            --danger: #ef4444;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
+            /* پاشبنەمایەکی زۆر جوانی وەنەوشەیی تاریک ڕێک وەک وێنەکە */
+            background-image: url('https://images.unsplash.com/photo-1496337589254-7e19d01cec44?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
+        }
+
+        /* ستایلی شوشەیی ڕاقی (Glassmorphism) */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            width: 100%;
         }
 
         .container {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            width: 100%; max-width: 1300px; padding: 20px;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 2.5rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        header p { color: var(--text-muted); font-size: 1rem; margin-top: 5px; }
+
+        /* ئینپوت و دوگمەکان بە ستایلی وێنەکە */
+        .input-group { margin-bottom: 20px; text-align: right; }
+        .input-label { display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 8px; margin-right: 5px; }
+        
+        .glass-input {
+            width: 100%; padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: white; font-size: 1rem; outline: none;
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.4); box-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
+        .glass-input::placeholder { color: rgba(255,255,255,0.4); }
+
+        .glass-btn {
+            width: 100%; padding: 14px;
+            border: none; border-radius: 16px;
+            font-size: 1.1rem; font-weight: bold; cursor: pointer;
+            transition: 0.3s ease; text-align: center;
+        }
+        .btn-white { background: #ffffff; color: #1e1e1e; }
+        .btn-white:hover { background: #e0e0e0; transform: translateY(-2px); }
+        
+        .btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+        .btn-danger { background: var(--danger); color: white; }
+
+        /* --- دابەشکردنی ژوور --- */
+        .room-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
             gap: 20px;
         }
-
-        /* ستایلی شوشەیی (Glassmorphism iOS) */
-        .ios-card {
-            background: var(--surface-blur);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-radius: 20px;
-            padding: 20px;
-            border: 0.5px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        header { text-align: center; padding: 20px 0; margin-bottom: 10px; }
-        header h1 { font-size: 2.5rem; font-weight: 700; color: var(--primary); letter-spacing: -1px; }
-        header p { color: var(--text-sec); font-size: 1.1rem; margin-top: 5px; }
-
-        /* ستایلی ئینپووت و دوگمەکان */
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        
-        .ios-input {
-            width: 100%; padding: 16px;
-            background: var(--surface);
-            border: none; border-radius: 14px;
-            color: var(--text-main); font-size: 1.1rem;
-            outline: none;
-        }
-        .ios-input::placeholder { color: var(--text-sec); }
-
-        .ios-btn {
-            width: 100%; padding: 16px;
-            border: none; border-radius: 14px;
-            font-size: 1.1rem; font-weight: 600;
-            cursor: pointer; transition: 0.2s ease;
-            text-align: center;
-        }
-        .ios-btn:active { transform: scale(0.97); opacity: 0.8; }
-        
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-secondary { background: #3A3A3C; color: #fff; }
-        .btn-danger { background: var(--danger); color: #fff; }
-
-        /* Layout ی ژوور */
-        .room-layout {
-            display: flex; gap: 20px; flex-wrap: wrap;
-        }
-        .left-panel { flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 20px; }
-        .right-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+        @media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
 
         /* ڤیدیۆ پلەیەر */
-        .video-container {
-            width: 100%; aspect-ratio: 16/9;
-            background: #000; border-radius: 20px;
-            overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        .video-wrapper {
+            background: #000; border-radius: 20px; overflow: hidden;
+            aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-glass); position: relative;
         }
-        .video-container iframe, .video-container video { width: 100%; height: 100%; border: none; }
+        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; }
 
-        /* زانیاری ژوور */
-        .room-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background: var(--surface); border-radius: 16px;
-        }
-        .room-code { font-size: 1.2rem; font-weight: bold; color: var(--primary); letter-spacing: 2px;}
+        /* چات و هاوڕێیان */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; padding: 5px 10px; }
+        .tab-btn.active { color: var(--primary); font-weight: bold; border-bottom: 2px solid var(--primary); }
 
-        /* سێتینگی خاوەن */
-        .admin-panel { display: none; margin-top: 10px; border-top: 0.5px solid var(--border); padding-top: 15px;}
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;}
+        .chat-container { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
         
-        /* ستایلی Toggle ستایلی iOS */
-        .ios-switch {
-            position: relative; width: 50px; height: 30px;
-            background: #39393D; border-radius: 30px; cursor: pointer; transition: 0.3s;
-        }
-        .ios-switch::after {
-            content: ''; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px;
-            background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .ios-switch.active { background: #30D158; }
+        .message { background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 18px; width: fit-content; max-width: 85%; }
+        .message.mine { background: rgba(167, 139, 250, 0.4); align-self: flex-end; border: 1px solid rgba(167, 139, 250, 0.3); }
+        .msg-name { font-size: 0.8rem; color: var(--primary); margin-bottom: 4px; display: block; cursor: pointer;}
+        .msg-name.owner { color: #FFD700; }
+        .msg-text { font-size: 0.95rem; }
+
+        .chat-input-box { display: flex; gap: 10px; margin-top: 15px; }
+        .send-btn { background: var(--primary); color: white; border: none; border-radius: 16px; padding: 0 20px; cursor: pointer; }
+
+        /* هاوڕێیان */
+        .friend-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; margin-bottom: 10px; }
+        .invite-btn { background: var(--primary); border: none; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+
+        /* سێتینگ و سویچی iOS */
+        .ios-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.2); border-radius: 24px; cursor: pointer; transition: 0.3s; }
+        .ios-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .ios-switch.active { background: var(--primary); }
         .ios-switch.active::after { transform: translateX(20px); }
 
-        /* چات */
-        .chat-box {
-            flex: 1; min-height: 300px; max-height: 400px; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 12px; padding-right: 5px;
-        }
-        .chat-msg { background: var(--surface); padding: 10px 14px; border-radius: 18px; width: fit-content; max-width: 85%; }
-        .chat-msg.mine { background: var(--primary); align-self: flex-end; }
-        .chat-msg.mine .sender-name { color: #D1E8FF; }
-        .sender-name { font-size: 0.8rem; font-weight: bold; color: #8E8E93; margin-bottom: 4px; display: block; cursor: pointer; }
-        
-        .chat-input-area { display: flex; gap: 10px; margin-top: 10px; }
-        .chat-input-area .ios-input { border-radius: 20px; }
-        .send-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 1.2rem;}
-
-        .role-badge { font-size: 0.75rem; padding: 2px 6px; border-radius: 8px; background: rgba(255,255,255,0.1); margin-right: 5px; }
-        .role-owner { color: #FFD60A; }
-        .role-admin { color: #30D158; }
-
         .hidden { display: none !important; }
-
+        .alert-box { background: rgba(239, 68, 68, 0.2); border: 1px solid var(--danger); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
 
-    <!-- بەشی چوونەژوورەوە و دیاریکردنی ناو -->
-    <div id="loginView" class="ios-card" style="max-width: 400px; margin: 10vh auto;">
+    <!-- شاشەی چوونە ژوورەوە ڕێک وەک وێنەکە -->
+    <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
         <header>
-            <h1>هەژمار</h1>
-            <p>ناوێک بۆ خۆت هەڵبژێرە</p>
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+            <h1>Welcome back!</h1>
+            <p>Sign in to access your watch parties</p>
         </header>
+
         <div class="input-group">
-            <input type="text" id="usernameInput" class="ios-input" placeholder="ناوی تۆ (نمونە: ئەحمەد)...">
-            <button id="saveUserBtn" class="ios-btn btn-primary">چوونە ژوورەوە</button>
+            <label class="input-label">Your Name</label>
+            <input type="text" id="userNameInput" class="glass-input" placeholder="Enter your name">
         </div>
+
+        <button id="loginBtn" class="glass-btn btn-white">Log In</button>
     </div>
 
-    <!-- بەشی سەرەکی (دروستکردن و چوونە ژوورەوە) -->
+    <!-- شاشەی سەرەکی (دروستکردن / هاوڕێیان) -->
     <div id="homeView" class="hidden">
         <header>
-            <h1>WatchParty</h1>
-            <p id="welcomeText">بەخێربێیت</p>
+            <h1>CineSync Hub</h1>
+            <p>بەخێربێیت <span id="displayMyName" style="color:var(--primary); font-weight:bold;"></span> | ئایدی تۆ: <span id="displayMyId" style="user-select:all; cursor:pointer;"></span></p>
         </header>
-        
-        <div style="display: flex; flex-direction: column; gap: 30px; max-width: 500px; margin: 0 auto;">
-            <!-- دروستکردنی ژوور -->
-            <div class="ios-card">
-                <h3 style="margin-bottom: 15px;">🎬 دروستکردنی گروپچات</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <!-- بەشی ژوور -->
+            <div class="glass-panel">
+                <h3 style="margin-bottom: 20px;">🎬 ژووری سەیرکردن</h3>
+                
                 <div class="input-group">
-                    <input type="text" id="newVideoLink" class="ios-input" placeholder="لینکی ڤیدیۆ (YouTube یان mp4)...">
-                    <button id="createRoomBtn" class="ios-btn btn-primary">دروستکردنی ژوور بە خۆڕایی</button>
+                    <input type="text" id="newVideoInput" class="glass-input" placeholder="لینکی ڤیدیۆ (بۆتی تێلیگرام یان یوتیوب)...">
                 </div>
+                <button id="createRoomBtn" class="glass-btn btn-white" style="margin-bottom: 20px;">دروستکردنی ژوور</button>
+
+                <div class="input-group" style="position: relative;">
+                    <div style="display:flex; align-items:center; gap:20px;">
+                        <span style="color: rgba(255,255,255,0.4);">ـــــــــــــــ یان ـــــــــــــــ</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="joinRoomInput" class="glass-input" placeholder="کۆدی ژووری هاوڕێکەت...">
+                </div>
+                <button id="joinRoomBtn" class="glass-btn btn-outline">چوونە ژوورەوە</button>
             </div>
 
-            <!-- چوونە ژوورەوەی ژوورێک -->
-            <div class="ios-card">
-                <h3 style="margin-bottom: 15px;">🤝 چوونە پاڵ هاوڕێکانت</h3>
-                <div class="input-group">
-                    <input type="text" id="joinCodeInput" class="ios-input" placeholder="کۆدی ژوور بنووسە...">
-                    <button id="joinRoomBtn" class="ios-btn btn-secondary">چوونە ژوورەوە</button>
+            <!-- بەشی هاوڕێیان -->
+            <div class="glass-panel">
+                <h3 style="margin-bottom: 20px;">👥 زیادکردنی هاوڕێ</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="friendIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت لێرە بنووسە...">
+                    <button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button>
+                </div>
+                
+                <h4 style="margin-bottom: 10px; color: var(--text-muted);">لیستی هاوڕێکانم</h4>
+                <div id="friendsList" style="max-height: 200px; overflow-y: auto;">
+                    <p style="color: rgba(255,255,255,0.4); font-size:0.9rem;">هیچ هاوڕێیەکت زیاد نەکردووە.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- بەشی ناو ژوور (Player + Chat + Settings) -->
+    <!-- شاشەی ناو ژوور -->
     <div id="roomView" class="hidden">
-        <div class="room-layout">
-            
-            <!-- لای ڕاست: ڤیدیۆ و سێتینگەکان -->
-            <div class="left-panel">
-                <div class="room-header">
-                    <div>
-                        <span style="color: var(--text-sec); font-size:0.9rem;">کۆدی بانگهێشت:</span>
-                        <div class="room-code" id="displayRoomCode">----</div>
-                    </div>
-                    <button id="leaveBtn" class="ios-btn btn-danger" style="width: auto; padding: 10px 20px; font-size: 0.9rem;">جێهێشتن</button>
+        <div class="glass-panel" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">کۆدی ژوور:</span>
+                <strong id="roomCodeDisplay" style="font-size: 1.3rem; letter-spacing: 2px; color: var(--primary);">---</strong>
+            </div>
+            <button id="leaveRoomBtn" class="glass-btn btn-danger" style="width: auto; padding: 10px 20px;">جێهێشتن</button>
+        </div>
+
+        <div class="room-grid">
+            <!-- لای ڕاست (ڤیدیۆ و کۆنترۆڵ) -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div id="telegramAlert" class="alert-box hidden">
+                    ⚠️ تێبینی: ناتوانیت ڕاستەوخۆ لینکی کەناڵی تێلیگرام دابنێیت. تکایە ڤیدیۆکە لە تێلیگرام بنێرە بۆ بۆتی <b>@Tg_To_Url_bot</b> و ئەو لینکە دابنێ کە بۆتەکە دەتداتێ!
                 </div>
 
-                <div class="video-container" id="playerContainer">
-                    <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#8E8E93;">چاوەڕوانی ڤیدیۆ...</div>
+                <div class="video-wrapper" id="playerWrapper">
+                    <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#666;">دەکرێتەوە...</div>
                 </div>
 
-                <!-- کۆنتڕۆڵەکان (تەنها خاوەن و ئەدمین دەیبینن) -->
-                <div id="adminPanel" class="ios-card admin-panel">
-                    <h3 style="margin-bottom: 15px; color: var(--primary);">⚙️ ڕێکخستنەکانی ژوور</h3>
+                <!-- سێتینگی ئەدمین -->
+                <div id="adminControls" class="glass-panel hidden" style="padding: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary);">⚙️ ڕێکخستنی ئەدمین</h3>
                     
-                    <div class="setting-row">
-                        <span>قوفڵکردنی چات (تەنها ئەدمین بنووسێت)</span>
-                        <div id="chatToggle" class="ios-switch"></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span>قوفڵکردنی چات (تەنها ئەدمین)</span>
+                        <div id="chatLockSwitch" class="ios-switch"></div>
                     </div>
 
-                    <div class="input-group" style="margin-top: 15px;">
-                        <input type="text" id="updateVideoInput" class="ios-input" placeholder="گۆڕینی لینکی ڤیدیۆ...">
-                        <button id="updateVideoBtn" class="ios-btn btn-primary">گۆڕینی ڤیدیۆ</button>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێی ڤیدیۆ...">
+                        <button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button>
                     </div>
-                    <p style="color: #FF453A; font-size: 0.8rem; margin-top: 10px;">تێبینی: بۆ زیادکردنی ئەدمین، لەناو چاتدا کلیک لە ناوی کەسەکە بکە.</p>
+                    <p style="font-size:0.8rem; color:var(--text-muted); margin-top:10px;">* بۆ ئەدمینکردنی کەسێک، لە چاتەکەدا کلیک لە ناوەکەی بکە.</p>
                 </div>
             </div>
 
-            <!-- لای چەپ: چات -->
-            <div class="right-panel ios-card">
-                <h3 style="margin-bottom: 10px; border-bottom: 0.5px solid var(--border); padding-bottom: 10px;">💬 چاتی گروپ</h3>
-                
-                <div class="chat-box" id="chatBox">
-                    <!-- نامەکان لێرە دەردەکەون -->
+            <!-- لای چەپ (چات و ئینڤایت) -->
+            <div class="glass-panel" style="display: flex; flex-direction: column; padding: 20px;">
+                <div class="tabs">
+                    <button class="tab-btn active" id="tabChat">چات</button>
+                    <button class="tab-btn" id="tabInvite">بانگهێشتکردن</button>
                 </div>
 
-                <div id="chatLockMsg" style="color: var(--danger); font-size: 0.9rem; text-align: center; display: none;">🔒 چات داخراوە لەلایەن خاوەنی ژوورەوە</div>
+                <!-- بەشی چات -->
+                <div id="chatSection" style="flex:1; display:flex; flex-direction:column;">
+                    <div class="chat-container" id="chatBox"></div>
+                    
+                    <div id="chatLockedMsg" style="text-align:center; color:var(--danger); padding:10px; display:none; font-size:0.9rem;">
+                        🔒 چات داخراوە لەلایەن ئەدمینەوە
+                    </div>
 
-                <div class="chat-input-area" id="chatInputArea">
-                    <input type="text" id="chatInput" class="ios-input" placeholder="نامەیەک بنووسە...">
-                    <button id="sendMsgBtn" class="send-btn">↑</button>
+                    <div class="chat-input-box" id="chatInputArea">
+                        <input type="text" id="chatInput" class="glass-input" placeholder="نامە بنووسە...">
+                        <button id="sendChatBtn" class="send-btn">ناردن</button>
+                    </div>
+                </div>
+
+                <!-- بەشی ئینڤایت -->
+                <div id="inviteSection" class="hidden" style="flex:1; overflow-y:auto;">
+                    <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:10px;">بانگهێشتی هاوڕێکانت بکە بۆ ئەم ژوورە:</p>
+                    <div id="inviteFriendsList"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
 </div>
 
-<!-- کۆدی پەیوەندی بە Firebase -->
+<!-- پەیوەندی بە فایەربەیسەوە -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, set, onValue, push, update, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -255,37 +282,39 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // گۆڕاوەکان (Variables)
-    let myId = localStorage.getItem('ios_user_id');
+    // ناسنامە و زانیاری بەکارهێنەر
+    let myId = localStorage.getItem('cine_v3_id');
     if (!myId) {
-        myId = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('ios_user_id', myId);
+        myId = Math.random().toString(36).substr(2, 6).toUpperCase(); // ئایدی کورت بۆ هاوڕێیەتی
+        localStorage.setItem('cine_v3_id', myId);
     }
-    let myName = localStorage.getItem('ios_user_name') || "";
-    
-    let currentRoom = null;
+    let myName = localStorage.getItem('cine_v3_name') || "";
+    let myFriends = JSON.parse(localStorage.getItem('cine_v3_friends') || "{}");
+
+    // گۆڕاوەکانی ژوور
+    let currentRoomId = null;
+    let roomDataGlobal = null;
     let isOwner = false;
     let isAdmin = false;
-    let roomDataGlobal = null;
-    let player = null;
-    let playerType = null;
-    let isChatLocked = false;
+    let currentLoadedUrl = ""; // گرنگترین بەش بۆ ڕێگریکردن لە ڕیستارت بوونی ڤیدیۆ
+    let videoPlayer = null;
+    let isSeeking = false;
 
-    // ڕووکارەکان (Views)
+    // ڕووکارەکان
     const loginView = document.getElementById('loginView');
     const homeView = document.getElementById('homeView');
     const roomView = document.getElementById('roomView');
 
-    // بەڕێوەبردنی چوونەژوورەوە
+    // --- بەشی چوونەژوورەوە ---
     if (myName) {
         showHome();
     }
 
-    document.getElementById('saveUserBtn').addEventListener('click', () => {
-        const inputName = document.getElementById('usernameInput').value.trim();
-        if (inputName) {
-            myName = inputName;
-            localStorage.setItem('ios_user_name', myName);
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const name = document.getElementById('userNameInput').value.trim();
+        if (name) {
+            myName = name;
+            localStorage.setItem('cine_v3_name', name);
             showHome();
         }
     });
@@ -294,141 +323,173 @@
         loginView.classList.add('hidden');
         roomView.classList.add('hidden');
         homeView.classList.remove('hidden');
-        document.getElementById('welcomeText').textContent = `بەخێربێیت، ${myName} 👋`;
+        document.getElementById('displayMyName').textContent = myName;
+        document.getElementById('displayMyId').textContent = myId;
+        renderFriendsList();
     }
 
-    // دروستکردنی کۆدی ژوور
-    function generateCode() { return Math.random().toString(36).substr(2, 5).toUpperCase(); }
+    // --- بەشی هاوڕێیان ---
+    document.getElementById('addFriendBtn').addEventListener('click', () => {
+        const friendId = document.getElementById('friendIdInput').value.trim().toUpperCase();
+        if (!friendId || friendId === myId) return alert('ئایدی هەڵەیە یان ئایدی خۆتە!');
+        
+        myFriends[friendId] = { id: friendId, name: "هاوڕێ (" + friendId + ")" };
+        localStorage.setItem('cine_v3_friends', JSON.stringify(myFriends));
+        document.getElementById('friendIdInput').value = '';
+        renderFriendsList();
+        alert('هاوڕێکەت زیادکرا!');
+    });
 
-    // دروستکردنی ژوور
-    document.getElementById('createRoomBtn').addEventListener('click', async () => {
-        const video = document.getElementById('newVideoLink').value.trim();
-        if(!video) return alert("تکایە لینکی ڤیدیۆ بنووسە!");
+    function renderFriendsList() {
+        const list = document.getElementById('friendsList');
+        const inviteList = document.getElementById('inviteFriendsList');
+        list.innerHTML = ''; inviteList.innerHTML = '';
         
-        const roomId = generateCode();
-        const roomRef = ref(db, `rooms_v2/${roomId}`);
-        
-        await set(roomRef, {
-            ownerId: myId,
-            videoUrl: video,
-            chatLocked: false,
-            admins: { [myId]: true }, // خاوەن خۆی ئەدمینە
-            playerState: { time: 0, state: 'paused' },
-            created: Date.now()
+        const keys = Object.keys(myFriends);
+        if (keys.length === 0) return;
+
+        keys.forEach(id => {
+            // لیستی دەرەوە
+            list.innerHTML += `<div class="friend-item">
+                <span>👤 ${myFriends[id].name} (ID: ${id})</span>
+            </div>`;
+            
+            // لیستی ناو ژوور بۆ ئینڤایت
+            inviteList.innerHTML += `<div class="friend-item">
+                <span>👤 ${myFriends[id].name}</span>
+                <button class="invite-btn" onclick="alert('لەم وەشانەدا ئینڤایتکردن تەنها بە پێدانی کۆدی ژوورەکە دەبێت بە هاوڕێکەت (${id}) لەڕێگەی تێلیگرام یان سناپەوە.')">بانگهێشت</button>
+            </div>`;
         });
+    }
 
+    // --- بەشی ژوور ---
+    document.getElementById('createRoomBtn').addEventListener('click', async () => {
+        const url = document.getElementById('newVideoInput').value.trim();
+        if(!url) return alert("تکایە لینکێک بنووسە!");
+        
+        if (checkTelegramLink(url)) return; // ئەگەر لینکی تێلیگرام بوو دەوەستێت
+
+        const roomId = Math.random().toString(36).substr(2, 5).toUpperCase();
+        await set(ref(db, `rooms_v3/${roomId}`), {
+            ownerId: myId,
+            videoUrl: url,
+            chatLocked: false,
+            admins: { [myId]: true },
+            state: { time: 0, status: 'paused', updatedBy: myId, timestamp: Date.now() }
+        });
         enterRoom(roomId);
     });
 
-    // چوونە ژوورەوە بە کۆد
     document.getElementById('joinRoomBtn').addEventListener('click', async () => {
-        const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
-        if(!code) return alert("کۆدی ژوور بنووسە");
+        const code = document.getElementById('joinRoomInput').value.trim().toUpperCase();
+        if(!code) return alert("کۆد بنووسە!");
         
-        const snap = await get(ref(db, `rooms_v2/${code}`));
-        if (snap.exists()) {
-            enterRoom(code);
-        } else {
-            alert("ئەم ژوورە بوونی نییە!");
-        }
+        const snap = await get(ref(db, `rooms_v3/${code}`));
+        if (snap.exists()) { enterRoom(code); } 
+        else { alert("ژوورەکە بوونی نییە!"); }
     });
+
+    // پشکنینی لینکی تێلیگرام
+    function checkTelegramLink(url) {
+        if (url.includes('t.me/') && !url.endsWith('.mp4')) {
+            document.getElementById('telegramAlert').classList.remove('hidden');
+            setTimeout(() => document.getElementById('telegramAlert').classList.add('hidden'), 10000);
+            return true;
+        }
+        return false;
+    }
 
     // چوونە ناو ژوور
     function enterRoom(roomId) {
-        currentRoom = roomId;
+        currentRoomId = roomId;
         homeView.classList.add('hidden');
         roomView.classList.remove('hidden');
-        document.getElementById('displayRoomCode').textContent = roomId;
-        
-        // گوێگرتن لە داتای ژوور
-        onValue(ref(db, `rooms_v2/${roomId}`), (snapshot) => {
-            if (!snapshot.exists()) {
-                alert("ژوورەکە داخرا یان سڕایەوە.");
-                leaveRoom();
-                return;
-            }
-            const data = snapshot.val();
+        document.getElementById('roomCodeDisplay').textContent = roomId;
+        currentLoadedUrl = ""; // ڕیفڕێشی مێشک بۆ ژووری نوێ
+
+        // گوێگرتن لە ژوور (بێ ئەوەی ڤیدیۆکە ڕیستارت بێتەوە گەر پێویست نەبوو)
+        onValue(ref(db, `rooms_v3/${roomId}`), (snap) => {
+            if (!snap.exists()) { alert("ژوور داخراوە"); leaveRoom(); return; }
+            const data = snap.val();
             roomDataGlobal = data;
-            
-            // دیاریکردنی دەسەڵاتەکان
+
             isOwner = (data.ownerId === myId);
             isAdmin = (data.admins && data.admins[myId]) || isOwner;
-            
-            // ڕێکخستنی UI بەپێی دەسەڵات
-            const adminPanel = document.getElementById('adminPanel');
+
+            // نیشاندانی کۆنترۆڵی ئەدمین
             if (isAdmin) {
-                adminPanel.style.display = 'block';
+                document.getElementById('adminControls').classList.remove('hidden');
                 document.getElementById('updateVideoInput').value = data.videoUrl;
             } else {
-                adminPanel.style.display = 'none';
+                document.getElementById('adminControls').classList.add('hidden');
             }
 
-            // کۆنترۆڵی چات
-            isChatLocked = data.chatLocked || false;
-            const chatToggle = document.getElementById('chatToggle');
-            if (isChatLocked) chatToggle.classList.add('active');
-            else chatToggle.classList.remove('active');
-
-            if (isChatLocked && !isAdmin) {
-                document.getElementById('chatInputArea').classList.add('hidden');
-                document.getElementById('chatLockMsg').style.display = 'block';
+            // کۆنترۆڵی قوفڵی چات
+            const chatLockSwitch = document.getElementById('chatLockSwitch');
+            if (data.chatLocked) {
+                chatLockSwitch.classList.add('active');
+                if (!isAdmin) {
+                    document.getElementById('chatInputArea').style.display = 'none';
+                    document.getElementById('chatLockedMsg').style.display = 'block';
+                }
             } else {
-                document.getElementById('chatInputArea').classList.remove('hidden');
-                document.getElementById('chatLockMsg').style.display = 'none';
+                chatLockSwitch.classList.remove('active');
+                document.getElementById('chatInputArea').style.display = 'flex';
+                document.getElementById('chatLockedMsg').style.display = 'none';
             }
 
-            // لۆدکردنی ڤیدیۆ ئەگەر گۆڕابێت
-            if (!player || playerContainer.dataset.url !== data.videoUrl) {
-                loadVideo(data.videoUrl);
-                playerContainer.dataset.url = data.videoUrl;
+            // *** لۆدکردنی ڤیدیۆ تەنها ئەگەر لینکەکە گۆڕابێت ***
+            if (data.videoUrl && data.videoUrl !== currentLoadedUrl) {
+                currentLoadedUrl = data.videoUrl;
+                loadVideoElement(data.videoUrl);
+            }
+
+            // *** سینک کردنی کاتی ڤیدیۆ (بۆ ئەندامان) ***
+            if (!isAdmin && videoPlayer && data.state) {
+                // ئەگەر جیاوازی کاتەکە لە 2 چرکە زیاتر بوو، ئینجا بیگۆڕە بۆ ئەوەی زۆر نەوەستێت
+                if (Math.abs(videoPlayer.currentTime - data.state.time) > 2) {
+                    videoPlayer.currentTime = data.state.time;
+                }
+                if (data.state.status === 'playing' && videoPlayer.paused) {
+                    videoPlayer.play().catch(e => console.log("Auto-play prevented by browser"));
+                } else if (data.state.status === 'paused' && !videoPlayer.paused) {
+                    videoPlayer.pause();
+                }
             }
         });
 
         // گوێگرتن لە نامەکان
-        onValue(ref(db, `rooms_v2/${roomId}/messages`), (snapshot) => {
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = '';
-            const messages = [];
-            snapshot.forEach(child => { messages.push({...child.val(), key: child.key}); });
-            
-            messages.forEach(msg => {
-                const div = document.createElement('div');
-                div.className = `chat-msg ${msg.senderId === myId ? 'mine' : ''}`;
+        onValue(ref(db, `rooms_v3/${roomId}/messages`), (snap) => {
+            const box = document.getElementById('chatBox');
+            box.innerHTML = '';
+            snap.forEach(child => {
+                const msg = child.val();
+                const isMe = msg.senderId === myId;
+                const isMsgOwner = msg.senderId === roomDataGlobal.ownerId;
+                const isMsgAdmin = roomDataGlobal.admins && roomDataGlobal.admins[msg.senderId];
                 
-                let roleBadge = '';
-                if (roomDataGlobal && msg.senderId === roomDataGlobal.ownerId) {
-                    roleBadge = '<span class="role-badge role-owner">👑 خاوەن</span>';
-                } else if (roomDataGlobal && roomDataGlobal.admins && roomDataGlobal.admins[msg.senderId]) {
-                    roleBadge = '<span class="role-badge role-admin">🛡️ ئەدمین</span>';
-                }
-
+                let badge = isMsgOwner ? '👑' : (isMsgAdmin ? '🛡️' : '');
+                
+                const div = document.createElement('div');
+                div.className = `message ${isMe ? 'mine' : ''}`;
                 div.innerHTML = `
-                    <span class="sender-name" data-uid="${msg.senderId}" data-name="${msg.senderName}">
-                        ${roleBadge} ${msg.senderName}
+                    <span class="msg-name ${isMsgOwner?'owner':''}" data-uid="${msg.senderId}" data-name="${msg.name}">
+                        ${badge} ${msg.name}
                     </span>
-                    <div style="font-size: 1rem;">${msg.text}</div>
+                    <div class="msg-text">${msg.text}</div>
                 `;
-                chatBox.appendChild(div);
+                box.appendChild(div);
             });
-            chatBox.scrollTop = chatBox.scrollHeight;
+            box.scrollTop = box.scrollHeight;
 
-            // توانای زیادکردنی ئەدمین لەلایەن خاوەنەوە
+            // زیادکردنی ئەدمین
             if (isOwner) {
-                document.querySelectorAll('.sender-name').forEach(el => {
+                document.querySelectorAll('.msg-name').forEach(el => {
                     el.addEventListener('click', (e) => {
-                        const targetUid = e.currentTarget.dataset.uid;
-                        const targetName = e.currentTarget.dataset.name;
-                        if (targetUid === myId) return;
-                        
-                        const isCurrentlyAdmin = roomDataGlobal.admins && roomDataGlobal.admins[targetUid];
-                        const action = confirm(`ئایا دەتەوێت (${targetName}) ${isCurrentlyAdmin ? 'لاببەیت لە ئەدمینبوون' : 'بکەیت بە ئەدمین'}؟`);
-                        
-                        if (action) {
-                            if (isCurrentlyAdmin) {
-                                update(ref(db, `rooms_v2/${currentRoom}/admins`), { [targetUid]: null });
-                            } else {
-                                update(ref(db, `rooms_v2/${currentRoom}/admins`), { [targetUid]: true });
-                            }
+                        const tId = e.currentTarget.dataset.uid;
+                        if (tId === myId) return;
+                        if (confirm(`ئایا دەتەوێت (${e.currentTarget.dataset.name}) بکەیت بە ئەدمین بۆ کۆنترۆڵکردنی ڤیدیۆ؟`)) {
+                            update(ref(db, `rooms_v3/${currentRoomId}/admins`), { [tId]: true });
                         }
                     });
                 });
@@ -436,89 +497,94 @@
         });
     }
 
-    // ناردنی نامە
-    document.getElementById('sendMsgBtn').addEventListener('click', () => {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text || !currentRoom) return;
-        
-        if (isChatLocked && !isAdmin) return alert("چات داخراوە!");
+    // --- لۆدکردنی ڤیدیۆ و کۆنترۆڵەکان ---
+    function loadVideoElement(url) {
+        const wrapper = document.getElementById('playerWrapper');
+        wrapper.innerHTML = '';
 
-        push(ref(db, `rooms_v2/${currentRoom}/messages`), {
-            text: text,
-            senderId: myId,
-            senderName: myName,
-            timestamp: Date.now()
+        // تەنها بۆ ڤیدیۆی ڕاستەوخۆ کار دەکات (وەک mp4)
+        videoPlayer = document.createElement('video');
+        videoPlayer.src = url;
+        videoPlayer.controls = true; // نیشاندانی کۆنترۆڵەکانی ڤیدیۆ
+        wrapper.appendChild(videoPlayer);
+
+        // تەنها ئەدمین دەتوانێت ڤیدیۆکە کۆنترۆڵ بکات و بینێرێت بۆ داتابەیس
+        videoPlayer.addEventListener('play', () => {
+            if (isAdmin && !isSeeking) updateState('playing');
         });
-        input.value = '';
-    });
+        videoPlayer.addEventListener('pause', () => {
+            if (isAdmin && !isSeeking) updateState('paused');
+        });
+        videoPlayer.addEventListener('seeked', () => {
+            if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing');
+            isSeeking = false;
+        });
+        videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
 
-    document.getElementById('chatInput').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') document.getElementById('sendMsgBtn').click();
-    });
-
-    // داخستن و کردنەوەی چات لەلایەن خاوەنەوە
-    document.getElementById('chatToggle').addEventListener('click', () => {
-        if (!isOwner) return alert("تەنها خاوەنی ژوور دەتوانێت چات دابخات!");
-        const newState = !isChatLocked;
-        update(ref(db, `rooms_v2/${currentRoom}`), { chatLocked: newState });
-    });
-
-    // گۆڕینی ڤیدیۆ
-    document.getElementById('updateVideoBtn').addEventListener('click', () => {
-        if (!isAdmin) return;
-        const newUrl = document.getElementById('updateVideoInput').value.trim();
-        if(newUrl) {
-            update(ref(db, `rooms_v2/${currentRoom}`), { videoUrl: newUrl });
-        }
-    });
-
-    // جێهێشتنی ژوور
-    function leaveRoom() {
-        currentRoom = null;
-        player = null;
-        roomView.classList.add('hidden');
-        showHome();
-    }
-    document.getElementById('leaveBtn').addEventListener('click', leaveRoom);
-
-    // لۆژیکی پەخشکردنی ڤیدیۆ
-    function getYouTubeId(url) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : null;
-    }
-
-    function loadVideo(url) {
-        const container = document.getElementById('playerContainer');
-        container.innerHTML = '';
-        const ytId = getYouTubeId(url);
-
-        if (ytId) {
-            playerType = 'youtube';
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
-            iframe.allow = "autoplay; fullscreen";
-            container.appendChild(iframe);
-        } else {
-            playerType = 'direct';
-            const video = document.createElement('video');
-            video.src = url;
-            video.controls = true;
-            video.autoplay = true;
-            video.style.width = '100%'; video.style.height = '100%';
-            video.style.borderRadius = '20px';
-            container.appendChild(video);
-            
-            // ئەگەر کێشەی هەبوو (وەک لینکی هەڵەی تێلیگرام)
-            video.addEventListener('error', () => {
-                container.innerHTML = `<div style="color:var(--danger); text-align:center; padding:30px;">
-                    ❌ نەتوانرا ڤیدیۆکە پەخش بکرێت.<br>
-                    <small style="color:var(--text-sec);">دڵنیابە لینکەکە ڕاستەوخۆیە (وەک کۆتاییەکەی .mp4 بێت). ڤیدیۆی تێلیگرام پێویستی بە بۆت هەیە بۆ دروستکردنی لینکی ڕاستەوخۆ.</small>
-                </div>`;
+        // ڕێگریکردن لە ئەندام بۆ دەستکاریکردنی ڤیدیۆ (ئەگەر خێرا یان پاوزی کرد، دەیگێڕێتەوە)
+        if (!isAdmin) {
+            videoPlayer.addEventListener('play', (e) => {
+                if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); }
+            });
+            videoPlayer.addEventListener('pause', (e) => {
+                if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); }
             });
         }
     }
+
+    function updateState(status) {
+        if (!currentRoomId || !videoPlayer) return;
+        update(ref(db, `rooms_v3/${currentRoomId}/state`), {
+            time: videoPlayer.currentTime,
+            status: status,
+            updatedBy: myId,
+            timestamp: Date.now()
+        });
+    }
+
+    // --- ئەکشنەکانی خاوەن/ئەدمین ---
+    document.getElementById('chatLockSwitch').addEventListener('click', () => {
+        if (!isAdmin) return;
+        update(ref(db, `rooms_v3/${currentRoomId}`), { chatLocked: !roomDataGlobal.chatLocked });
+    });
+
+    document.getElementById('updateVideoBtn').addEventListener('click', () => {
+        if (!isAdmin) return;
+        const url = document.getElementById('updateVideoInput').value.trim();
+        if (checkTelegramLink(url)) return;
+        if (url) update(ref(db, `rooms_v3/${currentRoomId}`), { videoUrl: url });
+    });
+
+    // --- ناردنی نامە ---
+    document.getElementById('sendChatBtn').addEventListener('click', () => {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text || !currentRoomId) return;
+        
+        push(ref(db, `rooms_v3/${currentRoomId}/messages`), {
+            senderId: myId, name: myName, text: text, timestamp: Date.now()
+        });
+        input.value = '';
+    });
+    document.getElementById('chatInput').addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('sendChatBtn').click(); });
+
+    // --- جێهێشتن ---
+    document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
+    function leaveRoom() {
+        currentRoomId = null; videoPlayer = null;
+        roomView.classList.add('hidden');
+        showHome();
+    }
+
+    // --- تابی چات و ئینڤایت ---
+    document.getElementById('tabChat').addEventListener('click', (e) => {
+        e.target.classList.add('active'); document.getElementById('tabInvite').classList.remove('active');
+        document.getElementById('chatSection').classList.remove('hidden'); document.getElementById('inviteSection').classList.add('hidden');
+    });
+    document.getElementById('tabInvite').addEventListener('click', (e) => {
+        e.target.classList.add('active'); document.getElementById('tabChat').classList.remove('active');
+        document.getElementById('inviteSection').classList.remove('hidden'); document.getElementById('chatSection').classList.add('hidden');
+    });
 
 </script>
 </body>
