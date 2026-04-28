@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سەکۆی سینەما</title>
     <style>
-        /* ناساندنی فۆنتەکەی خۆت لە GitHub */
         @font-face {
             font-family: 'JackFont';
             src: url('./jack.ttf') format('truetype');
@@ -21,7 +20,6 @@
             --danger: #ef4444;
         }
         
-        /* جێبەجێکردنی فۆنتەکە بەسەر هەموو شتێکدا */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JackFont', sans-serif !important; }
         
         body {
@@ -49,11 +47,7 @@
             width: 100%;
         }
 
-        .container {
-            width: 100%; max-width: 1300px; padding: 20px;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
+        .container { width: 100%; max-width: 1300px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 2.5rem; font-weight: normal; display: flex; align-items: center; justify-content: center; gap: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-top: 5px; }
@@ -62,28 +56,21 @@
         .input-label { display: block; font-size: 1rem; color: var(--text-muted); margin-bottom: 8px; margin-right: 5px; }
         
         .glass-input {
-            width: 100%; padding: 14px 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            color: white; font-size: 1.1rem; outline: none;
-            transition: all 0.3s ease;
+            width: 100%; padding: 14px 20px; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
+            color: white; font-size: 1.1rem; outline: none; transition: all 0.3s ease;
         }
         .glass-input:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
         .glass-input::placeholder { color: rgba(255,255,255,0.5); }
 
         .glass-btn {
-            width: 100%; padding: 14px;
-            border: none; border-radius: 16px;
-            font-size: 1.2rem; cursor: pointer;
-            transition: 0.3s ease; text-align: center;
+            width: 100%; padding: 14px; border: none; border-radius: 16px;
+            font-size: 1.2rem; cursor: pointer; transition: 0.3s ease; text-align: center;
         }
         .btn-white { background: #ffffff; color: #1e1e1e; }
         .btn-white:hover { background: #e0e0e0; transform: translateY(-2px); }
-        
         .btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.4); }
         .btn-outline:hover { background: rgba(255,255,255,0.1); }
-
         .btn-danger { background: var(--danger); color: white; }
 
         .room-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
@@ -94,7 +81,7 @@
             aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
             border: 1px solid var(--border-glass); position: relative;
         }
-        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; }
+        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; object-fit: contain; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;}
         .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 5px 10px; }
@@ -415,15 +402,15 @@
         });
     }
 
-    // لێرەدا چارەسەری کێشەی "داگرتن" کراوە بە زۆرەملێ
+    // لێرەدا ڕێگری تەواوەتی لە داگرتن کراوە بە بەکارهێنانی تایبەتمەندییە شاراوەکان
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
         videoPlayer = null;
 
         const isYoutube = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
-        // ئەگەر سایتێکی دیاریکراو بێت وەک کوردسەب
-        const isWebpage = url.includes('kurdsub') || url.includes('embed') || url.includes('iframe');
+        // فراوانکردنی مەرجی وێبسایتەکان
+        const isWebpage = url.includes('kurdsub') || url.includes('embed') || url.includes('iframe') || url.includes('player') || url.includes('.html');
 
         if (isYoutube) {
             const iframe = document.createElement('iframe');
@@ -439,13 +426,22 @@
             wrapper.appendChild(iframe);
         }
         else {
-            // هەر لینکێکی تر بێت (بۆ نمونە لینکی بۆتی تێلیگرام)، بە زۆر دەیخاتە ناو ڤیدیۆ پلەیەر
-            // ئەمە وادەکات داینەبەزێنێت، بەڵکو پەخشی بکات.
+            // دروستکردنی ڤیدیۆ بە سەلامەتی بێ ئەوەی ڕێگە بە داگرتن بدات
             videoPlayer = document.createElement('video');
-            videoPlayer.src = url;
             videoPlayer.controls = true;
-            videoPlayer.setAttribute('playsinline', ''); // گرنگە بۆ مۆبایل
-            videoPlayer.style.backgroundColor = "black";
+            
+            // ئەم سێ دێڕەی خوارەوە ڕێگری لە داگرتن دەکەن بەزۆر
+            videoPlayer.setAttribute('playsinline', '');
+            videoPlayer.setAttribute('webkit-playsinline', '');
+            videoPlayer.setAttribute('controlsList', 'nodownload'); // شاردنەوەی دوگمەی داگرتن
+            videoPlayer.oncontextmenu = () => false; // ڕێگری لە ڕایت-کلیک
+            
+            // دانانی سەرچاوەی ڤیدیۆ لەناو تاگی سەلامەت
+            const source = document.createElement('source');
+            source.src = url;
+            source.type = url.includes('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
+            
+            videoPlayer.appendChild(source);
             wrapper.appendChild(videoPlayer);
 
             videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
@@ -507,4 +503,4 @@
 
 </script>
 </body>
-                            </html>
+    </html>
