@@ -402,55 +402,59 @@
         });
     }
 
-    // لێرەدا خێراییەکە زۆر بەهێز کراوە
+    // سیستەمی زیرەکی ئەندازیاری بۆ کردنەوەی خێرای ڤیدیۆ یان وێبسایت بێ کێشە
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
         videoPlayer = null;
 
-        const isYoutube = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
-        const isWebpage = url.includes('kurdsub') || url.includes('embed') || url.includes('iframe') || url.includes('player') || url.includes('.html');
+        const cleanUrl = url.trim();
+        const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+        // لێرەدا دەزانێت کە ئایا ئەمە ڤیدیۆیەکی ڕاستەقینەیە یان وێبسایتی بۆتە
+        const isRawVideo = cleanUrl.match(/\.(mp4|webm|ogg|mov)$/i);
 
+        // 1. ئەگەر یوتیوب بوو
         if (isYoutube) {
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1`;
-            iframe.allowFullscreen = true;
-            wrapper.appendChild(iframe);
+            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
+            return;
         }
-        else if (isWebpage) {
-            const iframe = document.createElement('iframe');
-            iframe.src = url;
-            iframe.allow = "fullscreen; autoplay";
-            iframe.allowFullscreen = true;
-            wrapper.appendChild(iframe);
+
+        // 2. ئەگەر لینکەکە ڤیدیۆ نەبوو (وەک ئەوەی بۆتی تێلیگرام کە پەڕەیەکە)
+        if (!isRawVideo) {
+            // ڕاستەوخۆ دەیکاتە پەنجەرە (Iframe) بۆ ئەوەی هەرگیز وێنەی شکاو نەیەت و زۆر خێرا بێت
+            wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
+            return;
         }
-        else {
-            // ئەندازیاری خێرایی بۆ ڤیدیۆ:
-            videoPlayer = document.createElement('video');
-            
-            // ئەمە گرنگترین فەرمانە بۆ خێرایی:
-            videoPlayer.preload = "auto"; // ڕاستەوخۆ دەست دەکات بە هێنانی داتا بەبێ وەستان
-            
-            // پێدانی سەرچاوەکە ڕاستەوخۆ بۆ ناو پلەیەرەکە (ئەمە لە source tag خێراترە)
-            videoPlayer.src = url;
-            
-            videoPlayer.controls = true;
-            videoPlayer.setAttribute('playsinline', '');
-            videoPlayer.setAttribute('webkit-playsinline', '');
-            videoPlayer.setAttribute('controlsList', 'nodownload'); // ڕێگری لە داگرتن
-            videoPlayer.oncontextmenu = () => false; 
-            
-            wrapper.appendChild(videoPlayer);
 
-            videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
-            videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
-            videoPlayer.addEventListener('seeked', () => { if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); isSeeking = false; });
-            videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
+        // 3. ئەگەر ڕاستەوخۆ ڤیدیۆی خاو بوو (mp4) ئەوا بە خێراییەکی زۆر دەیکاتەوە
+        videoPlayer = document.createElement('video');
+        videoPlayer.src = cleanUrl;
+        videoPlayer.controls = true;
+        videoPlayer.preload = "auto"; // خێرایی باوەڕپێنەکراو لە هێنان
+        videoPlayer.setAttribute('playsinline', '');
+        videoPlayer.setAttribute('controlsList', 'nodownload'); // ڕێگری لە داگرتن
+        videoPlayer.oncontextmenu = () => false;
+        videoPlayer.style.width = "100%";
+        videoPlayer.style.height = "100%";
+        
+        // ئەمە گرنگترین بەشە: ئەگەر هاتوو ڤیدیۆ پلەیەرەکە شکستی هێنا لە کردنەوەی، ئۆتۆماتیک دەیگۆڕێت بۆ Iframe!
+        videoPlayer.onerror = function() {
+            wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;"></iframe>`;
+            videoPlayer = null; // ئیتر ناتوانرێت کۆنترۆڵ بکرێت چونکە بوو بە پەنجەرە
+        };
 
-            if (!isAdmin) {
-                videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
-                videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
-            }
+        wrapper.appendChild(videoPlayer);
+
+        // کۆنترۆڵی خاوەن/ئەدمین
+        videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
+        videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
+        videoPlayer.addEventListener('seeked', () => { if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); isSeeking = false; });
+        videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
+
+        // کۆنترۆڵی ئەندامان
+        if (!isAdmin) {
+            videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
+            videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
         }
     }
 
@@ -501,4 +505,4 @@
 
 </script>
 </body>
-                        </html>
+                            </html>
