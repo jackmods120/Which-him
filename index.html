@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سەکۆی سینەما</title>
     <style>
-        /* هەموو ستایلەکان وەک پێشتر ماونەتەوە، هیچ گۆڕانکارییان بەسەردا نەهاتووە */
         @font-face {
             font-family: 'JackFont';
             src: url('./jack.ttf') format('truetype');
@@ -116,12 +115,17 @@
         .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 10px 0; }
         .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .collapsible-content.open { max-height: 500px; }
+        
+        .error-overlay {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; color: #ff8a8a; gap: 20px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- هەموو HTML ی پەڕەکان وەک پێشتر -->
+    <!-- هەموو بەشی loginView و homeView و privateChatView و roomView وەک پێشتر -->
     <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
         <header>
             <h1>بەخێربێیتەوە!</h1>
@@ -254,7 +258,6 @@
 </div>
 
 <script type="module">
-    // هەموو مۆدیوڵەکان و هێڵەکانی تر وەک خۆیان
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getDatabase, ref, set, onValue, push, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
@@ -297,7 +300,7 @@
         return snap.exists() ? snap.val() : null;
     }
 
-    // ئۆتنتیکەیشن وەک پێشتر
+    // ئۆتنتیکەیشن
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             myId = user.uid;
@@ -352,7 +355,7 @@
     });
     document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
 
-    // سیستەمی هاوڕێیەتی و داواکاری (وەک خۆی)
+    // سیستەمی هاوڕێیەتی
     document.getElementById('addFriendBtn').addEventListener('click', async () => {
         const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
         if (!targetShortId) return alert('ئایدی کورت بنووسە!');
@@ -623,7 +626,7 @@
         arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     });
 
-    // فەنکشنی سەرەکی کە گۆڕاوە: ئێستا ڕاگرتن (فاڵباک)ی iframe ی هەیە
+    // ✅ ئەم بەشە بە تەواوی گۆڕاوە بۆ پشتگیری لە لینکە ناڕاستەوخۆکان
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
@@ -638,7 +641,7 @@
             return;
         }
 
-        // ماڵپەڕە پارێزراوەکان (کوردسەب و هتد)
+        // ماڵپەڕە پارێزراوەکان
         const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('youtube') || cleanUrl.includes('vimeo');
         if (isSafeWebpage) {
             wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
@@ -646,7 +649,7 @@
             return;
         }
 
-        // بۆ هەموو لینکێکی تر: یەکەم ڤیدیۆ، ئەگەر شکست هێنا بچۆ سەر iframe
+        // هەوڵدان بۆ ڤیدیۆ ڕاستەوخۆ
         const video = document.createElement('video');
         video.src = cleanUrl;
         video.dataset.url = cleanUrl;
@@ -657,16 +660,23 @@
         video.oncontextmenu = () => false;
         
         video.onerror = function() {
-            // فاڵباک: iframe
-            wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
-            videoPlayer = wrapper.firstChild;
-            // چونکە لە iframe ناتوانین state کۆنترۆڵ بکەین
+            // ئەگەر ڤیدیۆ شکستی هێنا، iframe ی fallback بە sandbox بۆ دانگرتن نیشان دەدەین
+            wrapper.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:20px; padding:20px;">
+                    <div style="color:#ff8a8a; text-align:center; font-size:1.2rem;">⚠️ ئەم لینکە ڕاستەوخۆ ڤیدیۆ نییە</div>
+                    <div style="display:flex; gap:15px;">
+                        <button onclick="window.open('${cleanUrl}', '_blank')" style="background:var(--primary); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-family: 'JackFont';">🔗 کردنەوە لە تابێکی نوێ</button>
+                        <a href="${cleanUrl}" download style="background:#10B981; color:white; border:none; padding:10px 25px; border-radius:12px; text-decoration:none; cursor:pointer; font-family: 'JackFont';">⬇️ دانگرتن</a>
+                    </div>
+                    <div style="color:#aaa; font-size:0.9rem;">تکایە لینکی ڕاستەوخۆی mp4/m3u8 بەکاربهێنە</div>
+                </div>
+            `;
+            videoPlayer = null;
         };
 
         wrapper.appendChild(video);
         videoPlayer = video;
 
-        // ئیڤێنتەکان تەنها ئەگەر هێشتا تاگی ڤیدیۆ بێت
         video.addEventListener('play', () => { if (isAdmin && !isSeeking && videoPlayer?.tagName === 'VIDEO') updateState('playing'); });
         video.addEventListener('pause', () => { if (isAdmin && !isSeeking && videoPlayer?.tagName === 'VIDEO') updateState('paused'); });
         video.addEventListener('seeked', () => { if (isAdmin && videoPlayer?.tagName === 'VIDEO') updateState(videoPlayer.paused?'paused':'playing'); isSeeking=false; });
@@ -712,4 +722,4 @@
     }
 </script>
 </body>
-    </html>
+                        </html>
