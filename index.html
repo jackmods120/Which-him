@@ -15,13 +15,11 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: 'Jack', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #1a1025 0%, #0a0a14 100%);
             color: #fff; min-height: 100vh; direction: rtl;
         }
-
         .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
         header { text-align: center; padding: 30px 0; }
         header h1 {
@@ -111,6 +109,7 @@
         </header>
 
         <div id="homePage">
+            <!-- هیچ ڕێنماییەک نیشان نادرێت -->
             <div class="input-group">
                 <input type="text" class="input-field" id="videoLinkInput" placeholder="لینکی فیلم (یوتیوب، لینکی پەخشی ڕاستەوخۆ)">
                 <button class="btn btn-primary" id="createRoomBtn">دروستکردنی ژوور 💗</button>
@@ -178,6 +177,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // ناسنامەی بەکارهێنەر (هەر کەسێک UUIDـی تایبەتی هەیە)
         function getUserId() {
             let uid = localStorage.getItem('cine_user_id');
             if (!uid) {
@@ -207,6 +207,7 @@
         const playerContainer = document.getElementById('playerContainer');
         const copyRoomBtn = document.getElementById('copyRoomBtn');
         const lockedHint = document.getElementById('lockedHint');
+        const videoUpdateArea = document.getElementById('videoUpdateArea');
 
         let currentRoomId = null;
         let currentRoomOwnerId = null;
@@ -242,20 +243,25 @@
                     document.head.appendChild(tag);
                     window.onYouTubeIframeAPIReady = () => {
                         player = new YT.Player('youtube-player', {
-                            events: { 'onReady': () => {}, 'onStateChange': onPlayerStateChange }
+                            events: {
+                                'onReady': () => {},
+                                'onStateChange': onPlayerStateChange
+                            }
                         });
                     };
                 } else {
                     player = new YT.Player('youtube-player', {
-                        events: { 'onReady': () => {}, 'onStateChange': onPlayerStateChange }
+                        events: {
+                            'onReady': () => {},
+                            'onStateChange': onPlayerStateChange
+                        }
                     });
                 }
             } else {
                 playerType = 'direct';
                 const video = document.createElement('video');
                 video.id = 'direct-player';
-                // ✨ گۆڕانکاری سەرەکی: بەکارهێنانی پرۆکسی خۆمان بۆ چارەسەری CORS
-                video.src = `/api/proxy?url=${encodeURIComponent(url)}`;
+                video.src = url;
                 video.controls = true;
                 video.style.width = '100%';
                 video.style.height = '100%';
@@ -267,17 +273,21 @@
                 video.addEventListener('play', () => {
                     if (syncInProgress || !currentRoomId) return;
                     update(ref(db, `rooms/${currentRoomId}/player`), {
-                        state: 'playing', time: video.currentTime, timestamp: Date.now()
+                        state: 'playing',
+                        time: video.currentTime,
+                        timestamp: Date.now()
                     });
                 });
                 video.addEventListener('pause', () => {
                     if (syncInProgress || !currentRoomId) return;
                     update(ref(db, `rooms/${currentRoomId}/player`), {
-                        state: 'paused', time: video.currentTime, timestamp: Date.now()
+                        state: 'paused',
+                        time: video.currentTime,
+                        timestamp: Date.now()
                     });
                 });
                 video.addEventListener('error', () => {
-                    playerContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding:40px;">❌ نەتوانرا ڤیدیۆکە پەخش بکرێت. دڵنیابە لەوەی لینکەکە ڕاستەوخۆی پەخشە.</p>';
+                    playerContainer.innerHTML = '<p style="color:#ff6b6b; text-align:center; padding:40px;">❌ نەتوانرا ڤیدیۆکە پەخش بکرێت. دڵنیابە لەوەی لینکەکە ڕاستەوخۆی پەخشە (بە @FileStreamBot فۆروارد بکە).</p>';
                 });
             }
         }
@@ -286,11 +296,15 @@
             if (syncInProgress || !currentRoomId || !player || playerType !== 'youtube') return;
             if (event.data === YT.PlayerState.PLAYING) {
                 update(ref(db, `rooms/${currentRoomId}/player`), {
-                    state: 'playing', time: player.getCurrentTime(), timestamp: Date.now()
+                    state: 'playing',
+                    time: player.getCurrentTime(),
+                    timestamp: Date.now()
                 });
             } else if (event.data === YT.PlayerState.PAUSED) {
                 update(ref(db, `rooms/${currentRoomId}/player`), {
-                    state: 'paused', time: player.getCurrentTime(), timestamp: Date.now()
+                    state: 'paused',
+                    time: player.getCurrentTime(),
+                    timestamp: Date.now()
                 });
             }
         }
@@ -314,6 +328,7 @@
             setTimeout(() => { syncInProgress = false; }, 200);
         }
 
+        // ڕێکخستنی ڕووکار بەپێی ڕۆڵ
         function setOwnerUI() {
             if (isOwner) {
                 roomVideoLinkInput.disabled = false;
@@ -330,13 +345,14 @@
             const url = videoLinkInput.value.trim();
             if (!url) { homeError.textContent = 'تکایە لینکێک بنووسە.'; return; }
             const code = generateRoomCode();
-            await set(ref(db, `rooms/${code}`), {
+            const roomData = {
                 videoUrl: url,
                 ownerId: myUserId,
                 createdAt: Date.now(),
                 player: { state: 'paused', time: 0, timestamp: Date.now() },
                 messages: {}
-            });
+            };
+            await set(ref(db, `rooms/${code}`), roomData);
             currentRoomId = code;
             currentRoomOwnerId = myUserId;
             isOwner = true;
@@ -396,6 +412,7 @@
             playerType = null;
         });
 
+        // کۆپیکردنی ژمارەی ژوور
         copyRoomBtn.addEventListener('click', () => {
             if (currentRoomId) {
                 navigator.clipboard.writeText(currentRoomId).then(() => {
@@ -411,6 +428,7 @@
             onValue(roomRef, (snapshot) => {
                 const data = snapshot.val();
                 if (!data) return;
+                // نوێکردنەوەی ڕۆڵ ئەگەر پێویست بکات
                 if (data.ownerId !== currentRoomOwnerId) {
                     currentRoomOwnerId = data.ownerId;
                     isOwner = (myUserId === data.ownerId);
@@ -418,6 +436,9 @@
                 }
                 if (data.videoUrl && roomVideoLinkInput.value !== data.videoUrl) {
                     roomVideoLinkInput.value = data.videoUrl;
+                    if (isOwner) {
+                        // خاوەن ڕێگەی پێدەدرێت بیگۆڕێت، بەڵام پلەیەر نوێ دەکەینەوە
+                    }
                     loadVideo(data.videoUrl);
                 }
                 if (data.player) syncPlayer(data.player);
