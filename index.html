@@ -111,7 +111,6 @@
         </header>
 
         <div id="homePage">
-            <!-- ڕێنماییەکە بە تەواوی لابرا -->
             <div class="input-group">
                 <input type="text" class="input-field" id="videoLinkInput" placeholder="لینکی فیلم (یوتیوب، لینکی پەخشی ڕاستەوخۆ)">
                 <button class="btn btn-primary" id="createRoomBtn">دروستکردنی ژوور 💗</button>
@@ -255,7 +254,8 @@
                 playerType = 'direct';
                 const video = document.createElement('video');
                 video.id = 'direct-player';
-                video.src = url;
+                // ✨ گۆڕانکاری سەرەکی: بەکارهێنانی پرۆکسی خۆمان بۆ چارەسەری CORS
+                video.src = `/api/proxy?url=${encodeURIComponent(url)}`;
                 video.controls = true;
                 video.style.width = '100%';
                 video.style.height = '100%';
