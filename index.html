@@ -5,179 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>سەکۆی سینەما</title>
     <style>
-        @font-face {
-            font-family: 'JackFont';
-            src: url('./jack.ttf') format('truetype');
-        }
-        
-        :root {
-            --primary: #A78BFA;
-            --primary-hover: #8B5CF6;
-            --bg-glass: rgba(30, 20, 50, 0.4);
-            --border-glass: rgba(255, 255, 255, 0.15);
-            --text-main: #ffffff;
-            --text-muted: #e2e8f0;
-            --danger: #ef4444;
-            --google: #4285F4;
-        }
-        
+        @font-face { font-family: 'JackFont'; src: url('./jack.ttf') format('truetype'); }
+        :root { --primary: #A78BFA; --primary-hover: #8B5CF6; --bg-glass: rgba(30, 20, 50, 0.4); --border-glass: rgba(255, 255, 255, 0.15); --text-main: #ffffff; --text-muted: #e2e8f0; --danger: #ef4444; --google: #4285F4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JackFont', sans-serif !important; }
-        
-        body {
-            background-image: url('./web_bg.png');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            background-color: #0f0f1a;
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .glass-panel {
-            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass); border-radius: 24px; padding: 30px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); width: 100%;
-        }
-
+        body { background-image: url('./web_bg.png'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; background-color: #0f0f1a; color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .glass-panel { background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 24px; padding: 30px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); width: 100%; }
         .container { width: 100%; max-width: 1300px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         header { text-align: center; margin-bottom: 20px; }
         header h1 { font-size: 2.5rem; font-weight: normal; display: flex; align-items: center; justify-content: center; gap: 10px; }
         header p { color: var(--text-muted); font-size: 1.1rem; margin-top: 5px; }
-
         .input-group { margin-bottom: 15px; text-align: right; }
-        .input-label { display: block; font-size: 1rem; color: var(--text-muted); margin-bottom: 8px; margin-right: 5px; }
-        
-        .glass-input {
-            width: 100%; padding: 14px 20px; background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
-            color: white; font-size: 1.1rem; outline: none; transition: all 0.3s ease;
-        }
+        .glass-input { width: 100%; padding: 14px 20px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; color: white; font-size: 1.1rem; outline: none; transition: all 0.3s ease; }
         .glass-input:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
-
-        .glass-btn {
-            width: 100%; padding: 14px; border: none; border-radius: 16px;
-            font-size: 1.1rem; cursor: pointer; transition: 0.3s ease; text-align: center; margin-bottom: 10px;
-        }
-        .btn-white { background: #ffffff; color: #1e1e1e; }
-        .btn-white:hover { background: #e0e0e0; transform: translateY(-2px); }
-        .btn-google { background: var(--google); color: white; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-google:hover { background: #3367D6; }
+        .glass-btn { width: 100%; padding: 14px; border: none; border-radius: 16px; font-size: 1.1rem; cursor: pointer; transition: 0.3s ease; text-align: center; margin-bottom: 10px; }
+        .btn-white { background: #ffffff; color: #1e1e1e; } .btn-white:hover { background: #e0e0e0; transform: translateY(-2px); }
+        .btn-google { background: var(--google); color: white; display: flex; justify-content: center; align-items: center; gap: 10px; } .btn-google:hover { background: #3367D6; }
         .btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.4); }
         .btn-danger { background: var(--danger); color: white; }
-
         .btn-accept { background: #10B981; color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; font-size: 0.9rem; }
         .btn-reject { background: var(--danger); color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; margin-right: 8px; font-size: 0.9rem; }
         .btn-delete { background: transparent; color: #ff8a8a; border: none; font-size: 1.3rem; cursor: pointer; padding: 0 5px; }
         .btn-invite { background: var(--primary); color: white; border: none; border-radius: 12px; padding: 6px 15px; cursor: pointer; font-size: 0.9rem; }
         .btn-torrent { background: #c2410c; color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; font-size: 0.9rem; }
-
         .room-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         @media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
-
-        .video-wrapper {
-            background: #000; border-radius: 20px; overflow: hidden;
-            aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            border: 1px solid var(--border-glass); position: relative;
-        }
+        .video-wrapper { background: #000; border-radius: 20px; overflow: hidden; aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6); border: 1px solid var(--border-glass); position: relative; }
         .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; object-fit: contain; }
-
         .chat-container { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
         .message { background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 18px; width: fit-content; max-width: 85%; }
         .message.mine { background: rgba(167, 139, 250, 0.5); align-self: flex-end; border: 1px solid rgba(167, 139, 250, 0.3); }
         .msg-name { font-size: 0.9rem; color: var(--primary); margin-bottom: 4px; display: block; cursor: pointer;}
         .msg-text { font-size: 1.1rem; }
-        
         .chat-input-box { display: flex; gap: 10px; margin-top: 15px; }
         .send-btn { background: var(--primary); color: white; border: none; border-radius: 16px; padding: 0 20px; cursor: pointer; font-size: 1.1rem;}
-
         .friend-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;}
         .friend-item:hover { background: rgba(167, 139, 250, 0.2); }
         .dm-btn { background: var(--primary); border: none; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
-
         .request-item { display: flex; justify-content: space-between; align-items: center; background: rgba(167, 139, 250, 0.15); padding: 12px; border-radius: 12px; margin-bottom: 10px; }
         .invite-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 8px; }
-
         .ios-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 24px; cursor: pointer; transition: 0.3s; }
         .ios-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; }
-        .ios-switch.active { background: var(--primary); }
-        .ios-switch.active::after { transform: translateX(20px); }
-
+        .ios-switch.active { background: var(--primary); } .ios-switch.active::after { transform: translateX(20px); }
         .hidden { display: none !important; }
-
         #privateChatView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-glass); backdrop-filter: blur(30px); z-index: 100; padding: 20px; display: flex; flex-direction: column; }
         .dm-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 20px; margin-bottom: 20px; }
         .dm-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 20px; }
-        
         .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 10px 0; }
         .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .collapsible-content.open { max-height: 500px; }
-
         .admin-popup { position: fixed; background: rgba(0,0,0,0.9); border: 1px solid var(--primary); border-radius: 16px; padding: 15px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
-
-        /* --- iOS Custom Modal Styles --- */
-        .custom-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999; opacity: 0; visibility: hidden; transition: 0.3s ease;
-        }
+        .custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 9999; opacity: 0; visibility: hidden; transition: 0.3s ease; }
         .custom-modal-overlay.active { opacity: 1; visibility: visible; }
-        .custom-modal-box {
-            background: rgba(30, 20, 50, 0.85); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 18px;
-            width: 300px; text-align: center; overflow: hidden;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            transform: scale(0.9); transition: 0.3s ease;
-        }
+        .custom-modal-box { background: rgba(30, 20, 50, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; width: 300px; text-align: center; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.5); transform: scale(0.9); transition: 0.3s ease; }
         .custom-modal-overlay.active .custom-modal-box { transform: scale(1); }
         .custom-modal-content { padding: 20px; }
         .custom-modal-text { color: white; font-size: 1.1rem; margin-bottom: 10px; line-height: 1.4; }
-        .custom-modal-input {
-            width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
-            background: rgba(0,0,0,0.5); color: white; font-size: 1rem; outline: none; margin-top: 10px; display: none;
-        }
+        .custom-modal-input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 1rem; outline: none; margin-top: 10px; display: none; }
         .custom-modal-input:focus { border-color: var(--primary); }
         .custom-modal-buttons { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
-        .custom-modal-btn {
-            flex: 1; padding: 12px; background: transparent; border: none;
-            color: var(--primary); font-size: 1.1rem; cursor: pointer; transition: 0.2s;
-        }
+        .custom-modal-btn { flex: 1; padding: 12px; background: transparent; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
         .custom-modal-btn:hover { background: rgba(255,255,255,0.05); }
         .custom-modal-btn.cancel { color: #ff4d4d; border-right: 1px solid rgba(255,255,255,0.1); }
-
-        .torrent-status {
-            text-align: center; color: #aaa; font-size: 0.9rem; margin-top: 5px;
-        }
+        .torrent-status { text-align: center; color: #aaa; font-size: 0.9rem; margin-top: 5px; }
     </style>
-    <!-- WebTorrent CDN -->
     <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
 </head>
 <body>
 
 <div id="customModal" class="custom-modal-overlay">
     <div class="custom-modal-box">
-        <div class="custom-modal-content">
-            <div id="customModalText" class="custom-modal-text">دەق</div>
-            <input type="text" id="customModalInput" class="custom-modal-input" placeholder="...">
-        </div>
-        <div class="custom-modal-buttons">
-            <button id="customModalCancel" class="custom-modal-btn cancel">داخستن</button>
-            <button id="customModalOk" class="custom-modal-btn">باشە</button>
-        </div>
+        <div class="custom-modal-content"><div id="customModalText" class="custom-modal-text"></div><input type="text" id="customModalInput" class="custom-modal-input" placeholder="..."></div>
+        <div class="custom-modal-buttons"><button id="customModalCancel" class="custom-modal-btn cancel">داخستن</button><button id="customModalOk" class="custom-modal-btn">باشە</button></div>
     </div>
 </div>
 
 <div class="container">
-    <!-- شاشەی چوونەژوورەوە -->
     <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
-        <header>
-            <h1>بەخێربێیتەوە!</h1>
-            <p>چوونە ژوورەوە بۆ سەکۆی سینەما</p>
-        </header>
+        <header><h1>بەخێربێیتەوە!</h1><p>چوونە ژوورەوە بۆ سەکۆی سینەما</p></header>
         <div class="input-group"><input type="email" id="emailInput" class="glass-input" placeholder="ئیمەیڵەکەت بنووسە..."></div>
         <div class="input-group"><input type="password" id="passwordInput" class="glass-input" placeholder="وشەی نهێنی..."></div>
         <button id="loginEmailBtn" class="glass-btn btn-white">چوونە ژوورەوە</button>
@@ -187,17 +91,11 @@
         <button id="loginAnonBtn" class="glass-btn btn-outline">وەک میوان بڕۆ ژوورەوە</button>
     </div>
 
-    <!-- شاشەی سەرەکی -->
     <div id="homeView" class="hidden">
         <header style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px 30px; border-radius: 20px;">
-            <div>
-                <h2 style="font-size: 1.5rem;">سەکۆی سینەما</h2>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">سڵاو <span id="displayMyName" style="color:var(--primary);"></span></p>
-                <p style="font-size: 0.8rem; color: #aaa;">ئایدی تۆ: <span id="displayMyShortId" style="user-select:all; cursor:pointer; color: #fff; font-weight: bold;"></span></p>
-            </div>
+            <div><h2 style="font-size: 1.5rem;">سەکۆی سینەما</h2><p style="font-size: 0.9rem; color: var(--text-muted);">سڵاو <span id="displayMyName" style="color:var(--primary);"></span></p><p style="font-size: 0.8rem; color: #aaa;">ئایدی تۆ: <span id="displayMyShortId" style="user-select:all; cursor:pointer; color: #fff; font-weight: bold;"></span></p></div>
             <button id="logoutBtn" class="glass-btn btn-danger" style="width: auto; padding: 8px 15px; font-size: 1rem;">دەرچوون</button>
         </header>
-
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">🎬 ژووری سەیرکردن</h3>
@@ -207,13 +105,9 @@
                 <div class="input-group"><input type="text" id="joinRoomInput" class="glass-input" placeholder="کۆدی ژووری هاوڕێکەت..."></div>
                 <button id="joinRoomBtn" class="glass-btn btn-outline">چوونە ناو ژوور</button>
             </div>
-
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">💬 هاوڕێکانم و چات</h3>
-                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="friendShortIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت لێرە بنووسە...">
-                    <button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button>
-                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;"><input type="text" id="friendShortIdInput" class="glass-input" placeholder="ئایدی هاوڕێکەت لێرە بنووسە..."><button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button></div>
                 <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">داواکارییە هاوڕێیەتییەکان</h4>
                 <div id="friendRequestsContainer" style="margin-bottom: 20px; max-height: 200px; overflow-y: auto;"><p style="color:#aaa;">هیچ داواکارییەکت نییە.</p></div>
                 <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">لیستی هاوڕێیان</h4>
@@ -222,52 +116,35 @@
         </div>
     </div>
 
-    <!-- چاتی تایبەت (DM) -->
     <div id="privateChatView" class="hidden">
         <div class="dm-header"><h2 id="dmFriendName">ناوی هاوڕێ</h2><button id="closeDmBtn" class="glass-btn btn-danger" style="width: auto; padding: 5px 15px;">داخستن</button></div>
         <div class="dm-messages" id="dmMessagesBox"></div>
         <div class="chat-input-box"><input type="text" id="dmInput" class="glass-input" placeholder="نامەیەک بنووسە..."><button id="sendDmBtn" class="send-btn">ناردن</button></div>
     </div>
 
-    <!-- شاشەی ناو ژووری ڤیدیۆ -->
     <div id="roomView" class="hidden">
         <div class="glass-panel" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
             <div><span style="color: var(--text-muted); font-size: 1.1rem;">کۆدی ژوور:</span><strong id="roomCodeDisplay" style="font-size: 1.5rem; letter-spacing: 2px; color: var(--primary);">---</strong></div>
             <button id="leaveRoomBtn" class="glass-btn btn-danger" style="width: auto; padding: 10px 20px; font-size: 1.1rem;">جێهێشتن</button>
         </div>
-
         <div class="room-grid">
             <div style="display: flex; flex-direction: column; gap: 20px;">
-                <div class="video-wrapper" id="playerWrapper">
-                    <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size: 1.2rem;">چاوەڕێی ڤیدیۆ...</div>
-                </div>
-
+                <div class="video-wrapper" id="playerWrapper"><div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size: 1.2rem;">چاوەڕێی ڤیدیۆ...</div></div>
                 <div class="glass-panel" style="padding: 15px;">
                     <div class="collapsible-header" id="inviteToggle"><h3 style="font-size: 1.2rem; color: var(--primary);">📨 بانگهێشتی هاوڕێ</h3><span style="font-size: 1.5rem; transition: 0.3s;" id="inviteArrow">▼</span></div>
                     <div class="collapsible-content" id="inviteContent"><div id="inviteList" style="max-height: 200px; overflow-y: auto; margin-top: 10px;"><p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p></div></div>
                 </div>
-
                 <div id="adminControls" class="glass-panel hidden" style="padding: 20px;">
                     <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.3rem;">⚙️ ڕێکخستنی ئەدمین</h3>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.1rem;"><span>قوفڵکردنی چات</span><div id="chatLockSwitch" class="ios-switch"></div></div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ دابنێ...">
-                        <button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button>
-                    </div>
-                    <!-- WebTorrent بەش -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;"><input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ دابنێ..."><button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button></div>
                     <div style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                         <span style="color: var(--primary);">بە تۆرێنت:</span>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="text" id="magnetInput" class="glass-input" placeholder="لینکی magnet یان هاش...">
-                            <button id="loadMagnetBtn" class="glass-btn btn-torrent" style="width: auto; padding: 0 20px;">بە تۆرێنت</button>
-                            <button id="uploadFileBtn" class="glass-btn btn-torrent" style="width: auto; padding: 0 15px; font-size: 0.9rem;">📁 فایل</button>
-                            <input type="file" id="fileInput" accept="video/*" style="display:none;">
-                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;"><input type="text" id="magnetInput" class="glass-input" placeholder="لینکی magnet یان هاش..."><button id="loadMagnetBtn" class="glass-btn btn-torrent" style="width: auto; padding: 0 20px;">بە تۆرێنت</button><button id="uploadFileBtn" class="glass-btn btn-torrent" style="width: auto; padding: 0 15px; font-size: 0.9rem;">📁 فایل</button><input type="file" id="fileInput" accept="video/*" style="display:none;"></div>
                         <div id="torrentStatus" class="torrent-status"></div>
                     </div>
                 </div>
             </div>
-
             <div class="glass-panel" style="display: flex; flex-direction: column; padding: 20px;">
                 <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">چاتی ژوور</h3>
                 <div id="chatSection" style="flex:1; display:flex; flex-direction:column;">
@@ -285,43 +162,21 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getDatabase, ref, set, onValue, push, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8",
-        authDomain: "whith-him.firebaseapp.com",
-        databaseURL: "https://whith-him-default-rtdb.firebaseio.com/",
-        projectId: "whith-him",
-        storageBucket: "whith-him.firebasestorage.app",
-        messagingSenderId: "677366602778",
-        appId: "1:677366602778:web:db312776554c5bba9945a3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const googleProvider = new GoogleAuthProvider();
-
+    const firebaseConfig = { apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8", authDomain: "whith-him.firebaseapp.com", databaseURL: "https://whith-him-default-rtdb.firebaseio.com/", projectId: "whith-him", storageBucket: "whith-him.firebasestorage.app", messagingSenderId: "677366602778", appId: "1:677366602778:web:db312776554c5bba9945a3" };
+    const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app), googleProvider = new GoogleAuthProvider();
     let myId = null, myName = null, myShortId = null, currentRoomId = null, activeDmChatId = null, adminPopup = null;
     const loginView = document.getElementById('loginView'), homeView = document.getElementById('homeView'), roomView = document.getElementById('roomView'), privateChatView = document.getElementById('privateChatView');
 
-    // مۆداڵ
     function showCustomModal(options) {
         return new Promise((resolve) => {
-            const modal = document.getElementById('customModal');
-            const textEl = document.getElementById('customModalText');
-            const inputEl = document.getElementById('customModalInput');
-            const btnCancel = document.getElementById('customModalCancel');
-            const btnOk = document.getElementById('customModalOk');
-            textEl.textContent = options.text;
-            if (options.type === 'prompt') {
-                inputEl.style.display = 'block';
-                inputEl.value = '';
-                inputEl.placeholder = options.placeholder || 'لێرە بنووسە...';
-            } else inputEl.style.display = 'none';
-            if (options.type === 'alert') { btnCancel.style.display = 'none'; btnOk.style.borderLeft = 'none'; }
-            else { btnCancel.style.display = 'block'; btnOk.style.borderLeft = '1px solid rgba(255,255,255,0.1)'; }
+            const modal = document.getElementById('customModal'), textEl = document.getElementById('customModalText'), inputEl = document.getElementById('customModalInput'), btnCancel = document.getElementById('customModalCancel'), btnOk = document.getElementById('customModalOk');
+            textEl.textContent = options.text; inputEl.style.display = options.type === 'prompt' ? 'block' : 'none';
+            if (options.type === 'prompt') { inputEl.value = ''; inputEl.placeholder = options.placeholder || 'لێرە بنووسە...'; }
+            btnCancel.style.display = options.type === 'alert' ? 'none' : 'block';
+            btnOk.style.borderLeft = options.type === 'alert' ? 'none' : '1px solid rgba(255,255,255,0.1)';
             modal.classList.add('active');
             const cleanup = () => { modal.classList.remove('active'); btnOk.onclick = null; btnCancel.onclick = null; };
-            btnOk.onclick = () => { cleanup(); if (options.type === 'prompt') resolve(inputEl.value.trim()); else resolve(true); };
+            btnOk.onclick = () => { cleanup(); resolve(options.type === 'prompt' ? inputEl.value.trim() : true); };
             btnCancel.onclick = () => { cleanup(); resolve(options.type === 'prompt' ? null : false); };
         });
     }
@@ -329,349 +184,90 @@
     const customConfirm = (text) => showCustomModal({ type: 'confirm', text });
     const customPrompt = (text, placeholder) => showCustomModal({ type: 'prompt', text, placeholder });
 
-    function generateShortId() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-        return result;
-    }
-    async function getUidByShortId(shortId) {
-        const snap = await get(ref(db, `shortIds/${shortId}`));
-        return snap.exists() ? snap.val() : null;
-    }
+    function generateShortId() { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let r = ''; for (let i = 0; i < 6; i++) r += chars.charAt(Math.floor(Math.random() * chars.length)); return r; }
+    async function getUidByShortId(sid) { const s = await get(ref(db, `shortIds/${sid}`)); return s.exists() ? s.val() : null; }
 
-    // ئۆتنتیکەیشن
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            myId = user.uid;
-            myName = user.displayName || localStorage.getItem('guestName') || "میوان_" + Math.floor(Math.random()*1000);
-            const userSnap = await get(ref(db, `users/${myId}`));
-            const userData = userSnap.val() || {};
-            if (!userData.shortId) {
-                let shortId = generateShortId();
-                while ((await get(ref(db, `shortIds/${shortId}`))).exists()) shortId = generateShortId();
-                myShortId = shortId;
-                await set(ref(db, `users/${myId}`), { name: myName, email: user.email || 'نهێنی', shortId: myShortId });
-                await set(ref(db, `shortIds/${myShortId}`), myId);
-            } else myShortId = userData.shortId;
-            document.getElementById('displayMyName').textContent = myName;
-            document.getElementById('displayMyShortId').textContent = myShortId;
-            loginView.classList.add('hidden'); homeView.classList.remove('hidden');
-            loadFriends(); loadFriendRequests();
-        } else {
-            loginView.classList.remove('hidden'); homeView.classList.add('hidden'); roomView.classList.add('hidden'); privateChatView.classList.add('hidden');
-        }
+            myId = user.uid; myName = user.displayName || localStorage.getItem('guestName') || "میوان_" + Math.floor(Math.random()*1000);
+            const snap = await get(ref(db, `users/${myId}`)), data = snap.val() || {};
+            if (!data.shortId) { let sid = generateShortId(); while ((await get(ref(db, `shortIds/${sid}`))).exists()) sid = generateShortId(); myShortId = sid; await set(ref(db, `users/${myId}`), { name: myName, email: user.email || 'نهێنی', shortId: myShortId }); await set(ref(db, `shortIds/${myShortId}`), myId); }
+            else myShortId = data.shortId;
+            document.getElementById('displayMyName').textContent = myName; document.getElementById('displayMyShortId').textContent = myShortId;
+            loginView.classList.add('hidden'); homeView.classList.remove('hidden'); loadFriends(); loadFriendRequests();
+        } else { loginView.classList.remove('hidden'); homeView.classList.add('hidden'); roomView.classList.add('hidden'); privateChatView.classList.add('hidden'); }
     });
 
-    document.getElementById('loginEmailBtn').addEventListener('click', async () => {
-        const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value;
-        if(e && p) { try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { customAlert("هەڵە هەیە"); } }
-    });
-    document.getElementById('signupEmailBtn').addEventListener('click', async () => {
-        const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value;
-        if(e && p) { try { await createUserWithEmailAndPassword(auth, e, p); const name = await customPrompt("ناوی خۆت:"); localStorage.setItem('guestName', name || "بەکارهێنەر"); location.reload(); } catch(err) { customAlert(err.message); } }
-    });
+    document.getElementById('loginEmailBtn').addEventListener('click', async () => { const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value; if(e && p) { try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { customAlert("هەڵە"); } } });
+    document.getElementById('signupEmailBtn').addEventListener('click', async () => { const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value; if(e && p) { try { await createUserWithEmailAndPassword(auth, e, p); const n = await customPrompt("ناوی خۆت:"); localStorage.setItem('guestName', n || "بەکارهێنەر"); location.reload(); } catch(err) { customAlert(err.message); } } });
     document.getElementById('loginGoogleBtn').addEventListener('click', async () => { try { await signInWithPopup(auth, googleProvider); } catch(err) { customAlert(err.message); } });
-    document.getElementById('loginAnonBtn').addEventListener('click', async () => {
-        const name = await customPrompt("ناوی خۆت:"); if(name) { localStorage.setItem('guestName', name); try { await signInAnonymously(auth); } catch(err) { customAlert(err.message); } }
-    });
+    document.getElementById('loginAnonBtn').addEventListener('click', async () => { const n = await customPrompt("ناوی خۆت:"); if(n) { localStorage.setItem('guestName', n); try { await signInAnonymously(auth); } catch(err) { customAlert(err.message); } } });
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-    // هاوڕێیەتی
-    document.getElementById('addFriendBtn').addEventListener('click', async () => {
-        const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
-        if (!targetShortId) return customAlert('ئایدی کورت بنووسە!');
-        if (targetShortId === myShortId) return customAlert('ناتوانیت خۆت زیاد بکەیت!');
-        const targetUid = await getUidByShortId(targetShortId);
-        if (!targetUid) return customAlert('هیچ کەسێک نەدۆزرایەوە!');
-        if ((await get(ref(db, `users/${myId}/sentRequests/${targetUid}`))).exists()) return customAlert('پێشتر داواکاری ناردووە!');
-        const reqId = push(ref(db, 'friend_requests')).key;
-        await set(ref(db, `friend_requests/${reqId}`), { fromUid: myId, fromName: myName, fromShortId: myShortId, toUid: targetUid, status: 'pending', timestamp: Date.now() });
-        await set(ref(db, `users/${targetUid}/pendingRequests/${reqId}`), true);
-        await set(ref(db, `users/${myId}/sentRequests/${targetUid}`), true);
-        document.getElementById('friendShortIdInput').value = ''; customAlert('داواکاری نێردرا!');
-    });
+    document.getElementById('addFriendBtn').addEventListener('click', async () => { const sid = document.getElementById('friendShortIdInput').value.trim().toUpperCase(); if(!sid) return customAlert('ئایدی بنووسە!'); if(sid === myShortId) return customAlert('خۆت نابێت'); const uid = await getUidByShortId(sid); if(!uid) return customAlert('نەدۆزرایەوە'); if((await get(ref(db, `users/${myId}/sentRequests/${uid}`))).exists()) return customAlert('پێشتر ناردووە'); const rid = push(ref(db, 'friend_requests')).key; await set(ref(db, `friend_requests/${rid}`), { fromUid: myId, fromName: myName, fromShortId: myShortId, toUid: uid, status: 'pending', timestamp: Date.now() }); await set(ref(db, `users/${uid}/pendingRequests/${rid}`), true); await set(ref(db, `users/${myId}/sentRequests/${uid}`), true); document.getElementById('friendShortIdInput').value = ''; customAlert('داواکاری نێردرا'); });
 
-    function loadFriendRequests() {
-        onValue(ref(db, `users/${myId}/pendingRequests`), async (snap) => {
-            const container = document.getElementById('friendRequestsContainer'); container.innerHTML = '';
-            if (!snap.exists()) { container.innerHTML = '<p style="color:#aaa;">هیچ داواکارییەکت نییە.</p>'; return; }
-            for (const reqId of Object.keys(snap.val())) {
-                const rs = await get(ref(db, `friend_requests/${reqId}`)); if(!rs.exists()) continue;
-                const req = rs.val(); if(req.status !== 'pending') continue;
-                const div = document.createElement('div'); div.className = 'request-item';
-                div.innerHTML = `<span>👤 ${req.fromName} (${req.fromShortId})</span><div><button class="btn-reject" data-reqid="${reqId}">ڕەت</button><button class="btn-accept" data-reqid="${reqId}">قبوڵ</button></div>`;
-                container.appendChild(div);
-            }
-            container.querySelectorAll('.btn-accept').forEach(b => b.addEventListener('click', async (e) => { await acceptFriendRequest(e.target.dataset.reqid); }));
-            container.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', async (e) => { await rejectFriendRequest(e.target.dataset.reqid); }));
-        });
-    }
-    async function acceptFriendRequest(reqId) {
-        const rs = await get(ref(db, `friend_requests/${reqId}`)); if(!rs.exists()) return;
-        const req = rs.val(); if(req.toUid !== myId) return;
-        await update(ref(db, `users/${myId}/friends`), { [req.fromUid]: req.fromName });
-        await update(ref(db, `users/${req.fromUid}/friends`), { [myId]: myName });
-        await remove(ref(db, `friend_requests/${reqId}`)); await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`)); await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
-        customAlert(`${req.fromName} بوو بە هاوڕێ!`);
-    }
-    async function rejectFriendRequest(reqId) {
-        const rs = await get(ref(db, `friend_requests/${reqId}`)); if(!rs.exists()) return;
-        const req = rs.val(); if(req.toUid !== myId) return;
-        await remove(ref(db, `friend_requests/${reqId}`)); await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`)); await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
-        customAlert('داواکاری ڕەتکرایەوە.');
-    }
+    function loadFriendRequests() { onValue(ref(db, `users/${myId}/pendingRequests`), async (snap) => { const c = document.getElementById('friendRequestsContainer'); c.innerHTML = ''; if(!snap.exists()) { c.innerHTML = '<p style="color:#aaa;">هیچ نییە</p>'; return; } for(const rid of Object.keys(snap.val())) { const rs = await get(ref(db, `friend_requests/${rid}`)); if(!rs.exists()) continue; const r = rs.val(); if(r.status !== 'pending') continue; const div = document.createElement('div'); div.className = 'request-item'; div.innerHTML = `<span>👤 ${r.fromName} (${r.fromShortId})</span><div><button class="btn-reject" data-reqid="${rid}">ڕەت</button><button class="btn-accept" data-reqid="${rid}">قبوڵ</button></div>`; c.appendChild(div); } c.querySelectorAll('.btn-accept').forEach(b => b.addEventListener('click', async (e) => { await acceptFriendRequest(e.target.dataset.reqid); })); c.querySelectorAll('.btn-reject').forEach(b => b.addEventListener('click', async (e) => { await rejectFriendRequest(e.target.dataset.reqid); })); }); }
+    async function acceptFriendRequest(rid) { const rs = await get(ref(db, `friend_requests/${rid}`)); if(!rs.exists()) return; const r = rs.val(); if(r.toUid !== myId) return; await update(ref(db, `users/${myId}/friends`), { [r.fromUid]: r.fromName }); await update(ref(db, `users/${r.fromUid}/friends`), { [myId]: myName }); await remove(ref(db, `friend_requests/${rid}`)); await remove(ref(db, `users/${myId}/pendingRequests/${rid}`)); await remove(ref(db, `users/${r.fromUid}/sentRequests/${myId}`)); customAlert(`${r.fromName} بوو بە هاوڕێ`); }
+    async function rejectFriendRequest(rid) { const rs = await get(ref(db, `friend_requests/${rid}`)); if(!rs.exists()) return; const r = rs.val(); if(r.toUid !== myId) return; await remove(ref(db, `friend_requests/${rid}`)); await remove(ref(db, `users/${myId}/pendingRequests/${rid}`)); await remove(ref(db, `users/${r.fromUid}/sentRequests/${myId}`)); customAlert('ڕەتکرایەوە'); }
 
-    function loadFriends() {
-        onValue(ref(db, `users/${myId}/friends`), (snap) => {
-            const list = document.getElementById('friendsList'); list.innerHTML = '';
-            if (!snap.exists()) { list.innerHTML = '<p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p>'; return; }
-            snap.forEach(child => {
-                const fId = child.key, fName = child.val();
-                const div = document.createElement('div'); div.className = 'friend-item';
-                div.innerHTML = `<span style="flex:1;">👤 ${fName}</span><button class="dm-btn" style="margin-right:8px;">نامە</button><button class="btn-delete">✕</button>`;
-                div.querySelector('span').addEventListener('click', () => openPrivateChat(fId, fName));
-                div.querySelector('.dm-btn').addEventListener('click', (e) => { e.stopPropagation(); openPrivateChat(fId, fName); });
-                div.querySelector('.btn-delete').addEventListener('click', async (e) => { e.stopPropagation(); if(await customConfirm(`دڵنیایت ${fName} بسڕیتەوە؟`)) { await remove(ref(db, `users/${myId}/friends/${fId}`)); await remove(ref(db, `users/${fId}/friends/${myId}`)); } });
-                list.appendChild(div);
-            });
-        });
-    }
+    function loadFriends() { onValue(ref(db, `users/${myId}/friends`), (snap) => { const l = document.getElementById('friendsList'); l.innerHTML = ''; if(!snap.exists()) { l.innerHTML = '<p style="color:#aaa;">هیچ هاوڕێیەکت نییە</p>'; return; } snap.forEach(c => { const fid = c.key, fn = c.val(); const div = document.createElement('div'); div.className = 'friend-item'; div.innerHTML = `<span style="flex:1;">👤 ${fn}</span><button class="dm-btn" style="margin-right:8px;">نامە</button><button class="btn-delete">✕</button>`; div.querySelector('span').addEventListener('click', () => openPrivateChat(fid, fn)); div.querySelector('.dm-btn').addEventListener('click', (e) => { e.stopPropagation(); openPrivateChat(fid, fn); }); div.querySelector('.btn-delete').addEventListener('click', async (e) => { e.stopPropagation(); if(await customConfirm(`دڵنیایت ${fn} بسڕیتەوە؟`)) { await remove(ref(db, `users/${myId}/friends/${fid}`)); await remove(ref(db, `users/${fid}/friends/${myId}`)); } }); l.appendChild(div); }); }); }
+    function openPrivateChat(fid, fn) { activeDmChatId = [myId, fid].sort().join('_'); document.getElementById('dmFriendName').textContent = fn; privateChatView.classList.remove('hidden'); homeView.classList.add('hidden'); onValue(ref(db, `direct_messages/${activeDmChatId}`), (snap) => { const box = document.getElementById('dmMessagesBox'); box.innerHTML = ''; snap.forEach(c => { const msg = c.val(); const div = document.createElement('div'); div.className = `message ${msg.senderId === myId ? 'mine' : ''}`; div.innerHTML = `<span class="msg-name">${msg.name}</span><div class="msg-text">${msg.text}</div>`; box.appendChild(div); }); box.scrollTop = box.scrollHeight; }); }
+    document.getElementById('sendDmBtn').addEventListener('click', () => { const t = document.getElementById('dmInput').value.trim(); if(t && activeDmChatId) { push(ref(db, `direct_messages/${activeDmChatId}`), { senderId: myId, name: myName, text: t, timestamp: Date.now() }); document.getElementById('dmInput').value = ''; } });
+    document.getElementById('dmInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('sendDmBtn').click(); });
+    document.getElementById('closeDmBtn').addEventListener('click', () => { activeDmChatId = null; privateChatView.classList.add('hidden'); homeView.classList.remove('hidden'); });
 
-    function openPrivateChat(friendId, friendName) {
-        activeDmChatId = [myId, friendId].sort().join('_');
-        document.getElementById('dmFriendName').textContent = friendName;
-        privateChatView.classList.remove('hidden'); homeView.classList.add('hidden');
-        onValue(ref(db, `direct_messages/${activeDmChatId}`), (snap) => {
-            const box = document.getElementById('dmMessagesBox'); box.innerHTML = '';
-            snap.forEach(c => { const msg = c.val(); const div = document.createElement('div'); div.className = `message ${msg.senderId===myId?'mine':''}`; div.innerHTML = `<span class="msg-name">${msg.name}</span><div class="msg-text">${msg.text}</div>`; box.appendChild(div); });
-            box.scrollTop = box.scrollHeight;
-        });
-    }
-    document.getElementById('sendDmBtn').addEventListener('click', () => {
-        const t = document.getElementById('dmInput').value.trim();
-        if(t && activeDmChatId) { push(ref(db, `direct_messages/${activeDmChatId}`), { senderId:myId, name:myName, text:t, timestamp:Date.now() }); document.getElementById('dmInput').value = ''; }
-    });
-    document.getElementById('dmInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('sendDmBtn').click(); });
-    document.getElementById('closeDmBtn').addEventListener('click', () => { activeDmChatId=null; privateChatView.classList.add('hidden'); homeView.classList.remove('hidden'); });
+    let roomDataGlobal = null, isOwner = false, isAdmin = false, videoPlayer = null, isSeeking = false, webtorrentClient = null, currentTorrent = null, inviteListenerUnsub = null;
 
-    // ژووری ڤیدیۆ
-    let roomDataGlobal=null, isOwner=false, isAdmin=false, isSeeking=false;
-    let videoPlayer=null;
-    let webtorrentClient = null;
-    let currentTorrent = null;
-
-    function createRoom(url) {
-        const roomId = Math.random().toString(36).substr(2,5).toUpperCase();
-        set(ref(db, `rooms_ku/${roomId}`), { ownerId:myId, videoUrl:url, chatLocked:false, admins:{[myId]:true}, state:{time:0,status:'paused',updatedBy:myId,timestamp:Date.now()} });
-        return roomId;
-    }
-
-    document.getElementById('createRoomBtn').addEventListener('click', async () => {
-        const url = document.getElementById('newVideoInput').value.trim();
-        if(!url) return customAlert("تکایە لینکێک بنووسە!");
-        const roomId = await createRoom(url);
-        enterRoom(roomId);
-    });
-
-    document.getElementById('joinRoomBtn').addEventListener('click', async () => {
-        const code = document.getElementById('joinRoomInput').value.trim().toUpperCase();
-        if(!code) return customAlert("کۆد بنووسە!");
-        const snap = await get(ref(db, `rooms_ku/${code}`));
-        snap.exists() ? enterRoom(code) : customAlert("ژوورەکە بوونی نییە!");
-    });
+    document.getElementById('createRoomBtn').addEventListener('click', async () => { const url = document.getElementById('newVideoInput').value.trim(); if(!url) return customAlert("لینکێک بنووسە"); const roomId = Math.random().toString(36).substr(2,5).toUpperCase(); await set(ref(db, `rooms_ku/${roomId}`), { ownerId: myId, videoUrl: url, chatLocked: false, admins: { [myId]: true }, state: { time: 0, status: 'paused', updatedBy: myId, timestamp: Date.now() } }); enterRoom(roomId); });
+    document.getElementById('joinRoomBtn').addEventListener('click', async () => { const code = document.getElementById('joinRoomInput').value.trim().toUpperCase(); if(!code) return customAlert("کۆد بنووسە"); (await get(ref(db, `rooms_ku/${code}`))).exists() ? enterRoom(code) : customAlert("ژوور بوونی نییە"); });
 
     function enterRoom(roomId) {
-        currentRoomId = roomId;
-        homeView.classList.add('hidden'); roomView.classList.remove('hidden');
-        document.getElementById('roomCodeDisplay').textContent = roomId;
-        
+        currentRoomId = roomId; homeView.classList.add('hidden'); roomView.classList.remove('hidden'); document.getElementById('roomCodeDisplay').textContent = roomId;
         onValue(ref(db, `rooms_ku/${roomId}`), (snap) => {
             if (!snap.exists()) { customAlert("ژوور داخراوە"); leaveRoom(); return; }
-            const data = snap.val(); roomDataGlobal = data;
-            isOwner = (data.ownerId === myId);
-            isAdmin = (data.admins && data.admins[myId]) || isOwner;
+            const data = snap.val(); roomDataGlobal = data; isOwner = (data.ownerId === myId); isAdmin = (data.admins && data.admins[myId]) || isOwner;
             document.getElementById('adminControls').classList.toggle('hidden', !isAdmin);
             if(isAdmin) document.getElementById('updateVideoInput').value = data.videoUrl;
-            const lockSwitch = document.getElementById('chatLockSwitch');
-            if (data.chatLocked) { lockSwitch.classList.add('active'); if(!isAdmin) { document.getElementById('chatInputArea').style.display='none'; document.getElementById('chatLockedMsg').style.display='block'; } }
-            else { lockSwitch.classList.remove('active'); document.getElementById('chatInputArea').style.display='flex'; document.getElementById('chatLockedMsg').style.display='none'; }
-
-            // پشتگیری لە تۆرێنت: ئەگەر videoUrl بە "magnet:" دەستپێبکات، ئەوا تۆرێنتە
-            if (data.videoUrl && data.videoUrl.startsWith('magnet:')) {
-                loadTorrent(data.videoUrl);
-            } else {
-                if (!videoPlayer || videoPlayer.dataset.url !== data.videoUrl) loadSmartVideo(data.videoUrl);
-            }
+            const ls = document.getElementById('chatLockSwitch');
+            if(data.chatLocked) { ls.classList.add('active'); if(!isAdmin) { document.getElementById('chatInputArea').style.display='none'; document.getElementById('chatLockedMsg').style.display='block'; } }
+            else { ls.classList.remove('active'); document.getElementById('chatInputArea').style.display='flex'; document.getElementById('chatLockedMsg').style.display='none'; }
+            if(data.videoUrl && data.videoUrl.startsWith('magnet:')) loadTorrent(data.videoUrl);
+            else if(!videoPlayer || videoPlayer.dataset.url !== data.videoUrl) loadSmartVideo(data.videoUrl);
         });
-
-        onValue(ref(db, `rooms_ku/${roomId}/messages`), (snap) => {
-            const box = document.getElementById('chatBox'); box.innerHTML = '';
-            snap.forEach(c => {
-                const msg = c.val(); const isMe = msg.senderId===myId;
-                const badge = (msg.senderId===roomDataGlobal?.ownerId)?'👑':((roomDataGlobal?.admins&&roomDataGlobal.admins[msg.senderId])?'🛡️':'');
-                const div = document.createElement('div'); div.className = `message ${isMe?'mine':''}`;
-                div.innerHTML = `<span class="msg-name ${isMe?'':'clickable-name'}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
-                box.appendChild(div);
-            });
-            box.querySelectorAll('.msg-name.clickable-name').forEach(span => {
-                span.addEventListener('click', (e) => {
-                    const uid = e.target.dataset.uid, name = e.target.dataset.name;
-                    if(isAdmin && uid && uid!==myId) showAdminPopup(e, uid, name);
-                });
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-
+        onValue(ref(db, `rooms_ku/${roomId}/messages`), (snap) => { const box = document.getElementById('chatBox'); box.innerHTML = ''; snap.forEach(c => { const msg = c.val(); const isMe = msg.senderId === myId; const badge = (msg.senderId === roomDataGlobal?.ownerId) ? '👑' : ((roomDataGlobal?.admins && roomDataGlobal.admins[msg.senderId]) ? '🛡️' : ''); const div = document.createElement('div'); div.className = `message ${isMe ? 'mine' : ''}`; div.innerHTML = `<span class="msg-name ${isMe ? '' : 'clickable-name'}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`; box.appendChild(div); }); box.querySelectorAll('.msg-name.clickable-name').forEach(s => s.addEventListener('click', (e) => { if(isAdmin && e.target.dataset.uid && e.target.dataset.uid !== myId) showAdminPopup(e, e.target.dataset.uid, e.target.dataset.name); })); box.scrollTop = box.scrollHeight; });
         loadInviteList();
     }
 
-    function showAdminPopup(event, targetUid, targetName) {
-        if(adminPopup) adminPopup.remove();
-        adminPopup = document.createElement('div'); adminPopup.className='admin-popup';
-        const isAlreadyAdmin = roomDataGlobal.admins && roomDataGlobal.admins[targetUid];
-        adminPopup.innerHTML = `<span style="color:white; margin-bottom:5px;">${targetName}</span>
-            <button id="toggleAdminBtn" class="glass-btn ${isAlreadyAdmin?'btn-danger':'btn-white'}" style="width:auto; padding:8px 15px;">${isAlreadyAdmin?'لابردنی ئەدمین':'کردن بە ئەدمین'}</button>
-            <button id="closeAdminPopup" class="glass-btn btn-outline" style="width:auto; padding:5px 10px;">داخستن</button>`;
-        adminPopup.style.left = event.clientX+'px'; adminPopup.style.top = event.clientY+'px';
-        document.body.appendChild(adminPopup);
-        adminPopup.querySelector('#toggleAdminBtn').addEventListener('click', async () => {
-            const admins = roomDataGlobal.admins || {};
-            if(isAlreadyAdmin) delete admins[targetUid]; else admins[targetUid]=true;
-            await update(ref(db, `rooms_ku/${currentRoomId}`), { admins });
-            adminPopup.remove(); adminPopup=null;
-        });
-        adminPopup.querySelector('#closeAdminPopup').addEventListener('click', ()=>{ adminPopup.remove(); adminPopup=null; });
-        setTimeout(()=>{ document.addEventListener('click', function cl(e){ if(adminPopup&&!adminPopup.contains(e.target)){ adminPopup.remove(); adminPopup=null; document.removeEventListener('click',cl); } }); },100);
-    }
+    function showAdminPopup(event, uid, name) { if(adminPopup) adminPopup.remove(); adminPopup = document.createElement('div'); adminPopup.className = 'admin-popup'; const isAd = roomDataGlobal.admins && roomDataGlobal.admins[uid]; adminPopup.innerHTML = `<span style="color:white;">${name}</span><button id="toggleAdminBtn" class="glass-btn ${isAd ? 'btn-danger' : 'btn-white'}" style="width:auto; padding:8px 15px;">${isAd ? 'لابردنی ئەدمین' : 'کردن بە ئەدمین'}</button><button id="closeAdminPopup" class="glass-btn btn-outline" style="width:auto; padding:5px 10px;">داخستن</button>`; adminPopup.style.left = event.clientX+'px'; adminPopup.style.top = event.clientY+'px'; document.body.appendChild(adminPopup); adminPopup.querySelector('#toggleAdminBtn').addEventListener('click', async () => { const admins = roomDataGlobal.admins || {}; isAd ? delete admins[uid] : admins[uid] = true; await update(ref(db, `rooms_ku/${currentRoomId}`), { admins }); adminPopup.remove(); adminPopup = null; }); adminPopup.querySelector('#closeAdminPopup').addEventListener('click', () => { adminPopup.remove(); adminPopup = null; }); setTimeout(() => { document.addEventListener('click', function cl(e) { if(adminPopup && !adminPopup.contains(e.target)) { adminPopup.remove(); adminPopup = null; document.removeEventListener('click', cl); } }); }, 100); }
 
-    let inviteListenerUnsub=null;
-    function loadInviteList() {
-        if(inviteListenerUnsub) inviteListenerUnsub();
-        const div = document.getElementById('inviteList');
-        inviteListenerUnsub = onValue(ref(db, `users/${myId}/friends`), (snap) => {
-            div.innerHTML = '';
-            if(!snap.exists()) { div.innerHTML='<p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p>'; return; }
-            snap.forEach(c => { const fId=c.key, fName=c.val(); const d=document.createElement('div'); d.className='invite-item'; d.innerHTML=`<span>👤 ${fName}</span> <button class="btn-invite">بانگهێشت</button>`; d.querySelector('.btn-invite').addEventListener('click', ()=> inviteFriend(fId,fName)); div.appendChild(d); });
-        });
-    }
-    async function inviteFriend(fId,fName) {
-        if(!currentRoomId) return;
-        await push(ref(db, `direct_messages/${[myId,fId].sort().join('_')}`), { senderId:myId, name:myName, text:`🎬 ${fName}ی ئازیز، کۆدی ژوور: ${currentRoomId}. بنووسە لە 'چوونە ناو ژوور'.`, timestamp:Date.now() });
-        customAlert(`بانگهێشت بۆ ${fName} نێردرا!`);
-    }
-    document.getElementById('inviteToggle').addEventListener('click', ()=>{
-        const c=document.getElementById('inviteContent'), a=document.getElementById('inviteArrow');
-        c.classList.toggle('open'); a.style.transform = c.classList.contains('open')?'rotate(180deg)':'rotate(0deg)';
-    });
+    function loadInviteList() { if(inviteListenerUnsub) inviteListenerUnsub(); const div = document.getElementById('inviteList'); inviteListenerUnsub = onValue(ref(db, `users/${myId}/friends`), (snap) => { div.innerHTML = ''; if(!snap.exists()) { div.innerHTML = '<p style="color:#aaa;">هیچ هاوڕێیەکت نییە</p>'; return; } snap.forEach(c => { const fid = c.key, fn = c.val(); const d = document.createElement('div'); d.className = 'invite-item'; d.innerHTML = `<span>👤 ${fn}</span> <button class="btn-invite">بانگهێشت</button>`; d.querySelector('.btn-invite').addEventListener('click', () => inviteFriend(fid, fn)); div.appendChild(d); }); }); }
+    async function inviteFriend(fid, fn) { if(!currentRoomId) return; await push(ref(db, `direct_messages/${[myId, fid].sort().join('_')}`), { senderId: myId, name: myName, text: `🎬 ${fn}ی ئازیز، کۆدی ژوور: ${currentRoomId}. بنووسە لە 'چوونە ناو ژوور'.`, timestamp: Date.now() }); customAlert(`بانگهێشت بۆ ${fn} نێردرا`); }
+    document.getElementById('inviteToggle').addEventListener('click', () => { const c = document.getElementById('inviteContent'), a = document.getElementById('inviteArrow'); c.classList.toggle('open'); a.style.transform = c.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)'; });
 
-    // ڤیدیۆی ئاسایی
     function loadSmartVideo(url) {
-        const wrapper = document.getElementById('playerWrapper');
-        wrapper.innerHTML = ''; videoPlayer = null;
-        const yt = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
-        if(yt) { wrapper.innerHTML=`<iframe src="https://www.youtube.com/embed/${yt[1]}" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;"></iframe>`; videoPlayer=wrapper.firstChild; return; }
-        if(url.includes('kurdsub')||url.includes('youtube')||url.includes('vimeo')) { wrapper.innerHTML=`<iframe src="${url}" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;"></iframe>`; videoPlayer=wrapper.firstChild; return; }
-
-        // fallback simple video
-        const v = document.createElement('video'); v.src=url; v.controls=true; v.preload="auto"; 
-        v.setAttribute('playsinline',''); v.setAttribute('controlsList','nodownload');
-        v.oncontextmenu=()=>false;
-        v.onerror=()=>{ wrapper.innerHTML='<div style="text-align:center;padding:20px;color:#ff8a8a;">ئەم لینکە کارناکات یان پێویستی بە پرۆکسی هەیە. لە جیاتی ئەوە دەتوانیت لینکی تۆرێنت زیاد بکەیت لە بەشی خوارەوە.</div>'; videoPlayer=null; };
-        wrapper.appendChild(v); videoPlayer=v;
+        const wrapper = document.getElementById('playerWrapper'); wrapper.innerHTML = ''; videoPlayer = null; const cleanUrl = url.trim();
+        const yt = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+        if(yt) { wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${yt[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;"></iframe>`; videoPlayer = wrapper.firstChild; return; }
+        if(cleanUrl.includes('kurdsub')||cleanUrl.includes('vimeo')) { wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;"></iframe>`; videoPlayer = wrapper.firstChild; return; }
+        // سەرجەم لینکەکانی تر بە پرۆکسی ناوخۆیی پەخش دەکەین
+        wrapper.innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size:1.2rem;">⏳ پەخشی ڕاستەوخۆ...</div>`;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(cleanUrl)}`;
+        const v = document.createElement('video'); v.src = proxyUrl; v.controls = true; v.preload = "auto"; v.setAttribute('playsinline', ''); v.setAttribute('controlsList', 'nodownload'); v.oncontextmenu = () => false;
+        v.onerror = () => { wrapper.innerHTML = '<div style="text-align:center;padding:20px;color:#ff8a8a;">ئەم لینکە کارناکات. تکایە لینکی تۆرێنت بەکاربهێنە.</div>'; videoPlayer = null; };
+        wrapper.innerHTML = ''; wrapper.appendChild(v); videoPlayer = v;
     }
 
-    // تۆرێنت
-    async function loadTorrent(magnetOrHash) {
-        // داخستنی ڤیدیۆی ئێستا
-        const wrapper = document.getElementById('playerWrapper');
-        wrapper.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#aaa;font-size:1.2rem;">⏳ ئامادەکردنی تۆرێنت...</div>';
-        videoPlayer = null;
+    function loadTorrent(magnet) { const wrapper = document.getElementById('playerWrapper'); wrapper.innerHTML = '<div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size:1.2rem;">⏳ تۆرێنت...</div>'; if(!webtorrentClient) webtorrentClient = new WebTorrent(); webtorrentClient.add(magnet, (torrent) => { const file = torrent.files.find(f => f.name.match(/\.(mp4|mkv|webm|avi|mov)$/i)); if(!file) { customAlert('فایلی ڤیدیۆیی نەدۆزرایەوە'); return; } file.renderTo(wrapper); document.getElementById('torrentStatus').textContent = `${torrent.name || torrent.infoHash} - بڵاو دەبێتەوە...`; torrent.on('done', () => document.getElementById('torrentStatus').textContent = `${torrent.name || torrent.infoHash} - تەواو بوو`); }); if(isAdmin && currentRoomId) update(ref(db, `rooms_ku/${currentRoomId}`), { videoUrl: magnet }); }
 
-        if (!webtorrentClient) {
-            webtorrentClient = new WebTorrent();
-        }
-
-        const torrent = webtorrentClient.add(magnetOrHash, (torrent) => {
-            currentTorrent = torrent;
-            document.getElementById('torrentStatus').textContent = `تۆرێنت: ${torrent.name || torrent.infoHash} - دابەزاندن...`;
-            const file = torrent.files.find(f => f.name.match(/\.(mp4|mkv|webm|avi|mov|m4v)$/i));
-            if (!file) {
-                customAlert('فایلی ڤیدیۆیی لە تۆرێنتەکەدا نەدۆزرایەوە.');
-                return;
-            }
-            file.renderTo(wrapper);
-            const interval = setInterval(() => {
-                document.getElementById('torrentStatus').textContent = `تۆرێنت: ${torrent.name || torrent.infoHash} - ${(torrent.progress*100).toFixed(1)}% - ${(torrent.downloadSpeed/1024).toFixed(1)} KB/s`;
-            }, 1000);
-            torrent.on('done', () => {
-                clearInterval(interval);
-                document.getElementById('torrentStatus').textContent = `تۆرێنت: ${torrent.name || torrent.infoHash} - تەواو بوو!`;
-            });
-            torrent.on('error', (err) => {
-                customAlert('هەڵەی تۆرێنت: '+err.message);
-            });
-        });
-
-        // گۆڕینی ڤیدیۆ لە داتابەیس (بۆ هاوکاتکردن)
-        if (isAdmin && currentRoomId) {
-            await update(ref(db, `rooms_ku/${currentRoomId}`), { videoUrl: magnetOrHash });
-        }
-    }
-
-    document.getElementById('loadMagnetBtn').addEventListener('click', () => {
-        const magnet = document.getElementById('magnetInput').value.trim();
-        if (!magnet) return customAlert('لینکی magnet بنووسە.');
-        loadTorrent(magnet);
-    });
-
-    document.getElementById('uploadFileBtn').addEventListener('click', () => {
-        document.getElementById('fileInput').click();
-    });
-
-    document.getElementById('fileInput').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (!webtorrentClient) webtorrentClient = new WebTorrent();
-        webtorrentClient.seed(file, (torrent) => {
-            const magnetURI = torrent.magnetURI;
-            document.getElementById('magnetInput').value = magnetURI;
-            loadTorrent(magnetURI);
-            customAlert('فایلەکەت لە ڕێگەی تۆرێنت بڵاو بووەوە! ئەم لینکە بنێرە بۆ هاوڕێکانت.');
-        });
-    });
-
-    document.getElementById('updateVideoBtn').addEventListener('click', () => {
-        if (!isAdmin) return;
-        const url = document.getElementById('updateVideoInput').value.trim();
-        if (url) {
-            if (url.startsWith('magnet:')) loadTorrent(url);
-            else loadSmartVideo(url);
-            update(ref(db, `rooms_ku/${currentRoomId}`), { videoUrl: url });
-        }
-    });
-
-    document.getElementById('chatLockSwitch').addEventListener('click', () => {
-        if (!isAdmin) return;
-        update(ref(db, `rooms_ku/${currentRoomId}`), { chatLocked: !roomDataGlobal.chatLocked });
-    });
-
-    document.getElementById('sendChatBtn').addEventListener('click', () => {
-        const input = document.getElementById('chatInput');
-        const text = input.value.trim();
-        if (!text || !currentRoomId) return;
-        push(ref(db, `rooms_ku/${currentRoomId}/messages`), { senderId: myId, name: myName, text: text, timestamp: Date.now() });
-        input.value = '';
-    });
-    document.getElementById('chatInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('sendChatBtn').click(); });
-
+    document.getElementById('loadMagnetBtn').addEventListener('click', () => { const m = document.getElementById('magnetInput').value.trim(); if(m) loadTorrent(m); });
+    document.getElementById('uploadFileBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', (e) => { const f = e.target.files[0]; if(!f) return; if(!webtorrentClient) webtorrentClient = new WebTorrent(); webtorrentClient.seed(f, (torrent) => { document.getElementById('magnetInput').value = torrent.magnetURI; loadTorrent(torrent.magnetURI); }); });
+    document.getElementById('updateVideoBtn').addEventListener('click', () => { if(!isAdmin) return; const url = document.getElementById('updateVideoInput').value.trim(); if(url) { if(url.startsWith('magnet:')) loadTorrent(url); else loadSmartVideo(url); update(ref(db, `rooms_ku/${currentRoomId}`), { videoUrl: url }); } });
+    document.getElementById('chatLockSwitch').addEventListener('click', () => { if(!isAdmin) return; update(ref(db, `rooms_ku/${currentRoomId}`), { chatLocked: !roomDataGlobal.chatLocked }); });
+    document.getElementById('sendChatBtn').addEventListener('click', () => { const t = document.getElementById('chatInput').value.trim(); if(t && currentRoomId) { push(ref(db, `rooms_ku/${currentRoomId}/messages`), { senderId: myId, name: myName, text: t, timestamp: Date.now() }); document.getElementById('chatInput').value = ''; } });
+    document.getElementById('chatInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('sendChatBtn').click(); });
     document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
-    function leaveRoom() {
-        currentRoomId = null; videoPlayer = null;
-        if(inviteListenerUnsub) { inviteListenerUnsub(); inviteListenerUnsub=null; }
-        if(adminPopup) { adminPopup.remove(); adminPopup=null; }
-        roomView.classList.add('hidden'); homeView.classList.remove('hidden');
-    }
+    function leaveRoom() { currentRoomId = null; videoPlayer = null; if(inviteListenerUnsub) { inviteListenerUnsub(); inviteListenerUnsub = null; } if(adminPopup) { adminPopup.remove(); adminPopup = null; } roomView.classList.add('hidden'); homeView.classList.remove('hidden'); }
 </script>
 </body>
-    </html>
+</html>
