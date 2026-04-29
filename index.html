@@ -671,7 +671,7 @@
             }
 
             if (!videoPlayer || videoPlayer.dataset.url !== data.videoUrl) {
-                loadSmartVideo(data.videoUrl); // کۆدی ڤیدیۆکەی خۆت کە دەڵێی کار دەکات
+                loadSmartVideo(data.videoUrl);
             }
 
             if (!isAdmin && videoPlayer && videoPlayer.tagName === 'VIDEO' && data.state) {
@@ -791,54 +791,69 @@
 
 
     // ==========================================
-    // ئەمە ڕێک کۆدی ڤیدیۆکەی فایلەکەی خۆتە کە دەڵێی کار دەکات
-    // تەنها customAlert م خستە شوێنی ئالێرتە کۆنەکە
+    // ڤیدیۆی fetch-blob - پەخشکردنی ڕاستەوخۆ بێ داگرتن
     // ==========================================
-    function loadSmartVideo(url) {
+    async function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
         videoPlayer = null;
 
         const cleanUrl = url.trim();
-        const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
-        const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('youtube') || cleanUrl.includes('vimeo');
 
-        if (isYoutube) {
-            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
-            videoPlayer = wrapper.firstChild; return;
+        // یوتیوب
+        const ytMatch = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+        if (ytMatch) {
+            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
+            videoPlayer = wrapper.firstChild;
+            return;
         }
 
-        if (isSafeWebpage && !isYoutube) {
+        // ماڵپەڕە پارێزراوەکان (کوردسەب، ڤیمیۆ)
+        const safeWeb = cleanUrl.includes('kurdsub') || cleanUrl.includes('youtube') || cleanUrl.includes('vimeo');
+        if (safeWeb && !ytMatch) {
             wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
-            videoPlayer = wrapper.firstChild; return;
+            videoPlayer = wrapper.firstChild;
+            return;
         }
 
-        videoPlayer = document.createElement('video');
-        videoPlayer.src = cleanUrl;
-        videoPlayer.dataset.url = cleanUrl;
-        videoPlayer.controls = true;
-        videoPlayer.preload = "auto";
-        videoPlayer.setAttribute('playsinline', '');
-        videoPlayer.setAttribute('controlsList', 'nodownload');
-        videoPlayer.oncontextmenu = () => false;
-        
-        videoPlayer.onerror = function() {
-            wrapper.innerHTML = `<div style="text-align:center; padding:20px; color:#ff8a8a;">ئەم لینکە کارناکات یان تەنها بۆ داگرتنە!<br><small>تکایە بۆتی @FileStreamBot بەکاربهێنە بۆ لینکی دروست.</small></div>`;
-            videoPlayer = null;
-        };
+        // سپینەری بارکردن
+        wrapper.innerHTML = `<div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size:1.2rem;">⏳ هەوڵی پەخشکردنی ڕاستەوخۆ لە ڕێگەی fetch...</div>`;
 
-        wrapper.appendChild(videoPlayer);
+        try {
+            // هەوڵی fetch بە CORS
+            const response = await fetch(cleanUrl, { mode: 'cors' });
+            if (!response.ok) throw new Error('fetch failed');
 
-        if (videoPlayer) {
-            videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
-            videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
-            videoPlayer.addEventListener('seeked', () => { if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); isSeeking = false; });
-            videoPlayer.addEventListener('seeking', () => { isSeeking = true; });
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            const video = document.createElement('video');
+            video.src = blobUrl;
+            video.dataset.url = cleanUrl;
+            video.controls = true;
+            video.preload = "auto";
+            video.setAttribute('playsinline', '');
+            video.setAttribute('controlsList', 'nodownload');
+            video.oncontextmenu = () => false;
+
+            wrapper.innerHTML = '';
+            wrapper.appendChild(video);
+            videoPlayer = video;
+
+            // دەستێوەردان لە دۆخی پەخش (ئادمین و ئەندام)
+            video.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
+            video.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
+            video.addEventListener('seeked', () => { if (isAdmin) updateState(video.paused ? 'paused' : 'playing'); isSeeking = false; });
+            video.addEventListener('seeking', () => { isSeeking = true; });
 
             if (!isAdmin) {
-                videoPlayer.addEventListener('play', (e) => { if (roomDataGlobal.state.status === 'paused') { e.preventDefault(); videoPlayer.pause(); } });
-                videoPlayer.addEventListener('pause', (e) => { if (roomDataGlobal.state.status === 'playing') { e.preventDefault(); videoPlayer.play(); } });
+                video.addEventListener('play', (e) => { if (roomDataGlobal?.state?.status === 'paused') { e.preventDefault(); video.pause(); } });
+                video.addEventListener('pause', (e) => { if (roomDataGlobal?.state?.status === 'playing') { e.preventDefault(); video.play(); } });
             }
+        } catch (err) {
+            // شکستی fetch – پەنا بە iframe (ڕەنگە هێشتا داگرتن بدات، بەڵام زۆرتر پەخش دەکات)
+            wrapper.innerHTML = `<iframe src="${cleanUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
+            videoPlayer = wrapper.firstChild;
         }
     }
 
@@ -881,4 +896,4 @@
 
 </script>
 </body>
-                </html>
+                    </html>
