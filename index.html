@@ -49,7 +49,6 @@
         header p { color: var(--text-muted); font-size: 1.1rem; margin-top: 5px; }
 
         .input-group { margin-bottom: 15px; text-align: right; }
-        .input-label { display: block; font-size: 1rem; color: var(--text-muted); margin-bottom: 8px; margin-right: 5px; }
         
         .glass-input {
             width: 100%; padding: 14px 20px; background: rgba(0, 0, 0, 0.3);
@@ -116,7 +115,6 @@
         .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
         .collapsible-content.open { max-height: 500px; }
         
-        /* Popup بۆ ئەدمین */
         .admin-popup {
             position: fixed; background: rgba(0,0,0,0.9); border: 1px solid var(--primary);
             border-radius: 16px; padding: 15px; z-index: 200; display: flex; flex-direction: column; gap: 8px;
@@ -146,9 +144,7 @@
             display: none;
         }
         .custom-modal-input:focus { border-color: var(--primary); }
-        .custom-modal-buttons {
-            display: flex; border-top: 1px solid rgba(255,255,255,0.1);
-        }
+        .custom-modal-buttons { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
         .custom-modal-btn {
             flex: 1; padding: 12px; background: transparent; border: none;
             color: var(--primary); font-size: 1.1rem; cursor: pointer; transition: 0.2s;
@@ -159,7 +155,6 @@
 </head>
 <body>
 
-<!-- Custom Modal UI -->
 <div id="customModal" class="custom-modal-overlay">
     <div class="custom-modal-box">
         <div class="custom-modal-content">
@@ -209,7 +204,7 @@
             <div class="glass-panel">
                 <h3 style="margin-bottom: 20px; font-size: 1.4rem;">🎬 ژووری سەیرکردن</h3>
                 <div class="input-group">
-                    <input type="text" id="newVideoInput" class="glass-input" placeholder="YouTube، تێلیگرام t.me/...، mp4...">
+                    <input type="text" id="newVideoInput" class="glass-input" placeholder="کۆپی لینکی ڤیدیۆ (mp4, youtube)...">
                 </div>
                 <button id="createRoomBtn" class="glass-btn btn-white" style="margin-bottom: 20px;">دروستکردنی ژوور</button>
                 <div class="input-group" style="text-align: center; color: rgba(255,255,255,0.5);">یان</div>
@@ -284,7 +279,7 @@
                         <div id="chatLockSwitch" class="ios-switch"></div>
                     </div>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ (YouTube، t.me/...)...">
+                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ...">
                         <button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button>
                     </div>
                 </div>
@@ -337,7 +332,6 @@
     const roomView = document.getElementById('roomView');
     const privateChatView = document.getElementById('privateChatView');
 
-    // --- Custom iOS Modal Logic ---
     function showCustomModal(options) {
         return new Promise((resolve) => {
             const modal = document.getElementById('customModal');
@@ -361,6 +355,7 @@
                 btnOk.style.borderLeft = 'none';
             } else {
                 btnCancel.style.display = 'block';
+                btnOk.style.borderLeft = '1px solid rgba(255,255,255,0.1)';
             }
 
             modal.classList.add('active');
@@ -387,7 +382,6 @@
     const customAlert = (text) => showCustomModal({ type: 'alert', text });
     const customConfirm = (text) => showCustomModal({ type: 'confirm', text });
     const customPrompt = (text, placeholder) => showCustomModal({ type: 'prompt', text, placeholder });
-    // ------------------------------
 
     function generateShortId() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -452,7 +446,7 @@
                 await createUserWithEmailAndPassword(auth,e,p);
                 const name = await customPrompt("ناوی خۆت بنووسە:");
                 localStorage.setItem('guestName', name || "بەکارهێنەر");
-                location.reload(); // گەڕانەوە بۆ نوێکردنەوەی ناو
+                location.reload(); 
             } catch(err) { customAlert(err.message); }
         }
     });
@@ -473,7 +467,6 @@
 
     document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
 
-    // هاوڕێیەتی و داواکاری
     document.getElementById('addFriendBtn').addEventListener('click', async () => {
         const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
         if (!targetShortId) return customAlert('ئایدی کورت بنووسە!');
@@ -631,7 +624,6 @@
         homeView.classList.remove('hidden');
     });
 
-    // ========== ژووری ڤیدیۆ ==========
     let roomDataGlobal = null;
     let isOwner = false;
     let isAdmin = false;
@@ -670,6 +662,7 @@
             isAdmin = (data.admins && data.admins[myId]) || isOwner;
             document.getElementById('adminControls').classList.toggle('hidden', !isAdmin);
             if(isAdmin) document.getElementById('updateVideoInput').value = data.videoUrl;
+            
             const lockSwitch = document.getElementById('chatLockSwitch');
             if (data.chatLocked) {
                 lockSwitch.classList.add('active');
@@ -681,10 +674,8 @@
             
             if (!videoPlayer || videoPlayer.dataset.url !== data.videoUrl) loadSmartVideo(data.videoUrl);
             
-            // باشترکردنی سیستەمی سینک بۆ ئەوەی ڤیدیۆکە نەوەستێت!
             if (!isAdmin && videoPlayer && videoPlayer.tagName === 'VIDEO' && data.state) {
                 const timeDiff = Math.abs(videoPlayer.currentTime - data.state.time);
-                // تەنها کاتێک ڕێکی بکە ئەگەر جیاوازییەکە لە 2 چرکە زیاتر بوو
                 if (timeDiff > 2) {
                     videoPlayer.currentTime = data.state.time;
                 }
@@ -739,11 +730,8 @@
 
         adminPopup.querySelector('#toggleAdminBtn').addEventListener('click', async () => {
             const admins = roomDataGlobal.admins || {};
-            if (isAlreadyAdmin) {
-                delete admins[targetUid];
-            } else {
-                admins[targetUid] = true;
-            }
+            if (isAlreadyAdmin) delete admins[targetUid];
+            else admins[targetUid] = true;
             await update(ref(db, `rooms_ku/${currentRoomId}`), { admins });
             adminPopup.remove();
             adminPopup = null;
@@ -806,7 +794,6 @@
         arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
     });
 
-    // بەشی باشترکراوی لێدانی ڤیدیۆ
     function loadSmartVideo(url) {
         const wrapper = document.getElementById('playerWrapper');
         wrapper.innerHTML = '';
@@ -814,17 +801,14 @@
 
         const cleanUrl = url.trim();
         
-        // باشترکردنی Regex بۆ یوتوب
         const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-        // باشترکردنی Regex بۆ گۆگڵ درایڤ
         const isDrive = cleanUrl.match(/(?:drive\.google\.com\/.*[?&]id=|drive\.google\.com\/file\/d\/)([-_0-9a-zA-Z]+)/);
-        // باشترکردنی Regex بۆ تێلیگرام
         const isTelegram = cleanUrl.match(/t\.me\/([^\/\?]+)\/(\d+)/);
-        const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('vimeo');
 
         if (isYoutube) {
-            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1&enablejsapi=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>
-            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; pointer-events:none;">ڕاستەوخۆ یوتوب - سینک نابێت لەگەڵ هاوڕێ</div>`;
+            // گۆڕینی دۆمەین بۆ youtube-nocookie بۆ چارەسەری کێشەی (Sign in to confirm you are not a bot)
+            wrapper.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${isYoutube[1]}?autoplay=1&rel=0&modestbranding=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>
+            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; pointer-events:none;">یوتوب لای هاوڕێکەت کرایەوە بێ کێشە</div>`;
             videoPlayer = wrapper.firstChild;
             return;
         }
@@ -832,7 +816,7 @@
         if (isDrive) {
             const driveUrl = `https://drive.google.com/file/d/${isDrive[1]}/preview`;
             wrapper.innerHTML = `<iframe src="${driveUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>
-            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; pointer-events:none;">گۆگڵ درایڤ - سینک نابێت</div>`;
+            <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; pointer-events:none;">گۆگڵ درایڤ</div>`;
             videoPlayer = wrapper.firstChild;
             return;
         }
@@ -842,21 +826,15 @@
             wrapper.innerHTML = `
                 <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; position:relative;">
                     <iframe src="${embedUrl}" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none; border-radius:12px;" data-url="${cleanUrl}" scrolling="no" frameborder="0"></iframe>
-                    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(167,139,250,0.4); border:1px solid rgba(167,139,250,0.6); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; white-space:nowrap; pointer-events:none;">
-                        تێلیگرام · سینک کار ناکات (بۆ سینک پێویستت بە API هەیە)
+                    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(239,68,68,0.8); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#fff; white-space:nowrap; pointer-events:none;">
+                        ئەمە لینکی ڤیدیۆ نییە! لینکی ڕاستەوخۆ (mp4) بەکاربهێنە بۆ سینک بوون
                     </div>
                 </div>`;
             videoPlayer = wrapper.querySelector('iframe');
             return;
         }
 
-        if (isSafeWebpage) {
-            wrapper.innerHTML = `<iframe src="${cleanUrl}" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
-            videoPlayer = wrapper.firstChild;
-            return;
-        }
-
-        // بۆ فایلی mp4 (ئەمەیان بەتەواوی سینک دەبێت)
+        // بۆ فایلی mp4 (باشترین جۆرە و بەتەواوی سینک دەبێت)
         videoPlayer = document.createElement('video');
         videoPlayer.src = cleanUrl;
         videoPlayer.dataset.url = cleanUrl;
@@ -875,7 +853,7 @@
                 <div style="text-align:center; padding:20px; color:#ff8a8a; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%;">
                     <span style="font-size:3rem; margin-bottom:10px;">🚫</span>
                     <h3>ئەم لینکە کار ناکات!</h3>
-                    <p style="font-size:0.9rem; color:#aaa; margin-top:5px;">وێبسایتەکە ڕێگری کرد لە داگرتنی فایلەکە. تکایە لینکی ڤیدیۆی ڕاستەقینە (mp4) دابنێ.</p>
+                    <p style="font-size:0.9rem; color:#aaa; margin-top:5px;">تکایە لینکی ڤیدیۆی ڕاستەقینە (کۆتاییەکەی mp4 بێت) دابنێ بۆ ئەوەی بێ کێشە کار بکات.</p>
                 </div>
             `;
             videoPlayer = null;
@@ -884,14 +862,11 @@
         wrapper.appendChild(videoPlayer);
 
         if (videoPlayer) {
-            // باشترکردنی Sync logic
             videoPlayer.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
             videoPlayer.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
             
             videoPlayer.addEventListener('seeked', () => { 
-                if (isAdmin) {
-                    updateState(videoPlayer.paused ? 'paused' : 'playing'); 
-                }
+                if (isAdmin) updateState(videoPlayer.paused ? 'paused' : 'playing'); 
                 isSeeking = false; 
             });
             
@@ -941,4 +916,4 @@
     }
 </script>
 </body>
-</html>
+                    </html>
