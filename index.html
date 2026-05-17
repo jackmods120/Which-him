@@ -530,6 +530,9 @@
                         <span>چاوەڕێی ڤیدیۆ...</span>
                     </div>
                 </div>
+                <!-- Blocks video controls for non-admins -->
+                <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
+                <div id="syncLabel" style="display:none; position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#a78bfa; border-radius:20px; padding:4px 14px; font-size:0.78rem; pointer-events:none; z-index:9;">🔒 ئەدمین کۆنترۆڵ دەکات</div>
             </div>
 
             <!-- Right: Tabs -->
@@ -905,6 +908,12 @@ function enterRoom(rid) {
         // Admin tab
         getEl('adminTabBtn').style.display = room.isAdmin ? 'flex' : 'none';
 
+        // Video control block for non-admins
+        const vcb = getEl('videoControlBlock');
+        const sl = getEl('syncLabel');
+        if (vcb) vcb.style.display = room.isAdmin ? 'none' : 'block';
+        if (sl) sl.style.display = (room.isAdmin || !videoEl) ? 'none' : 'block';
+
         // Chat lock
         const locked = !!data.chatLocked;
         const lockToggle = getEl('chatLockToggle');
@@ -998,6 +1007,10 @@ async function sendInvite(fid, fname) {
 function leaveRoom() {
     room = { id: null, data: null, isAdmin: false, isOwner: false };
     videoEl = null;
+    const vcb = getEl('videoControlBlock');
+    const sl = getEl('syncLabel');
+    if (vcb) vcb.style.display = 'none';
+    if (sl) sl.style.display = 'none';
     if (inviteUnsub) { inviteUnsub(); inviteUnsub = null; }
     if (roomUnsub) { roomUnsub(); roomUnsub = null; }
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
@@ -1062,20 +1075,20 @@ function loadVideo(url) {
     attachVideoSync(v);
 }
 
-// Telegram video handler - uses Bot API via /api/telegram
+// Telegram video handler - uses Bot API via /api/telegram (needs TELEGRAM_DUMP_CHAT_ID in Vercel)
 async function loadTelegramVideo(channel, msgId, rawUrl, wrapper) {
     wrapper.innerHTML = `
         <div class="video-placeholder">
             <div class="spinner"></div>
             <span>تێلیگرام بار دەکات...</span>
         </div>`;
-    
+
     try {
         const res = await fetch(`/api/telegram?channel=${encodeURIComponent(channel)}&msgId=${encodeURIComponent(msgId)}`);
         const data = await res.json();
-        
+
         if (data.videoUrl) {
-            // ✅ Bot API succeeded — show native video
+            // ✅ Bot API succeeded
             const v = document.createElement('video');
             v.src = data.videoUrl;
             v.dataset.url = rawUrl;
@@ -1090,28 +1103,39 @@ async function loadTelegramVideo(channel, msgId, rawUrl, wrapper) {
             wrapper.appendChild(v);
             videoEl = v;
             attachVideoSync(v);
+            // Update sync label visibility
+            const sl = getEl('syncLabel');
+            if (sl) sl.style.display = room.isAdmin ? 'none' : 'block';
             return;
         }
-    } catch(e) {
-        // API call failed, fall through to fallback
-    }
 
-    // ❌ Fallback: open in Telegram button
-    wrapper.innerHTML = `
-        <div class="video-placeholder">
-            <span class="icon">📱</span>
-            <span>ڤیدیۆی تێلیگرام</span>
-            <a href="${rawUrl}" target="_blank" style="
-                margin-top:12px; padding:10px 20px; border-radius:14px;
-                background:linear-gradient(135deg,var(--p2),var(--p)); color:#fff;
-                text-decoration:none; font-size:0.95rem; font-family:inherit;
-                box-shadow:0 4px 15px rgba(124,58,237,0.4);
-            ">کردنەوە لە تێلیگرام ↗</a>
-            <span style="font-size:0.75rem;color:var(--muted);margin-top:10px;text-align:center;padding:0 20px;">
-                بۆ سینک: TELEGRAM_BOT_TOKEN دابنێ لە Vercel Environment Variables
-            </span>
-        </div>`;
+        // API returned error - show message
+        const hint = res.status === 413
+            ? 'فایلەکە زۆر گەورەیە بۆ Bot API (>20MB)'
+            : res.status === 500 && data.error?.includes('DUMP')
+                ? '⚠️ TELEGRAM_DUMP_CHAT_ID نەداوە لە Vercel'
+                : data.error || 'کێشەیەک هەیە';
+
+        showTgFallback(wrapper, rawUrl, hint);
+    } catch(e) {
+        showTgFallback(wrapper, rawUrl, 'کێشەی تور');
+    }
+}
+
+function showTgFallback(wrapper, rawUrl, hint) {
     videoEl = null;
+    wrapper.innerHTML = `
+        <div class="video-placeholder" style="gap:12px;">
+            <span style="font-size:2.5rem;">📱</span>
+            <span style="font-size:0.95rem;">ڤیدیۆی تێلیگرام</span>
+            <a href="${rawUrl}" target="_blank" style="
+                margin-top:4px; padding:11px 24px; border-radius:14px;
+                background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
+                text-decoration:none; font-size:0.95rem; font-family:inherit;
+                box-shadow:0 4px 15px rgba(124,58,237,0.45); font-weight:500;
+            ">کردنەوە لە تێلیگرام ↗</a>
+            <span style="font-size:0.75rem;color:var(--muted);text-align:center;padding:0 24px;line-height:1.5;">${hint}</span>
+        </div>`;
 }
 
 function attachVideoSync(v) {
