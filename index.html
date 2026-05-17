@@ -420,6 +420,26 @@
         /* ios video fix */
         video { -webkit-playsinline: true; }
 
+        /* Fullscreen button */
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 10;
+            width: 36px; height: 36px;
+            background: rgba(0,0,0,0.55);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 9px;
+            color: #fff;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s, transform 0.1s;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .fullscreen-btn:hover { background: rgba(124,58,237,0.6); }
+        .fullscreen-btn:active { transform: scale(0.9); }
+
         /* Gradient text */
         .grad { background: linear-gradient(135deg, var(--p3), var(--p)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     </style>
@@ -535,7 +555,11 @@
                 </div>
                 <!-- Blocks video controls for non-admins -->
                 <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
-                <div id="syncLabel" style="display:none; position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#a78bfa; border-radius:20px; padding:4px 14px; font-size:0.78rem; pointer-events:none; z-index:9;">🔒 ئەدمین کۆنترۆڵ دەکات</div>
+                <!-- Fullscreen button -->
+                <button id="fullscreenBtn" class="fullscreen-btn" title="پڕ شاشە">
+                    <svg id="fsEnterIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                    <svg id="fsExitIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+                </button>
             </div>
 
             <!-- Right: Tabs -->
@@ -1015,9 +1039,7 @@ function enterRoom(rid) {
 
         // Video control block for non-admins
         const vcb = getEl('videoControlBlock');
-        const sl = getEl('syncLabel');
         if (vcb) vcb.style.display = room.isAdmin ? 'none' : 'block';
-        if (sl) sl.style.display = (room.isAdmin || !videoEl) ? 'none' : 'block';
 
         // Chat lock
         const locked = !!data.chatLocked;
@@ -1141,9 +1163,7 @@ function leaveRoom() {
     videoEl = null;
     stopSyncInterval();
     const vcb = getEl('videoControlBlock');
-    const sl = getEl('syncLabel');
     if (vcb) vcb.style.display = 'none';
-    if (sl) sl.style.display = 'none';
     if (inviteUnsub) { inviteUnsub(); inviteUnsub = null; }
     if (roomUnsub) { roomUnsub(); roomUnsub = null; }
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
@@ -1267,9 +1287,6 @@ async function loadTelegramVideo(channel, msgId, rawUrl, wrapper) {
             wrapper.appendChild(v);
             videoEl = v;
             attachVideoSync(v);
-            // Update sync label visibility
-            const sl = getEl('syncLabel');
-            if (sl) sl.style.display = room.isAdmin ? 'none' : 'block';
             return;
         }
 
@@ -1441,8 +1458,34 @@ document.addEventListener('touchmove', (e) => {
     }
 }, { passive: false });
 
-// Auto scroll chat
-const chatObs = new MutationObserver(() => {
+// ===== FULLSCREEN =====
+function updateFullscreenIcons() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+    const enter = getEl('fsEnterIcon');
+    const exit  = getEl('fsExitIcon');
+    if (enter) enter.style.display = isFs ? 'none' : '';
+    if (exit)  exit.style.display  = isFs ? '' : 'none';
+}
+
+const fsBtn = getEl('fullscreenBtn');
+if (fsBtn) {
+    fsBtn.onclick = () => {
+        const wrapper = getEl('playerWrapper');
+        const target  = videoEl?.tagName === 'VIDEO' ? videoEl : wrapper;
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            const req = target.requestFullscreen || target.webkitRequestFullscreen || target.mozRequestFullScreen;
+            if (req) req.call(target);
+        } else {
+            const exit = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+            if (exit) exit.call(document);
+        }
+    };
+}
+document.addEventListener('fullscreenchange', updateFullscreenIcons);
+document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
+document.addEventListener('mozfullscreenchange', updateFullscreenIcons);
+
+
     const b = getEl('chatBox');
     if (b) b.scrollTop = b.scrollHeight;
 });
