@@ -1485,7 +1485,8 @@ document.addEventListener('fullscreenchange', updateFullscreenIcons);
 document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
 document.addEventListener('mozfullscreenchange', updateFullscreenIcons);
 
-
+// Auto scroll chat
+const chatObs = new MutationObserver(() => {
     const b = getEl('chatBox');
     if (b) b.scrollTop = b.scrollHeight;
 });
