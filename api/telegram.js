@@ -1,89 +1,70 @@
-// api/telegram.js
-// ئەم فایلە دابنێ لە: api/telegram.js لە GitHub-ەکەت
-//
-// پێش بەکارهێنان:
-// 1. https://t.me/BotFather بچۆ، Bot نوێ دروست بکە
-// 2. Token-ەکەی بنووسە لە Vercel → Settings → Environment Variables
-//    ناو: TELEGRAM_BOT_TOKEN
-//    نرخ: 123456789:AAF...
-// 3. ئەگەر کانەلەکەت پرایڤەتە، Botەکەت بکەرە ئەدمینی کانەلەکە
+// api/telegram.js — دابنێ لە: api/telegram.js لە GitHub
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const { channel, msgId } = req.query;
-    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const DUMP  = process.env.TELEGRAM_DUMP_CHAT_ID;
 
-    if (!BOT_TOKEN) {
-        return res.status(500).json({ 
-            error: 'TELEGRAM_BOT_TOKEN not set in Vercel Environment Variables',
-            hint: 'Go to Vercel → your project → Settings → Environment Variables'
+    if (!TOKEN) return res.status(500).json({ error: 'TELEGRAM_BOT_TOKEN not set in Vercel' });
+    if (!DUMP)  return res.status(500).json({ error: 'TELEGRAM_DUMP_CHAT_ID not set in Vercel' });
+    if (!channel || !msgId) return res.status(400).json({ error: 'channel and msgId required' });
+
+    const tgApi = async (method, body) => {
+        const r = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
         });
-    }
-
-    if (!channel || !msgId) {
-        return res.status(400).json({ error: 'channel and msgId required' });
-    }
+        return r.json();
+    };
 
     try {
-        // پێشتر chat_id بدۆزەرەوە بە ناوی کانەل
-        let chatId = channel.startsWith('-') ? channel : `@${channel}`;
+        // Step 1: Forward from channel → dump group to get file_id
+        const fwd = await tgApi('forwardMessage', {
+            chat_id: DUMP,
+            from_chat_id: `@${channel}`,
+            message_id: parseInt(msgId)
+        });
 
-        // وەرگرتنی زانیاری مەسجەکە
-        const msgRes = await fetch(
-            `https://api.telegram.org/bot${BOT_TOKEN}/forwardMessage`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    from_chat_id: chatId,
-                    message_id: parseInt(msgId)
-                })
-            }
-        );
-
-        // ئەگەر forward نەکرد، getMessages تاقی بکەرەوە
-        const fwdData = await msgRes.json();
-        let fileId = null;
-
-        if (fwdData.ok) {
-            const msg = fwdData.result;
-            if (msg.video) fileId = msg.video.file_id;
-            else if (msg.document && msg.document.mime_type?.startsWith('video')) fileId = msg.document.file_id;
-            else if (msg.animation) fileId = msg.animation.file_id;
-        }
-
-        if (!fileId) {
-            // هەوڵی دووەم: getChatHistory
-            return res.status(404).json({ 
-                error: 'Video not found',
-                hint: 'Make sure the bot is admin in the channel and the message contains a video'
+        if (!fwd.ok) {
+            return res.status(400).json({
+                error: `Forward failed: ${fwd.description}`,
+                hint: 'Botەکەت ئەدمینی کانەلەکەیە؟ Dump group-ەکەت درووستە؟'
             });
         }
 
-        // وەرگرتنی لینکی داونلۆد
-        const fileRes = await fetch(
-            `https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`
-        );
-        const fileData = await fileRes.json();
+        // Step 2: Extract file_id from forwarded message
+        const msg = fwd.result;
+        const fileId =
+            msg.video?.file_id ||
+            (msg.document?.mime_type?.startsWith('video') ? msg.document.file_id : null) ||
+            msg.animation?.file_id;
 
-        if (!fileData.ok) {
-            return res.status(500).json({ error: 'Could not get file path', detail: fileData });
+        if (!fileId) {
+            return res.status(404).json({ error: 'هیچ ڤیدیۆیەک لەم مەسجەدا نییە' });
         }
 
-        const filePath = fileData.result.file_path;
-        const videoUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${filePath}`;
+        // Step 3: Get download path
+        const fileInfo = await tgApi('getFile', { file_id: fileId });
 
-        return res.status(200).json({ 
-            videoUrl,
-            fileSize: fileData.result.file_size
+        if (!fileInfo.ok) {
+            // Telegram Bot API limit: files > 20MB can't be downloaded this way
+            return res.status(413).json({
+                error: 'فایلەکە زۆر گەورەیە (>20MB) — Bot API پشتگیری نایکات',
+                hint: 'لینکی YouTube یان .mp4 ی ڕاستەوخۆ بەکاربهێنە بۆ فیلمە گەورەکان'
+            });
+        }
+
+        return res.status(200).json({
+            videoUrl: `https://api.telegram.org/file/bot${TOKEN}/${fileInfo.result.file_path}`,
+            fileSize: fileInfo.result.file_size
         });
 
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
+    } catch (e) {
+        return res.status(500).json({ error: e.message });
     }
 }
