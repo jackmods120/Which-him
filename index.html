@@ -645,6 +645,7 @@ let inviteUnsub = null;
 let reqBadgeCount = 0;
 let roomUnsub = null;
 let chatUnsub = null;
+let syncInterval = null;
 
 // ===== UTILS =====
 function toast(msg, dur = 2500) {
@@ -934,11 +935,19 @@ function enterRoom(rid) {
             loadVideo(data.videoUrl);
         }
 
-        // Sync non-admins
+        // Sync non-admins with timestamp correction (fixes drift when joining mid-video)
         if (!room.isAdmin && videoEl && videoEl.tagName === 'VIDEO' && data.state) {
-            if (Math.abs(videoEl.currentTime - data.state.time) > 2.5) videoEl.currentTime = data.state.time;
-            if (data.state.status === 'playing' && videoEl.paused) videoEl.play().catch(() => {});
-            else if (data.state.status === 'paused' && !videoEl.paused) videoEl.pause();
+            const st = data.state;
+            let targetTime = st.time;
+            if (st.status === 'playing') {
+                // Calculate how much time has passed since admin last synced
+                targetTime += (Date.now() - st.timestamp) / 1000;
+            }
+            if (Math.abs(videoEl.currentTime - targetTime) > 2.5) {
+                videoEl.currentTime = Math.max(0, targetTime);
+            }
+            if (st.status === 'playing' && videoEl.paused) videoEl.play().catch(() => {});
+            else if (st.status === 'paused' && !videoEl.paused) videoEl.pause();
         }
     });
 
@@ -1007,6 +1016,7 @@ async function sendInvite(fid, fname) {
 function leaveRoom() {
     room = { id: null, data: null, isAdmin: false, isOwner: false };
     videoEl = null;
+    stopSyncInterval();
     const vcb = getEl('videoControlBlock');
     const sl = getEl('syncLabel');
     if (vcb) vcb.style.display = 'none';
@@ -1138,15 +1148,34 @@ function showTgFallback(wrapper, rawUrl, hint) {
         </div>`;
 }
 
+function startSyncInterval() {
+    stopSyncInterval();
+    syncInterval = setInterval(() => {
+        if (room.isAdmin && videoEl?.tagName === 'VIDEO' && !videoEl.paused) {
+            syncState('playing');
+        }
+    }, 5000);
+}
+function stopSyncInterval() {
+    if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+}
+
 function attachVideoSync(v) {
-    v.addEventListener('play', () => { if (room.isAdmin && !isSeeking) syncState('playing'); });
-    v.addEventListener('pause', () => { if (room.isAdmin && !isSeeking) syncState('paused'); });
-    v.addEventListener('seeked', () => { if (room.isAdmin) syncState(v.paused ? 'paused' : 'playing'); isSeeking = false; });
+    v.addEventListener('play', () => {
+        if (room.isAdmin && !isSeeking) { syncState('playing'); startSyncInterval(); }
+    });
+    v.addEventListener('pause', () => {
+        if (room.isAdmin && !isSeeking) { syncState('paused'); stopSyncInterval(); }
+    });
+    v.addEventListener('seeked', () => {
+        if (room.isAdmin) syncState(v.paused ? 'paused' : 'playing');
+        isSeeking = false;
+    });
     v.addEventListener('seeking', () => { isSeeking = true; });
 
     if (!room.isAdmin) {
         v.addEventListener('play', () => { if (room.data?.state?.status === 'paused') v.pause(); });
-        v.addEventListener('pause', () => { if (room.data?.state?.status === 'playing') v.play().catch(()=>{}); });
+        v.addEventListener('pause', () => { if (room.data?.state?.status === 'playing') v.play().catch(() => {}); });
     }
 }
 
