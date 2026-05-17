@@ -2,1447 +2,822 @@
 <html lang="ku" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0a0a14">
-    <title>سەکۆی سینەما 🎬</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سەکۆی سینەما</title>
     <style>
         @font-face {
             font-family: 'JackFont';
-            src: url('/jack.ttf') format('truetype');
-            font-weight: 400;
-            font-style: normal;
-            font-display: swap;
+            src: url('./jack.ttf') format('truetype');
         }
-
+        
         :root {
-            --p: #a78bfa;
-            --p2: #7c3aed;
-            --p3: #c4b5fd;
-            --bg: #0a0a14;
-            --bg2: #111120;
-            --bg3: #1a1a2e;
-            --glass: rgba(20, 15, 40, 0.7);
-            --glass2: rgba(167, 139, 250, 0.08);
-            --border: rgba(167, 139, 250, 0.2);
-            --border2: rgba(255,255,255,0.08);
-            --text: #f0eeff;
-            --muted: #9b8ec4;
-            --danger: #f43f5e;
-            --success: #10b981;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bot: env(safe-area-inset-bottom, 0px);
-            --safe-left: env(safe-area-inset-left, 0px);
-            --safe-right: env(safe-area-inset-right, 0px);
+            --primary: #A78BFA;
+            --primary-hover: #8B5CF6;
+            --bg-glass: rgba(30, 20, 50, 0.4);
+            --border-glass: rgba(255, 255, 255, 0.15);
+            --text-main: #ffffff;
+            --text-muted: #e2e8f0;
+            --danger: #ef4444;
+            --google: #4285F4;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        html, body {
-            font-family: 'JackFont', 'Rubik', system-ui, sans-serif;
-            background: var(--bg) url('/web_bg.png') center center / cover fixed no-repeat;
-            color: var(--text);
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* iOS safe area fix */
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'JackFont', sans-serif !important; }
+        
         body {
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bot);
-            padding-left: var(--safe-left);
-            padding-right: var(--safe-right);
+            background-image: url('./web_bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: #0f0f1a;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Animated background overlay */
-        body::before {
-            content: '';
-            position: fixed; inset: 0; z-index: 0;
-            background: 
-                rgba(10, 10, 20, 0.75),
-                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(124,58,237,0.2) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(167,139,250,0.12) 0%, transparent 60%);
-            pointer-events: none;
+        .glass-panel {
+            background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass); border-radius: 24px; padding: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); width: 100%;
         }
 
-        #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+        .container { width: 100%; max-width: 1300px; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+        header { text-align: center; margin-bottom: 20px; }
+        header h1 { font-size: 2.5rem; font-weight: normal; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        header p { color: var(--text-muted); font-size: 1.1rem; margin-top: 5px; }
 
-        /* ===== GLASS COMPONENTS ===== */
-        .glass {
-            background: var(--glass);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border: 1px solid var(--border);
-            border-radius: 20px;
+        .input-group { margin-bottom: 15px; text-align: right; }
+        .input-label { display: block; font-size: 1rem; color: var(--text-muted); margin-bottom: 8px; margin-right: 5px; }
+        
+        .glass-input {
+            width: 100%; padding: 14px 20px; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px;
+            color: white; font-size: 1.1rem; outline: none; transition: all 0.3s ease;
         }
+        .glass-input:focus { border-color: var(--primary); background: rgba(0, 0, 0, 0.5); box-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
 
-        .card {
-            background: var(--glass2);
-            border: 1px solid var(--border2);
-            border-radius: 16px;
-            padding: 16px;
-            transition: border-color 0.2s;
+        .glass-btn {
+            width: 100%; padding: 14px; border: none; border-radius: 16px;
+            font-size: 1.1rem; cursor: pointer; transition: 0.3s ease; text-align: center; margin-bottom: 10px;
         }
-        .card:hover { border-color: var(--border); }
+        .btn-white { background: #ffffff; color: #1e1e1e; }
+        .btn-white:hover { background: #e0e0e0; transform: translateY(-2px); }
+        .btn-google { background: var(--google); color: white; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-google:hover { background: #3367D6; }
+        .btn-outline { background: transparent; color: white; border: 1px solid rgba(255,255,255,0.4); }
+        .btn-danger { background: var(--danger); color: white; }
 
-        /* ===== INPUTS ===== */
-        .inp {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(0,0,0,0.35);
-            border: 1.5px solid var(--border2);
-            border-radius: 14px;
-            color: var(--text);
-            font-size: 1rem;
-            font-family: inherit;
-            outline: none;
-            transition: all 0.25s;
-            -webkit-appearance: none;
-            appearance: none;
+        .btn-accept { background: #10B981; color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; font-size: 0.9rem; }
+        .btn-reject { background: var(--danger); color: white; border: none; border-radius: 12px; padding: 8px 15px; cursor: pointer; margin-right: 8px; font-size: 0.9rem; }
+        .btn-delete { background: transparent; color: #ff8a8a; border: none; font-size: 1.3rem; cursor: pointer; padding: 0 5px; }
+        .btn-invite { background: var(--primary); color: white; border: none; border-radius: 12px; padding: 6px 15px; cursor: pointer; font-size: 0.9rem; }
+
+        .room-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .room-grid { grid-template-columns: 1fr; } }
+
+        .video-wrapper {
+            background: #000; border-radius: 20px; overflow: hidden;
+            aspect-ratio: 16/9; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-glass); position: relative;
         }
-        .inp:focus { border-color: var(--p); background: rgba(0,0,0,0.5); box-shadow: 0 0 0 3px rgba(167,139,250,0.15); }
-        .inp::placeholder { color: var(--muted); }
+        .video-wrapper video, .video-wrapper iframe { width: 100%; height: 100%; border: none; outline: none; object-fit: contain; }
 
-        /* ===== BUTTONS ===== */
-        .btn {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 13px 22px; border: none; border-radius: 14px;
-            font-size: 1rem; font-family: inherit; font-weight: 500;
-            cursor: pointer; transition: all 0.2s; width: 100%;
-            -webkit-user-select: none; user-select: none;
-            position: relative; overflow: hidden;
-        }
-        .btn:active { transform: scale(0.97); }
-        .btn::after {
-            content: ''; position: absolute; inset: 0;
-            background: rgba(255,255,255,0.08); opacity: 0; transition: opacity 0.15s;
-        }
-        .btn:active::after { opacity: 1; }
+        .chat-container { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
+        .message { background: rgba(0,0,0,0.4); padding: 10px 15px; border-radius: 18px; width: fit-content; max-width: 85%; }
+        .message.mine { background: rgba(167, 139, 250, 0.5); align-self: flex-end; border: 1px solid rgba(167, 139, 250, 0.3); }
+        .msg-name { font-size: 0.9rem; color: var(--primary); margin-bottom: 4px; display: block; cursor: pointer;}
+        .msg-text { font-size: 1.1rem; }
+        
+        .chat-input-box { display: flex; gap: 10px; margin-top: 15px; }
+        .send-btn { background: var(--primary); color: white; border: none; border-radius: 16px; padding: 0 20px; cursor: pointer; font-size: 1.1rem;}
 
-        .btn-primary { background: linear-gradient(135deg, var(--p2), var(--p)); color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,0.4); }
-        .btn-primary:hover { box-shadow: 0 6px 25px rgba(124,58,237,0.5); }
-        .btn-white { background: #fff; color: #111; }
-        .btn-white:hover { background: #eee; }
-        .btn-ghost { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
-        .btn-ghost:hover { border-color: var(--p); background: var(--glass2); }
-        .btn-danger { background: var(--danger); color: #fff; }
-        .btn-success { background: var(--success); color: #fff; }
-        .btn-google { background: #fff; color: #333; }
+        .friend-item { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;}
+        .friend-item:hover { background: rgba(167, 139, 250, 0.2); }
+        .dm-btn { background: var(--primary); border: none; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
 
-        .btn-sm { padding: 8px 14px; font-size: 0.875rem; border-radius: 10px; width: auto; }
-        .btn-xs { padding: 6px 10px; font-size: 0.8rem; border-radius: 8px; width: auto; }
+        .request-item { display: flex; justify-content: space-between; align-items: center; background: rgba(167, 139, 250, 0.15); padding: 12px; border-radius: 12px; margin-bottom: 10px; }
 
-        /* ===== HIDDEN ===== */
+        .invite-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 8px; }
+
+        .ios-switch { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 24px; cursor: pointer; transition: 0.3s; }
+        .ios-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: 0.3s; }
+        .ios-switch.active { background: var(--primary); }
+        .ios-switch.active::after { transform: translateX(20px); }
+
         .hidden { display: none !important; }
 
-        /* ===== VIEWS ===== */
-        .view { display: flex; flex-direction: column; min-height: 100vh; }
-
-        /* ===== LOGIN VIEW ===== */
-        #loginView {
-            align-items: center; justify-content: center; padding: 24px 20px;
+        #privateChatView { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-glass); backdrop-filter: blur(30px); z-index: 100; padding: 20px; display: flex; flex-direction: column; }
+        .dm-header { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 20px; margin-bottom: 20px; }
+        .dm-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 20px; }
+        
+        .collapsible-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 10px 0; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .collapsible-content.open { max-height: 500px; }
+        
+        /* Popup بۆ ئەدمین */
+        .admin-popup {
+            position: fixed; background: rgba(0,0,0,0.9); border: 1px solid var(--primary);
+            border-radius: 16px; padding: 15px; z-index: 200; display: flex; flex-direction: column; gap: 8px;
         }
-        .login-card {
-            width: 100%; max-width: 420px;
-            padding: 36px 28px; border-radius: 28px;
-        }
-        .logo {
-            text-align: center; margin-bottom: 32px;
-        }
-        .logo h1 { font-size: 2rem; font-weight: 600; letter-spacing: -0.5px; }
-        .logo h1 span { color: var(--p); }
-        .logo p { color: var(--muted); margin-top: 6px; font-size: 0.95rem; }
-        .logo-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
-
-        .divider { text-align: center; color: var(--muted); font-size: 0.875rem; margin: 16px 0; position: relative; }
-        .divider::before, .divider::after {
-            content: ''; position: absolute; top: 50%; width: calc(50% - 30px);
-            height: 1px; background: var(--border2);
-        }
-        .divider::before { left: 0; }
-        .divider::after { right: 0; }
-
-        .form-group { margin-bottom: 14px; }
-
-        /* ===== HOME VIEW ===== */
-        #homeView { padding: 0; }
-        .topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 16px 20px; border-bottom: 1px solid var(--border2);
-            background: rgba(10,10,20,0.8); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50;
-        }
-        .topbar-logo { font-size: 1.2rem; font-weight: 600; }
-        .topbar-logo span { color: var(--p); }
-        .user-badge {
-            display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
-        }
-        .user-name { font-size: 0.9rem; font-weight: 500; }
-        .user-id { font-size: 0.75rem; color: var(--p); font-weight: 600; letter-spacing: 1px; cursor: pointer; }
-
-        .home-content { padding: 20px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
-
-        /* ===== ROOM SECTION ===== */
-        .section-title {
-            font-size: 1rem; font-weight: 600; color: var(--muted);
-            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
-        }
-
-        /* ===== ROOM VIEW ===== */
-        #roomView { padding: 0; flex: 1; }
-
-        .room-topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px; background: rgba(10,10,20,0.9);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 50;
-        }
-        .room-code-badge {
-            background: var(--glass2); border: 1px solid var(--border);
-            border-radius: 10px; padding: 6px 14px;
-            font-size: 1.1rem; font-weight: 700; letter-spacing: 3px; color: var(--p);
-            cursor: pointer;
-        }
-
-        .video-section { position: relative; background: #000; width: 100%; }
-        .video-wrapper {
-            width: 100%; aspect-ratio: 16/9; background: #000;
-            display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
-        }
-        .video-wrapper video, .video-wrapper iframe {
-            width: 100%; height: 100%; border: none; outline: none; object-fit: contain;
-        }
-
-        /* Floating controls on video */
-        .video-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(transparent, rgba(0,0,0,0.7));
-            padding: 16px 12px 8px; display: flex; align-items: center; gap: 8px;
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .video-section:hover .video-overlay, .video-section:active .video-overlay { opacity: 1; }
-
-        /* Bottom tabs for mobile */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: rgba(10,10,20,0.95); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border2);
-            display: flex; z-index: 100;
-            padding-bottom: var(--safe-bot);
-        }
-        .tab-btn {
-            flex: 1; display: flex; flex-direction: column; align-items: center;
-            gap: 4px; padding: 10px 8px; border: none; background: transparent;
-            color: var(--muted); cursor: pointer; transition: color 0.2s; font-family: inherit;
-            font-size: 0.7rem;
-        }
-        .tab-btn .tab-icon { font-size: 1.3rem; }
-        .tab-btn.active { color: var(--p); }
-
-        .tab-panel { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
-        .tab-panel.active { display: flex; }
-
-        .room-body {
-            display: flex; flex-direction: column; flex: 1;
-            padding-bottom: calc(60px + var(--safe-bot));
-        }
-
-        /* ===== CHAT ===== */
-        .chat-messages {
-            flex: 1; overflow-y: auto; padding: 12px 16px;
-            display: flex; flex-direction: column; gap: 8px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .msg {
-            max-width: 80%; padding: 9px 14px; border-radius: 18px;
-            font-size: 0.95rem; line-height: 1.4; word-break: break-word;
-        }
-        .msg-other { background: rgba(30,25,55,0.9); border: 1px solid var(--border2); align-self: flex-start; border-bottom-right-radius: 4px; }
-        .msg-mine { background: linear-gradient(135deg, var(--p2), var(--p)); align-self: flex-end; border-bottom-left-radius: 4px; }
-        .msg-name { font-size: 0.75rem; color: var(--p3); margin-bottom: 3px; display: block; cursor: pointer; }
-        .chat-input-row {
-            display: flex; gap: 8px; padding: 12px 16px;
-            background: rgba(10,10,20,0.9); border-top: 1px solid var(--border2);
-            position: sticky; bottom: 0; z-index: 10;
-        }
-        .chat-send {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            background: var(--p);
-            border: none;
-            color: #fff;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 10px rgba(124,58,237,0.45);
-            align-self: center;
-        }
-        .chat-send:active { transform: scale(0.9); background: var(--p2); }
-        .chat-send svg { display: block; }
-
-        /* ===== FRIENDS ===== */
-        .friend-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px; border-bottom: 1px solid var(--border2); cursor: pointer;
-            transition: background 0.15s;
-        }
-        .friend-item:active { background: var(--glass2); }
-        .avatar {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--p2), var(--p));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; font-weight: 600; flex-shrink: 0;
-        }
-        .friend-info { flex: 1; }
-        .friend-name { font-size: 0.95rem; font-weight: 500; }
-        .friend-status { font-size: 0.75rem; color: var(--muted); }
-        .friend-actions { display: flex; gap: 6px; }
-
-        /* ===== DM ROOM ===== */
-        #dmRoomChat { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-
-        /* ===== DM VIEW ===== */
-        #dmView {
-            position: fixed; inset: 0; z-index: 200;
-            background: var(--bg); display: flex; flex-direction: column;
-            padding-top: var(--safe-top);
-        }
-        .dm-topbar {
-            display: flex; align-items: center; gap: 12px;
-            padding: 14px 16px; border-bottom: 1px solid var(--border2);
-            background: rgba(10,10,20,0.9); backdrop-filter: blur(20px);
-        }
-        .dm-messages {
-            flex: 1; overflow-y: auto; padding: 12px 16px;
-            display: flex; flex-direction: column; gap: 8px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* ===== ADMIN PANEL ===== */
-        .admin-section { padding: 16px; background: rgba(167,139,250,0.05); border-top: 1px solid var(--border); }
-
-        /* ===== IOS SWITCH ===== */
-        .switch-wrap { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
-        .switch-label { font-size: 0.95rem; }
-        .ios-toggle {
-            width: 50px; height: 28px; background: rgba(255,255,255,0.2);
-            border-radius: 28px; cursor: pointer; transition: background 0.3s;
-            position: relative; flex-shrink: 0;
-        }
-        .ios-toggle::after {
-            content: ''; position: absolute; top: 3px; left: 3px;
-            width: 22px; height: 22px; background: #fff; border-radius: 50%;
-            transition: transform 0.3s; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-        .ios-toggle.on { background: var(--p); }
-        .ios-toggle.on::after { transform: translateX(22px); }
-
-        /* ===== POPUP ===== */
-        .popup-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px); z-index: 300;
-            display: flex; align-items: flex-end;
-            padding-bottom: var(--safe-bot);
-        }
-        .popup-sheet {
-            width: 100%; background: var(--bg2);
-            border-top: 1px solid var(--border); border-radius: 24px 24px 0 0;
-            padding: 20px 20px;
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .popup-handle { width: 40px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
-
-        /* ===== REQUEST BADGE ===== */
-        .badge {
-            background: var(--danger); color: #fff; border-radius: 50%;
-            min-width: 18px; height: 18px; font-size: 0.7rem; font-weight: 700;
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 0 4px;
-        }
-
-        /* ===== LOADING ===== */
-        .spinner {
-            width: 36px; height: 36px; border: 3px solid rgba(167,139,250,0.2);
-            border-top-color: var(--p); border-radius: 50%; animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ===== TOAST ===== */
-        #toast {
-            position: fixed; top: calc(var(--safe-top) + 16px); left: 50%; transform: translateX(-50%);
-            background: rgba(20,15,40,0.95); border: 1px solid var(--border); border-radius: 12px;
-            padding: 10px 20px; font-size: 0.9rem; z-index: 500; white-space: nowrap;
-            opacity: 0; transition: opacity 0.3s; pointer-events: none; backdrop-filter: blur(20px);
-        }
-        #toast.show { opacity: 1; }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-        /* ===== EMPTY STATE ===== */
-        .empty { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.9rem; }
-        .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
-
-        /* ===== VIDEO PLACEHOLDER ===== */
-        .video-placeholder {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; color: var(--muted); gap: 10px;
-        }
-        .video-placeholder .icon { font-size: 3rem; }
-
-        /* ===== TELEGRAM NOTE ===== */
-        .tg-note {
-            position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-            background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3);
-            border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; color: var(--p3);
-            white-space: nowrap; pointer-events: none;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (min-width: 768px) {
-            .room-body { flex-direction: row; }
-            .video-section { flex: 2; position: sticky; top: 0; max-height: calc(100vh - 60px); display: flex; flex-direction: column; }
-            .chat-panel { flex: 1; min-width: 300px; max-width: 380px; display: flex; flex-direction: column; border-right: 1px solid var(--border2); }
-            .bottom-nav { display: none; }
-            .tab-panel { display: flex; }
-        }
-
-        /* ios video fix */
-        video { -webkit-playsinline: true; }
-
-        /* Gradient text */
-        .grad { background: linear-gradient(135deg, var(--p3), var(--p)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     </style>
 </head>
 <body>
-<div id="app">
 
-    <!-- TOAST -->
-    <div id="toast"></div>
-
-    <!-- ===== LOGIN VIEW ===== -->
-    <div id="loginView" class="view hidden">
-        <div style="display:flex; align-items:center; justify-content:center; flex:1; padding:24px;">
-            <div class="glass login-card">
-                <div class="logo">
-                    <span class="logo-icon">🎬</span>
-                    <h1>سەکۆی <span>سینەما</span></h1>
-                    <p>لەگەڵ هاوڕێکانت فیلم سەیر بکە</p>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="emailInp" class="inp" placeholder="ئیمەیڵ..." autocomplete="email" inputmode="email">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="passInp" class="inp" placeholder="وشەی نهێنی..." autocomplete="current-password">
-                </div>
-                <button id="loginBtn" class="btn btn-white" style="margin-bottom:10px;">
-                    <span>🔑</span> چوونە ژوورەوە
-                </button>
-                <button id="signupBtn" class="btn btn-ghost" style="margin-bottom:20px;">
-                    <span>✨</span> دروستکردنی هەژمار
-                </button>
-                <div class="divider">یان</div>
-                <button id="googleBtn" class="btn btn-google" style="margin-top:16px; margin-bottom:10px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-                    چوونە ژوورەوە بە Google
-                </button>
-                <button id="anonBtn" class="btn btn-ghost">
-                    <span>👤</span> وەک میوان
-                </button>
-            </div>
+<div class="container">
+    <div id="loginView" class="glass-panel" style="max-width: 450px; margin: auto;">
+        <header>
+            <h1>بەخێربێیتەوە!</h1>
+            <p>چوونە ژوورەوە بۆ سەکۆی سینەما</p>
+        </header>
+        <div class="input-group">
+            <input type="email" id="emailInput" class="glass-input" placeholder="ئیمەیڵەکەتبنووسە...">
         </div>
+        <div class="input-group">
+            <input type="password" id="passwordInput" class="glass-input" placeholder="وشەی نهێنی...">
+        </div>
+        <button id="loginEmailBtn" class="glass-btn btn-white">چوونە ژوورەوە</button>
+        <button id="signupEmailBtn" class="glass-btn btn-outline" style="margin-bottom: 20px;">دروستکردنی هەژمار</button>
+        <div style="text-align: center; color: rgba(255,255,255,0.5); margin-bottom: 20px;">یان</div>
+        <button id="loginGoogleBtn" class="glass-btn btn-google">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
+            چوونە ژوورەوە بە Google
+        </button>
+        <button id="loginAnonBtn" class="glass-btn btn-outline">وەک میوان بڕۆ ژوورەوە</button>
     </div>
 
-    <!-- ===== HOME VIEW ===== -->
-    <div id="homeView" class="view hidden">
-        <div class="topbar">
+    <div id="homeView" class="hidden">
+        <header style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 15px 30px; border-radius: 20px;">
             <div>
-                <div class="topbar-logo">سەکۆی <span>سینەما</span> 🎬</div>
+                <h2 style="font-size: 1.5rem;">سەکۆی سینەما</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">سڵاو <span id="displayMyName" style="color:var(--primary);"></span></p>
+                <p style="font-size: 0.8rem; color: #aaa;">ئایدی تۆ: <span id="displayMyShortId" style="user-select:all; cursor:pointer; color: #fff; font-weight: bold;"></span></p>
             </div>
-            <div class="user-badge">
-                <div class="user-name" id="myNameDisplay">—</div>
-                <div class="user-id" id="myIdDisplay" title="دەستبگری کۆپی بکەیت">— کۆپی</div>
-            </div>
-            <button id="logoutBtn" class="btn btn-danger btn-sm" style="width:auto;">دەرچوون</button>
-        </div>
+            <button id="logoutBtn" class="glass-btn btn-danger" style="width: auto; padding: 8px 15px; font-size: 1rem;">دەرچوون</button>
+        </header>
 
-        <div class="home-content">
-            <!-- Room section -->
-            <div class="glass" style="padding:20px;">
-                <div class="section-title">🎬 ژووری سەیرکردن</div>
-                <div class="form-group">
-                    <input type="url" id="videoUrlInp" class="inp" placeholder="لینک (ئیختیاری): YouTube، .mp4..." inputmode="url" autocomplete="off">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div class="glass-panel">
+                <h3 style="margin-bottom: 20px; font-size: 1.4rem;">🎬 ژووری سەیرکردن</h3>
+                <div class="input-group">
+                    <input type="text" id="newVideoInput" class="glass-input" placeholder="YouTube، تێلیگرام t.me/...، mp4...">
                 </div>
-                <button id="createRoomBtn" class="btn btn-primary" style="margin-bottom:12px;">
-                    <span>✨</span> دروستکردنی ژوور
-                </button>
-                <div class="divider">یان</div>
-                <div style="display:flex; gap:10px; margin-top:12px;">
-                    <input type="text" id="joinCodeInp" class="inp" placeholder="کۆدی ژوور..." style="text-transform:uppercase; letter-spacing:2px;" maxlength="5">
-                    <button id="joinRoomBtn" class="btn btn-ghost" style="width:auto; white-space:nowrap; padding:13px 18px;">چوون</button>
+                <button id="createRoomBtn" class="glass-btn btn-white" style="margin-bottom: 20px;">دروستکردنی ژوور</button>
+                <div class="input-group" style="text-align: center; color: rgba(255,255,255,0.5);">یان</div>
+                <div class="input-group">
+                    <input type="text" id="joinRoomInput" class="glass-input" placeholder="کۆدی ژووری هاوڕێکەت...">
                 </div>
+                <button id="joinRoomBtn" class="glass-btn btn-outline">چوونە ناو ژوور</button>
             </div>
 
-            <!-- Friends section -->
-            <div class="glass" style="padding:20px;">
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-                    <div class="section-title" style="margin:0;">💬 هاوڕێکان</div>
-                    <span class="badge hidden" id="reqBadge">0</span>
-                </div>
-                <div style="display:flex; gap:8px; margin-bottom:16px;">
-                    <input type="text" id="addFriendInp" class="inp" placeholder="ئایدی کورتی هاوڕێ..." style="text-transform:uppercase; letter-spacing:1px;" maxlength="6">
-                    <button id="addFriendBtn" class="btn btn-primary btn-sm" style="white-space:nowrap;">+زیادکردن</button>
+            <div class="glass-panel">
+                <h3 style="margin-bottom: 20px; font-size: 1.4rem;">💬 هاوڕێکانم و چات</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input type="text" id="friendShortIdInput" class="glass-input" placeholder="ئایدی کورتی هاوڕێکەت...">
+                    <button id="addFriendBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">زیادکردن</button>
                 </div>
 
-                <!-- Requests -->
-                <div id="requestsBox"></div>
+                <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">داواکارییە هاوڕێیەتییەکان</h4>
+                <div id="friendRequestsContainer" style="margin-bottom: 20px; max-height: 200px; overflow-y: auto;">
+                    <p style="color:#aaa;">هیچ داواکارییەکت نییە.</p>
+                </div>
 
-                <!-- Friends list -->
-                <div id="friendsBox">
-                    <div class="empty"><span class="empty-icon">👥</span>هیچ هاوڕێیەکت نییە</div>
+                <h4 style="margin-bottom: 10px; color: var(--text-muted); font-size: 1.1rem;">لیستی هاوڕێیان</h4>
+                <div id="friendsList" style="max-height: 250px; overflow-y: auto;">
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== ROOM VIEW ===== -->
-    <div id="roomView" class="view hidden">
-        <!-- Top bar -->
-        <div class="room-topbar">
-            <button id="leaveRoomBtn" class="btn btn-danger btn-sm" style="width:auto;">← جێهێشتن</button>
-            <div class="room-code-badge" id="roomCodeDisplay" title="دەستبگری کۆپی بکەیت">———</div>
-            <div style="width:80px;"></div>
+    <div id="privateChatView" class="hidden">
+        <div class="dm-header">
+            <h2 id="dmFriendName">ناوی هاوڕێ</h2>
+            <button id="closeDmBtn" class="glass-btn btn-danger" style="width: auto; padding: 5px 15px;">داخستن</button>
+        </div>
+        <div class="dm-messages" id="dmMessagesBox"></div>
+        <div class="chat-input-box">
+            <input type="text" id="dmInput" class="glass-input" placeholder="نامەیەک بنووسە...">
+            <button id="sendDmBtn" class="send-btn">ناردن</button>
+        </div>
+    </div>
+
+    <div id="roomView" class="hidden">
+        <div class="glass-panel" style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 1.1rem;">کۆدی ژوور:</span>
+                <strong id="roomCodeDisplay" style="font-size: 1.5rem; letter-spacing: 2px; color: var(--primary);">---</strong>
+            </div>
+            <button id="leaveRoomBtn" class="glass-btn btn-danger" style="width: auto; padding: 10px 20px; font-size: 1.1rem;">جێهێشتن</button>
         </div>
 
-        <div class="room-body">
-            <!-- Left: Video -->
-            <div class="video-section">
+        <div class="room-grid">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
                 <div class="video-wrapper" id="playerWrapper">
-                    <div class="video-placeholder">
-                        <span class="icon">🎬</span>
-                        <span>چاوەڕێی ڤیدیۆ...</span>
+                    <div style="display:flex; height:100%; align-items:center; justify-content:center; color:#aaa; font-size: 1.2rem;">چاوەڕێی ڤیدیۆ...</div>
+                </div>
+
+                <div class="glass-panel" style="padding: 15px;">
+                    <div class="collapsible-header" id="inviteToggle">
+                        <h3 style="font-size: 1.2rem; color: var(--primary);">📨 بانگهێشتی هاوڕێ</h3>
+                        <span style="font-size: 1.5rem; transition: 0.3s;" id="inviteArrow">▼</span>
+                    </div>
+                    <div class="collapsible-content" id="inviteContent">
+                        <div id="inviteList" style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                            <p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p>
+                        </div>
                     </div>
                 </div>
-                <!-- Blocks video controls for non-admins -->
-                <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
-                <div id="syncLabel" style="display:none; position:absolute; bottom:8px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#a78bfa; border-radius:20px; padding:4px 14px; font-size:0.78rem; pointer-events:none; z-index:9;">🔒 ئەدمین کۆنترۆڵ دەکات</div>
+
+                <div id="adminControls" class="glass-panel hidden" style="padding: 20px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.3rem;">⚙️ ڕێکخستنی ئەدمین</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 1.1rem;">
+                        <span>قوفڵکردنی چات</span>
+                        <div id="chatLockSwitch" class="ios-switch"></div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="updateVideoInput" class="glass-input" placeholder="لینکی نوێ (YouTube، t.me/...)...">
+                        <button id="updateVideoBtn" class="glass-btn btn-white" style="width: auto; padding: 0 20px;">گۆڕین</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Right: Tabs -->
-            <div class="chat-panel">
-                <!-- Bottom nav for mobile -->
-                <div class="bottom-nav" id="roomBottomNav">
-                    <button class="tab-btn active" data-tab="chatTab" onclick="switchTab(this)">
-                        <span class="tab-icon">💬</span>چات
-                    </button>
-                    <button class="tab-btn" data-tab="dmRoomTab" onclick="switchTab(this)">
-                        <span class="tab-icon">✉️</span>پەیام
-                    </button>
-                    <button class="tab-btn" data-tab="membersTab" onclick="switchTab(this)">
-                        <span class="tab-icon">👥</span>بانگهێشت
-                    </button>
-                    <button class="tab-btn" data-tab="settingsTab" onclick="switchTab(this)" id="adminTabBtn" style="display:none;">
-                        <span class="tab-icon">⚙️</span>ڕێکخستن
-                    </button>
-                </div>
-
-                <!-- Chat tab -->
-                <div class="tab-panel active" id="chatTab">
-                    <div class="chat-messages" id="chatBox"></div>
-                    <div id="chatLockedBanner" style="text-align:center; padding:10px; color:var(--danger); font-size:0.9rem; display:none;">🔒 چات داخراوە</div>
-                    <div class="chat-input-row" id="chatInputRow">
-                        <input type="text" id="chatInp" class="inp" placeholder="نامە بنووسە..." autocomplete="off">
-                        <button class="chat-send" id="sendChatBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-                        </button>
+            <div class="glass-panel" style="display: flex; flex-direction: column; padding: 20px;">
+                <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border-glass); padding-bottom: 10px;">چاتی ژوور</h3>
+                <div id="chatSection" style="flex:1; display:flex; flex-direction:column;">
+                    <div class="chat-container" id="chatBox"></div>
+                    <div id="chatLockedMsg" style="text-align:center; color:var(--danger); padding:10px; display:none; font-size:1.1rem;">🔒 چات داخراوە</div>
+                    <div class="chat-input-box" id="chatInputArea">
+                        <input type="text" id="chatInput" class="glass-input" placeholder="نامە بنووسە...">
+                        <button id="sendChatBtn" class="send-btn">ناردن</button>
                     </div>
-                </div>
-
-                <!-- DM tab inside room -->
-                <div class="tab-panel" id="dmRoomTab" style="flex-direction:column; overflow:hidden;">
-                    <!-- Friend list for DM selection -->
-                    <div id="dmRoomFriendList" style="flex:1; overflow-y:auto; padding:12px 0;">
-                        <div class="empty"><span class="empty-icon">✉️</span>هاوڕێیەکت نییە بۆ پەیام</div>
-                    </div>
-                    <!-- Inline DM chat (shows when a friend is selected) -->
-                    <div id="dmRoomChat" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
-                        <div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--border2); background:rgba(10,10,20,0.7);">
-                            <button id="dmRoomBackBtn" style="background:none; border:none; color:var(--p); font-size:1.2rem; cursor:pointer; padding:4px;">←</button>
-                            <span id="dmRoomTitle" style="font-weight:600; font-size:0.95rem; flex:1;">—</span>
-                        </div>
-                        <div class="chat-messages" id="dmRoomBox" style="flex:1;"></div>
-                        <div class="chat-input-row" id="dmRoomInputRow">
-                            <input type="text" id="dmRoomInp" class="inp" placeholder="پەیام بنووسە..." autocomplete="off">
-                            <button class="chat-send" id="dmRoomSendBtn">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Members/Invite tab -->
-                <div class="tab-panel" id="membersTab" style="padding:16px; flex-direction:column; gap:12px; overflow-y:auto;">
-                    <div class="section-title">📨 بانگهێشتی هاوڕێ</div>
-                    <div id="inviteList"><div class="empty">هیچ هاوڕێیەکت نییە</div></div>
-                </div>
-
-                <!-- Admin settings tab -->
-                <div class="tab-panel" id="settingsTab" id="adminControls" style="padding:16px; flex-direction:column; gap:14px;">
-                    <div class="section-title">⚙️ ڕێکخستنی ئەدمین</div>
-                    <div class="card">
-                        <div class="switch-wrap">
-                            <span class="switch-label">🔒 قوفڵکردنی چات</span>
-                            <div class="ios-toggle" id="chatLockToggle"></div>
-                        </div>
-                    </div>
-                    <div class="section-title" style="margin-top:8px;">🔗 نوێکردنەوەی لینک</div>
-                    <input type="url" id="newVideoInp" class="inp" placeholder="لینکی ڤیدیۆی نوێ..." inputmode="url">
-                    <button id="updateVideoBtn" class="btn btn-primary">
-                        <span>🔄</span> گۆڕینی ڤیدیۆ
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- ===== DM VIEW ===== -->
-    <div id="dmView" class="hidden" style="position:fixed; inset:0; z-index:200; background:var(--bg); display:flex; flex-direction:column; padding-top:var(--safe-top);">
-        <div class="dm-topbar">
-            <button id="closeDmBtn" class="btn btn-ghost btn-sm" style="width:auto;">← گەڕانەوە</button>
-            <div style="flex:1; text-align:center; font-weight:600;" id="dmTitle">—</div>
-            <div style="width:80px;"></div>
-        </div>
-        <div class="dm-messages" id="dmBox"></div>
-        <div class="chat-input-row" style="padding-bottom:calc(12px + var(--safe-bot));">
-            <input type="text" id="dmInp" class="inp" placeholder="نامە بنووسە..." autocomplete="off">
-            <button class="chat-send" id="sendDmBtn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
-            </button>
-        </div>
-    </div>
-
-    <!-- Admin Name Popup -->
-    <div id="adminPopupOverlay" class="popup-overlay hidden">
-        <div class="popup-sheet">
-            <div class="popup-handle"></div>
-            <div id="adminPopupName" style="font-size:1.1rem; font-weight:600; text-align:center; margin-bottom:16px;"></div>
-            <button id="toggleAdminBtn" class="btn" style="margin-bottom:10px;">—</button>
-            <button onclick="document.getElementById('adminPopupOverlay').classList.add('hidden')" class="btn btn-ghost">داخستن</button>
-        </div>
-    </div>
-
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getDatabase, ref, set, onValue, push, update, get, remove, off } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set, onValue, push, update, get, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ===== CONFIG =====
-const FB = {
-    apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8",
-    authDomain: "whith-him.firebaseapp.com",
-    databaseURL: "https://whith-him-default-rtdb.firebaseio.com/",
-    projectId: "whith-him",
-    storageBucket: "whith-him.firebasestorage.app",
-    messagingSenderId: "677366602778",
-    appId: "1:677366602778:web:db312776554c5bba9945a3"
-};
-const app = initializeApp(FB);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const gp = new GoogleAuthProvider();
-
-// ===== STATE =====
-let me = { id: null, name: null, sid: null };
-let room = { id: null, data: null, isAdmin: false, isOwner: false };
-let videoEl = null;
-let isSeeking = false;
-let activeDm = null;
-let inviteUnsub = null;
-let reqBadgeCount = 0;
-let roomUnsub = null;
-let chatUnsub = null;
-let syncInterval = null;
-
-// ===== UTILS =====
-function toast(msg, dur = 2500) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), dur);
-}
-
-function genSid() {
-    const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    return Array.from({length: 6}, () => c[Math.floor(Math.random() * c.length)]).join('');
-}
-
-async function getSidUid(sid) {
-    const s = await get(ref(db, `shortIds/${sid}`));
-    return s.exists() ? s.val() : null;
-}
-
-function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
-function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
-function getEl(id) { return document.getElementById(id); }
-
-function copyText(text) {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => toast('✅ کۆپی کرا!'));
-    } else {
-        const ta = document.createElement('textarea');
-        ta.value = text; document.body.appendChild(ta);
-        ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta);
-        toast('✅ کۆپی کرا!');
-    }
-}
-
-// ===== VIEWS =====
-function showView(name) {
-    ['loginView', 'homeView', 'roomView'].forEach(v => hide(v));
-    show(name);
-}
-
-// ===== AUTH =====
-onAuthStateChanged(auth, async (user) => {
-    if (!user) { showView('loginView'); me = { id: null, name: null, sid: null }; return; }
-    me.id = user.uid;
-    me.name = user.displayName || localStorage.getItem('guestName') || 'میوان_' + Math.floor(Math.random()*1000);
-
-    const snap = await get(ref(db, `users/${me.id}`));
-    let ud = snap.val() || {};
-
-    if (!ud.shortId) {
-        let sid = genSid();
-        while ((await get(ref(db, `shortIds/${sid}`))).exists()) sid = genSid();
-        me.sid = sid;
-        await set(ref(db, `users/${me.id}`), { name: me.name, email: user.email||'نهێنی', shortId: sid });
-        await set(ref(db, `shortIds/${sid}`), me.id);
-    } else {
-        me.sid = ud.shortId;
-    }
-
-    getEl('myNameDisplay').textContent = me.name;
-    getEl('myIdDisplay').textContent = me.sid + ' · کۆپی';
-    showView('homeView');
-    loadFriends();
-    loadRequests();
-});
-
-// Login handlers
-getEl('loginBtn').onclick = () => {
-    const e = getEl('emailInp').value, p = getEl('passInp').value;
-    if(!e||!p) return toast('ئیمەیڵ و وشەی نهێنی بنووسە');
-    signInWithEmailAndPassword(auth, e, p).catch(err => toast('❌ ' + err.message));
-};
-getEl('signupBtn').onclick = () => {
-    const e = getEl('emailInp').value, p = getEl('passInp').value;
-    if(!e||!p) return toast('ئیمەیڵ و وشەی نهێنی بنووسە');
-    const name = prompt('ناوی خۆت بنووسە:') || 'بەکارهێنەر';
-    createUserWithEmailAndPassword(auth, e, p).then(async (cred) => {
-        await updateProfile(cred.user, { displayName: name });
-        localStorage.setItem('guestName', name);
-    }).catch(err => toast('❌ ' + err.message));
-};
-getEl('googleBtn').onclick = () => signInWithPopup(auth, gp).catch(err => toast('❌ ' + err.message));
-getEl('anonBtn').onclick = () => {
-    const name = prompt('ناوی خۆت بنووسە:');
-    if (!name) return;
-    localStorage.setItem('guestName', name);
-    signInAnonymously(auth).catch(err => toast('❌ ' + err.message));
-};
-getEl('logoutBtn').onclick = () => signOut(auth);
-getEl('myIdDisplay').onclick = () => copyText(me.sid);
-
-// ===== FRIENDS =====
-getEl('addFriendBtn').onclick = async () => {
-    const sid = getEl('addFriendInp').value.trim().toUpperCase();
-    if (!sid) return toast('ئایدی کورت بنووسە');
-    if (sid === me.sid) return toast('ناتوانیت خۆت زیاد بکەیت');
-    const uid = await getSidUid(sid);
-    if (!uid) return toast('❌ هیچ کەسێک بەم ئایدییە نەدۆزرایەوە');
-    const already = await get(ref(db, `users/${me.id}/sentRequests/${uid}`));
-    if (already.exists()) return toast('پێشتر داواکاری ناردووە');
-    const rid = push(ref(db, 'friend_requests')).key;
-    await set(ref(db, `friend_requests/${rid}`), { fromUid: me.id, fromName: me.name, fromShortId: me.sid, toUid: uid, status: 'pending', timestamp: Date.now() });
-    await set(ref(db, `users/${uid}/pendingRequests/${rid}`), true);
-    await set(ref(db, `users/${me.id}/sentRequests/${uid}`), true);
-    getEl('addFriendInp').value = '';
-    toast('✅ داواکاری نێردرا!');
-};
-
-function loadRequests() {
-    onValue(ref(db, `users/${me.id}/pendingRequests`), async (snap) => {
-        const box = getEl('requestsBox');
-        box.innerHTML = '';
-        reqBadgeCount = 0;
-        if (!snap.exists()) return;
-        const ids = Object.keys(snap.val());
-        reqBadgeCount = ids.length;
-        const badge = getEl('reqBadge');
-        badge.textContent = reqBadgeCount;
-        badge.classList.toggle('hidden', reqBadgeCount === 0);
-
-        for (const rid of ids) {
-            const rs = await get(ref(db, `friend_requests/${rid}`));
-            if (!rs.exists()) continue;
-            const r = rs.val();
-            if (r.status !== 'pending') continue;
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.style.cssText = 'display:flex; align-items:center; gap:10px; margin-bottom:8px; border-color:rgba(167,139,250,0.3)';
-            d.innerHTML = `
-                <div style="flex:1;"><span style="font-size:0.9rem;">👤 ${r.fromName}</span><br><span style="color:var(--p); font-size:0.75rem; font-weight:700;">${r.fromShortId}</span></div>
-                <button class="btn btn-success btn-xs" data-rid="${rid}">قبوڵ</button>
-                <button class="btn btn-danger btn-xs" data-rid="${rid}" data-reject>ڕەت</button>
-            `;
-            d.querySelector('[data-reject]').onclick = () => rejectReq(rid, r);
-            d.querySelector('.btn-success').onclick = () => acceptReq(rid, r);
-            box.appendChild(d);
-        }
-    });
-}
-
-async function acceptReq(rid, r) {
-    await update(ref(db, `users/${me.id}/friends`), { [r.fromUid]: r.fromName });
-    await update(ref(db, `users/${r.fromUid}/friends`), { [me.id]: me.name });
-    await remove(ref(db, `friend_requests/${rid}`));
-    await remove(ref(db, `users/${me.id}/pendingRequests/${rid}`));
-    await remove(ref(db, `users/${r.fromUid}/sentRequests/${me.id}`));
-    toast(`✅ ${r.fromName} بوو بە هاوڕێ!`);
-}
-async function rejectReq(rid, r) {
-    await remove(ref(db, `friend_requests/${rid}`));
-    await remove(ref(db, `users/${me.id}/pendingRequests/${rid}`));
-    await remove(ref(db, `users/${r.fromUid}/sentRequests/${me.id}`));
-    toast('داواکاری ڕەتکرایەوە');
-}
-
-function loadFriends() {
-    onValue(ref(db, `users/${me.id}/friends`), (snap) => {
-        const box = getEl('friendsBox');
-        box.innerHTML = '';
-        if (!snap.exists()) {
-            box.innerHTML = '<div class="empty"><span class="empty-icon">👥</span>هیچ هاوڕێیەکت نییە</div>';
-            return;
-        }
-        snap.forEach(child => {
-            const fid = child.key, fname = child.val();
-            const d = document.createElement('div');
-            d.className = 'friend-item';
-            d.innerHTML = `
-                <div class="avatar">${fname.charAt(0).toUpperCase()}</div>
-                <div class="friend-info">
-                    <div class="friend-name">${fname}</div>
-                    <div class="friend-status">هاوڕێ</div>
-                </div>
-                <div class="friend-actions">
-                    <button class="btn btn-primary btn-xs dm-b">💬</button>
-                    <button class="btn btn-danger btn-xs del-b">✕</button>
-                </div>
-            `;
-            d.querySelector('.dm-b').onclick = (e) => { e.stopPropagation(); openDm(fid, fname); };
-            d.querySelector('.del-b').onclick = (e) => {
-                e.stopPropagation();
-                if (confirm(`دڵنیایت دەتەوێت ${fname} بسڕیتەوە؟`)) {
-                    remove(ref(db, `users/${me.id}/friends/${fid}`));
-                    remove(ref(db, `users/${fid}/friends/${me.id}`));
-                    toast('سڕایەوە');
-                }
-            };
-            box.appendChild(d);
-        });
-    });
-}
-
-// ===== DM =====
-function openDm(fid, fname) {
-    activeDm = [me.id, fid].sort().join('_');
-    getEl('dmTitle').textContent = fname;
-    getEl('dmView').style.display = 'flex';
-    const box = getEl('dmBox');
-    box.innerHTML = '';
-    onValue(ref(db, `direct_messages/${activeDm}`), (snap) => {
-        box.innerHTML = '';
-        snap.forEach(ch => {
-            const msg = ch.val();
-            const mine = msg.senderId === me.id;
-            const d = document.createElement('div');
-            d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
-            d.innerHTML = `${!mine ? `<span class="msg-name">${msg.name}</span>` : ''}<div>${msg.text}</div>`;
-            box.appendChild(d);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-}
-
-getEl('sendDmBtn').onclick = sendDm;
-getEl('dmInp').addEventListener('keypress', e => { if(e.key==='Enter') sendDm(); });
-function sendDm() {
-    const text = getEl('dmInp').value.trim();
-    if (!text || !activeDm) return;
-    push(ref(db, `direct_messages/${activeDm}`), { senderId: me.id, name: me.name, text, timestamp: Date.now() });
-    getEl('dmInp').value = '';
-}
-getEl('closeDmBtn').onclick = () => { getEl('dmView').style.display = 'none'; activeDm = null; };
-
-// ===== IN-ROOM DM =====
-let dmRoomActiveFid = null;
-let dmRoomActiveName = null;
-let dmRoomUnsub = null;
-
-function loadDmRoomFriends() {
-    onValue(ref(db, `users/${me.id}/friends`), (snap) => {
-        const box = getEl('dmRoomFriendList');
-        if (!snap.exists()) {
-            box.innerHTML = '<div class="empty"><span class="empty-icon">✉️</span>هیچ هاوڕێیەکت نییە</div>';
-            return;
-        }
-        box.innerHTML = '';
-        snap.forEach(ch => {
-            const fid = ch.key, fname = ch.val();
-            const d = document.createElement('div');
-            d.className = 'friend-item';
-            d.style.cssText = 'cursor:pointer;';
-            d.innerHTML = `
-                <div class="avatar">${fname.charAt(0).toUpperCase()}</div>
-                <div class="friend-info">
-                    <div class="friend-name">${fname}</div>
-                    <div class="friend-status">پەیامکردن</div>
-                </div>
-                <span style="color:var(--p); font-size:1.2rem;">›</span>
-            `;
-            d.onclick = () => openDmRoom(fid, fname);
-            box.appendChild(d);
-        });
-    });
-}
-
-function openDmRoom(fid, fname) {
-    dmRoomActiveFid = fid;
-    dmRoomActiveName = fname;
-    const dmId = [me.id, fid].sort().join('_');
-
-    getEl('dmRoomTitle').textContent = fname;
-    getEl('dmRoomFriendList').style.display = 'none';
-    const chat = getEl('dmRoomChat');
-    chat.style.display = 'flex';
-
-    const box = getEl('dmRoomBox');
-    box.innerHTML = '';
-
-    if (dmRoomUnsub) dmRoomUnsub();
-    dmRoomUnsub = onValue(ref(db, `direct_messages/${dmId}`), (snap) => {
-        box.innerHTML = '';
-        snap.forEach(ch => {
-            const msg = ch.val();
-            const mine = msg.senderId === me.id;
-            const d = document.createElement('div');
-            d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
-            d.innerHTML = `${!mine ? `<span class="msg-name">${msg.name}</span>` : ''}<div>${msg.text}</div>`;
-            box.appendChild(d);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-}
-
-getEl('dmRoomBackBtn').onclick = () => {
-    if (dmRoomUnsub) { dmRoomUnsub(); dmRoomUnsub = null; }
-    getEl('dmRoomChat').style.display = 'none';
-    getEl('dmRoomFriendList').style.display = 'block';
-    dmRoomActiveFid = null;
-};
-
-getEl('dmRoomSendBtn').onclick = sendDmRoom;
-getEl('dmRoomInp').addEventListener('keypress', e => { if(e.key==='Enter') sendDmRoom(); });
-function sendDmRoom() {
-    const text = getEl('dmRoomInp').value.trim();
-    if (!text || !dmRoomActiveFid) return;
-    const dmId = [me.id, dmRoomActiveFid].sort().join('_');
-    push(ref(db, `direct_messages/${dmId}`), { senderId: me.id, name: me.name, text, timestamp: Date.now() });
-    getEl('dmRoomInp').value = '';
-}
-
-// ===== ROOM =====
-getEl('createRoomBtn').onclick = async () => {
-    const url = getEl('videoUrlInp').value.trim();
-    if (url && /herokuapp\.com/i.test(url)) {
-        return toast('⚠️ ئەم لینکە کارناکات — لینکی mp4 یان YouTube بنووسە');
-    }
-    const rid = Math.random().toString(36).substr(2, 5).toUpperCase();
-    await set(ref(db, `rooms_ku/${rid}`), {
-        ownerId: me.id, videoUrl: url || '', chatLocked: false,
-        admins: { [me.id]: true },
-        state: { time: 0, status: 'paused', updatedBy: me.id, timestamp: Date.now() }
-    });
-    enterRoom(rid);
-};
-
-getEl('joinRoomBtn').onclick = async () => {
-    const code = getEl('joinCodeInp').value.trim().toUpperCase();
-    if (!code) return toast('کۆدی ژوور بنووسە');
-    const s = await get(ref(db, `rooms_ku/${code}`));
-    s.exists() ? enterRoom(code) : toast('❌ ژوورەکە بوونی نییە');
-};
-
-getEl('roomCodeDisplay').onclick = () => copyText(room.id);
-
-function enterRoom(rid) {
-    room.id = rid;
-    showView('roomView');
-    getEl('roomCodeDisplay').textContent = rid;
-
-    if (roomUnsub) roomUnsub();
-    roomUnsub = onValue(ref(db, `rooms_ku/${rid}`), (snap) => {
-        if (!snap.exists()) { toast('ژوور داخراوە'); leaveRoom(); return; }
-        const data = snap.val();
-        room.data = data;
-        room.isOwner = data.ownerId === me.id;
-        room.isAdmin = !!(data.admins && data.admins[me.id]) || room.isOwner;
-
-        // Admin tab
-        getEl('adminTabBtn').style.display = room.isAdmin ? 'flex' : 'none';
-
-        // Video control block for non-admins
-        const vcb = getEl('videoControlBlock');
-        const sl = getEl('syncLabel');
-        if (vcb) vcb.style.display = room.isAdmin ? 'none' : 'block';
-        if (sl) sl.style.display = (room.isAdmin || !videoEl) ? 'none' : 'block';
-
-        // Chat lock
-        const locked = !!data.chatLocked;
-        const lockToggle = getEl('chatLockToggle');
-        lockToggle.classList.toggle('on', locked);
-        if (locked && !room.isAdmin) {
-            getEl('chatInputRow').style.display = 'none';
-            getEl('chatLockedBanner').style.display = 'block';
-        } else {
-            getEl('chatInputRow').style.display = 'flex';
-            getEl('chatLockedBanner').style.display = 'none';
-        }
-
-        // Update video input
-        if (room.isAdmin) getEl('newVideoInp').value = data.videoUrl || '';
-
-        // Load video
-        if (!videoEl || videoEl.dataset.url !== data.videoUrl) {
-            if (data.videoUrl) {
-                loadVideo(data.videoUrl);
-            } else {
-                // No video yet - show placeholder for non-admins, prompt for admins
-                const wrapper = getEl('playerWrapper');
-                if (room.isAdmin) {
-                    wrapper.innerHTML = `<div class="video-placeholder" style="gap:14px;">
-                        <span style="font-size:2.5rem;">🎬</span>
-                        <span style="color:var(--p3); font-size:0.95rem;">لینکی ڤیدیۆ لە ڕێکخستن زیاد بکە</span>
-                        <span style="font-size:0.8rem;color:var(--muted);">YouTube، .mp4، یان t.me/...</span>
-                    </div>`;
-                } else {
-                    wrapper.innerHTML = `<div class="video-placeholder">
-                        <div class="spinner"></div>
-                        <span>چاوەڕێی ئەدمین...</span>
-                    </div>`;
-                }
-                videoEl = null;
-            }
-        }
-
-        // Sync non-admins with timestamp correction (fixes drift when joining mid-video)
-        if (!room.isAdmin && videoEl && videoEl.tagName === 'VIDEO' && data.state) {
-            const st = data.state;
-            let targetTime = st.time;
-            if (st.status === 'playing') {
-                // Calculate how much time has passed since admin last synced
-                targetTime += (Date.now() - st.timestamp) / 1000;
-            }
-            if (Math.abs(videoEl.currentTime - targetTime) > 2.5) {
-                videoEl.currentTime = Math.max(0, targetTime);
-            }
-            if (st.status === 'playing' && videoEl.paused) videoEl.play().catch(() => {});
-            else if (st.status === 'paused' && !videoEl.paused) videoEl.pause();
-        }
-    });
-
-    if (chatUnsub) chatUnsub();
-    chatUnsub = onValue(ref(db, `rooms_ku/${rid}/messages`), (snap) => {
-        const box = getEl('chatBox');
-        box.innerHTML = '';
-        snap.forEach(ch => {
-            const msg = ch.val();
-            const mine = msg.senderId === me.id;
-            const isOwner = room.data && msg.senderId === room.data.ownerId;
-            const isAdmin = room.data?.admins?.[msg.senderId];
-            const badge = isOwner ? '👑' : isAdmin ? '🛡️' : '';
-            const d = document.createElement('div');
-            d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
-            d.innerHTML = `
-                ${!mine ? `<span class="msg-name" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span>` : ''}
-                <div>${msg.text}</div>
-            `;
-            if (!mine) {
-                d.querySelector('.msg-name').onclick = (e) => {
-                    if (room.isAdmin) showAdminPopup(msg.senderId, msg.name);
-                };
-            }
-            box.appendChild(d);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-
-    loadInviteList();
-    loadDmRoomFriends();
-}
-
-function loadInviteList() {
-    if (inviteUnsub) inviteUnsub();
-    const box = getEl('inviteList');
-    inviteUnsub = onValue(ref(db, `users/${me.id}/friends`), (snap) => {
-        box.innerHTML = '';
-        if (!snap.exists()) { box.innerHTML = '<div class="empty">هیچ هاوڕێیەکت نییە</div>'; return; }
-        snap.forEach(ch => {
-            const fid = ch.key, fname = ch.val();
-            const d = document.createElement('div');
-            d.className = 'friend-item';
-            d.style.padding = '10px 0';
-            d.innerHTML = `
-                <div class="avatar">${fname.charAt(0).toUpperCase()}</div>
-                <div class="friend-info"><div class="friend-name">${fname}</div></div>
-                <button class="btn btn-primary btn-xs">بانگهێشت</button>
-            `;
-            d.querySelector('button').onclick = () => sendInvite(fid, fname);
-            box.appendChild(d);
-        });
-    });
-}
-
-async function sendInvite(fid, fname) {
-    if (!room.id) return;
-    const cid = [me.id, fid].sort().join('_');
-    await push(ref(db, `direct_messages/${cid}`), {
-        senderId: me.id, name: me.name,
-        text: `🎬 ${fname}ی ئازیز، من لە ژووری سەیرکردنی فیلمم!\n\nکۆدی ژوور: ${room.id}\n\nبۆ چوونە ژووری من، ئەم کۆدە لە بەشی "چوونە ناو ژوور" بنووسە! 🍿`,
-        timestamp: Date.now()
-    });
-    toast(`✅ بانگهێشت بۆ ${fname} نێردرا!`);
-}
-
-function leaveRoom() {
-    room = { id: null, data: null, isAdmin: false, isOwner: false };
-    videoEl = null;
-    stopSyncInterval();
-    const vcb = getEl('videoControlBlock');
-    const sl = getEl('syncLabel');
-    if (vcb) vcb.style.display = 'none';
-    if (sl) sl.style.display = 'none';
-    if (inviteUnsub) { inviteUnsub(); inviteUnsub = null; }
-    if (roomUnsub) { roomUnsub(); roomUnsub = null; }
-    if (chatUnsub) { chatUnsub(); chatUnsub = null; }
-    if (dmRoomUnsub) { dmRoomUnsub(); dmRoomUnsub = null; }
-    dmRoomActiveFid = null;
-    // Reset DM room tab state
-    const dmChat = getEl('dmRoomChat');
-    const dmList = getEl('dmRoomFriendList');
-    if (dmChat) dmChat.style.display = 'none';
-    if (dmList) dmList.style.display = 'block';
-    getEl('playerWrapper').innerHTML = '<div class="video-placeholder"><span class="icon">🎬</span><span>چاوەڕێی ڤیدیۆ...</span></div>';
-    showView('homeView');
-}
-
-getEl('leaveRoomBtn').onclick = leaveRoom;
-
-// ===== VIDEO LOADER =====
-function loadVideo(url) {
-    const wrapper = getEl('playerWrapper');
-    wrapper.innerHTML = '';
-    videoEl = null;
-
-    const clean = url.trim();
-    const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-    const tgMatch = clean.match(/https?:\/\/t\.me\/([^\/\?]+)\/(\d+)/);
-    const isSafe = /kurdsub|vimeo|drive\.google/.test(clean);
-    const isMP4 = /\.(mp4|m3u8|webm|ogg|mov)(\?.*)?$/i.test(clean);
-
-    if (ytMatch) {
-        wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;" data-url="${clean}"></iframe>`;
-        videoEl = wrapper.firstChild;
-        return;
-    }
-
-    if (tgMatch) {
-        loadTelegramVideo(tgMatch[1], tgMatch[2], clean, wrapper);
-        return;
-    }
-
-    // Direct Heroku/filetoh download links — open in Telegram or direct browser
-    const filetohMatch = clean.match(/filetoh[^.]*\.herokuapp\.com/);
-    if (filetohMatch) {
-        wrapper.innerHTML = `
-        <div class="video-placeholder" style="gap:14px;">
-            <span style="font-size:2.5rem;">⚠️</span>
-            <span style="font-size:1rem; text-align:center; padding:0 16px;">ئەم لینکە کارناکات<br><span style="color:var(--muted); font-size:0.85rem;">Heroku لە ٢٠٢٢ خزمەتگوزاری خۆڕایەکەی داخست</span></span>
-            <span style="font-size:0.85rem; color:var(--p3); text-align:center; padding:0 20px; line-height:1.6;">چارەسەر: لینکی ڤیدیۆیەکی ڕاستەوخۆ (.mp4) یان لینکی YouTube بنووسە</span>
-        </div>`;
-        videoEl = null;
-        return;
-    }
-
-    if (isSafe) {
-        wrapper.innerHTML = `<iframe src="${clean}" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;" data-url="${clean}"></iframe>`;
-        videoEl = wrapper.firstChild;
-        return;
-    }
-
-    // Native video (mp4 and others)
-    const v = document.createElement('video');
-    v.src = clean;
-    v.dataset.url = clean;
-    v.controls = true;
-    v.preload = 'auto';
-    v.setAttribute('playsinline', '');
-    v.setAttribute('webkit-playsinline', '');
-    v.setAttribute('controlsList', 'nodownload');
-    v.style.cssText = 'width:100%;height:100%;background:#000;';
-    v.playsInline = true;
-
-    v.onerror = () => {
-        wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
-            <span class="icon">🚫</span>
-            <span>ئەم لینکە کار ناکات</span>
-            <span style="font-size:0.8rem;color:var(--muted);">لینکی ڤیدیۆی ڕاستەقینە (stream) دابنێ</span>
-        </div>`;
-        videoEl = null;
+    const firebaseConfig = {
+        apiKey: "AIzaSyAc0iAMRewvMEfpxBRAVsMs7s8ppskeUp8",
+        authDomain: "whith-him.firebaseapp.com",
+        databaseURL: "https://whith-him-default-rtdb.firebaseio.com/",
+        projectId: "whith-him",
+        storageBucket: "whith-him.firebasestorage.app",
+        messagingSenderId: "677366602778",
+        appId: "1:677366602778:web:db312776554c5bba9945a3"
     };
 
-    videoEl = v;
-    wrapper.appendChild(v);
-    attachVideoSync(v);
-}
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const googleProvider = new GoogleAuthProvider();
 
-// Telegram video handler - uses Bot API via /api/telegram (needs TELEGRAM_DUMP_CHAT_ID in Vercel)
-async function loadTelegramVideo(channel, msgId, rawUrl, wrapper) {
-    wrapper.innerHTML = `
-        <div class="video-placeholder">
-            <div class="spinner"></div>
-            <span>تێلیگرام بار دەکات...</span>
-        </div>`;
+    let myId = null;
+    let myName = null;
+    let myShortId = null;
+    let currentRoomId = null;
+    let activeDmChatId = null;
+    let adminPopup = null;
 
-    try {
-        const res = await fetch(`/api/telegram?channel=${encodeURIComponent(channel)}&msgId=${encodeURIComponent(msgId)}`);
-        const data = await res.json();
+    const loginView = document.getElementById('loginView');
+    const homeView = document.getElementById('homeView');
+    const roomView = document.getElementById('roomView');
+    const privateChatView = document.getElementById('privateChatView');
 
-        if (data.videoUrl) {
-            // ✅ Bot API succeeded
+    function generateShortId() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+        return result;
+    }
+
+    async function getUidByShortId(shortId) {
+        const snap = await get(ref(db, `shortIds/${shortId}`));
+        return snap.exists() ? snap.val() : null;
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            myId = user.uid;
+            myName = user.displayName || localStorage.getItem('guestName') || "میوان_" + Math.floor(Math.random()*1000);
+
+            const userSnap = await get(ref(db, `users/${myId}`));
+            const userData = userSnap.val() || {};
+            
+            if (!userData.shortId) {
+                let shortId = generateShortId();
+                while ((await get(ref(db, `shortIds/${shortId}`))).exists()) {
+                    shortId = generateShortId();
+                }
+                myShortId = shortId;
+                await set(ref(db, `users/${myId}`), { name: myName, email: user.email || 'نهێنی', shortId: myShortId });
+                await set(ref(db, `shortIds/${myShortId}`), myId);
+            } else {
+                myShortId = userData.shortId;
+            }
+
+            document.getElementById('displayMyName').textContent = myName;
+            document.getElementById('displayMyShortId').textContent = myShortId;
+
+            loginView.classList.add('hidden');
+            homeView.classList.remove('hidden');
+            loadFriends();
+            loadFriendRequests();
+        } else {
+            myShortId = null;
+            loginView.classList.remove('hidden');
+            homeView.classList.add('hidden');
+            roomView.classList.add('hidden');
+            privateChatView.classList.add('hidden');
+        }
+    });
+
+    document.getElementById('loginEmailBtn').addEventListener('click', () => {
+        const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value;
+        if(e&&p) signInWithEmailAndPassword(auth,e,p).catch(err=>alert(err.message));
+    });
+    document.getElementById('signupEmailBtn').addEventListener('click', () => {
+        const e = document.getElementById('emailInput').value, p = document.getElementById('passwordInput').value;
+        if(e&&p) createUserWithEmailAndPassword(auth,e,p).then(()=>{
+            const name = prompt("ناوی خۆت بنووسە:");
+            localStorage.setItem('guestName', name || "بەکارهێنەر");
+        }).catch(err=>alert(err.message));
+    });
+    document.getElementById('loginGoogleBtn').addEventListener('click', ()=> signInWithPopup(auth, googleProvider).catch(err=>alert(err.message)));
+    document.getElementById('loginAnonBtn').addEventListener('click', ()=>{
+        const name = prompt("ناوی خۆت بنووسە بۆ ناو چات:");
+        if(name){ localStorage.setItem('guestName', name); signInAnonymously(auth).catch(err=>alert(err.message)); }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
+
+    // هاوڕێیەتی و داواکاری
+    document.getElementById('addFriendBtn').addEventListener('click', async () => {
+        const targetShortId = document.getElementById('friendShortIdInput').value.trim().toUpperCase();
+        if (!targetShortId) return alert('ئایدی کورت بنووسە!');
+        if (targetShortId === myShortId) return alert('ناتوانیت خۆت زیاد بکەیت!');
+        const targetUid = await getUidByShortId(targetShortId);
+        if (!targetUid) return alert('هیچ کەسێک بەم ئایدییە نەدۆزرایەوە!');
+        const alreadyPending = await get(ref(db, `users/${myId}/sentRequests/${targetUid}`));
+        if (alreadyPending.exists()) return alert('پێشتر داواکاری بۆ ئەم کەسە ناردووە!');
+        const requestId = push(ref(db, 'friend_requests')).key;
+        await set(ref(db, `friend_requests/${requestId}`), {
+            fromUid: myId, fromName: myName, fromShortId: myShortId,
+            toUid: targetUid, status: 'pending', timestamp: Date.now()
+        });
+        await set(ref(db, `users/${targetUid}/pendingRequests/${requestId}`), true);
+        await set(ref(db, `users/${myId}/sentRequests/${targetUid}`), true);
+        document.getElementById('friendShortIdInput').value = '';
+        alert('داواکاری نێردرا!');
+    });
+
+    function loadFriendRequests() {
+        onValue(ref(db, `users/${myId}/pendingRequests`), async (snap) => {
+            const container = document.getElementById('friendRequestsContainer');
+            container.innerHTML = '';
+            if (!snap.exists()) {
+                container.innerHTML = '<p style="color:#aaa;">هیچ داواکارییەکت نییە.</p>';
+                return;
+            }
+            const requestIds = Object.keys(snap.val());
+            for (const reqId of requestIds) {
+                const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+                if (!reqSnap.exists()) continue;
+                const req = reqSnap.val();
+                if (req.status !== 'pending') continue;
+                const div = document.createElement('div');
+                div.className = 'request-item';
+                div.innerHTML = `
+                    <span>👤 ${req.fromName} (${req.fromShortId})</span>
+                    <div>
+                        <button class="btn-reject" data-reqid="${reqId}">ڕەتکردنەوە</button>
+                        <button class="btn-accept" data-reqid="${reqId}">قبوڵکردن</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+            container.querySelectorAll('.btn-accept').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const reqId = e.target.dataset.reqid;
+                    await acceptFriendRequest(reqId);
+                });
+            });
+            container.querySelectorAll('.btn-reject').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const reqId = e.target.dataset.reqid;
+                    await rejectFriendRequest(reqId);
+                });
+            });
+        });
+    }
+
+    async function acceptFriendRequest(reqId) {
+        const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+        if (!reqSnap.exists()) return;
+        const req = reqSnap.val();
+        if (req.toUid !== myId) return;
+        await update(ref(db, `users/${myId}/friends`), { [req.fromUid]: req.fromName });
+        await update(ref(db, `users/${req.fromUid}/friends`), { [myId]: myName });
+        await remove(ref(db, `friend_requests/${reqId}`));
+        await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`));
+        await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
+        alert(`${req.fromName} بوو بە هاوڕێ!`);
+    }
+
+    async function rejectFriendRequest(reqId) {
+        const reqSnap = await get(ref(db, `friend_requests/${reqId}`));
+        if (!reqSnap.exists()) return;
+        const req = reqSnap.val();
+        if (req.toUid !== myId) return;
+        await remove(ref(db, `friend_requests/${reqId}`));
+        await remove(ref(db, `users/${myId}/pendingRequests/${reqId}`));
+        await remove(ref(db, `users/${req.fromUid}/sentRequests/${myId}`));
+        alert('داواکاری ڕەتکرایەوە.');
+    }
+
+    function loadFriends() {
+        onValue(ref(db, `users/${myId}/friends`), (snap) => {
+            const list = document.getElementById('friendsList');
+            list.innerHTML = '';
+            if (!snap.exists()) {
+                list.innerHTML = '<p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p>';
+                return;
+            }
+            snap.forEach(child => {
+                const fId = child.key;
+                const fName = child.val();
+                const div = document.createElement('div');
+                div.className = 'friend-item';
+                div.innerHTML = `
+                    <span style="flex:1;">👤 ${fName}</span>
+                    <button class="dm-btn" style="margin-right:8px;">نامە</button>
+                    <button class="btn-delete">✕</button>
+                `;
+                div.querySelector('span').addEventListener('click', () => openPrivateChat(fId, fName));
+                div.querySelector('.dm-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openPrivateChat(fId, fName);
+                });
+                div.querySelector('.btn-delete').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm(`دڵنیایت دەتەوێت ${fName} بسڕیتەوە؟`)) {
+                        removeFriend(fId);
+                    }
+                });
+                list.appendChild(div);
+            });
+        });
+    }
+
+    async function removeFriend(friendId) {
+        await remove(ref(db, `users/${myId}/friends/${friendId}`));
+        await remove(ref(db, `users/${friendId}/friends/${myId}`));
+    }
+
+    function openPrivateChat(friendId, friendName) {
+        activeDmChatId = [myId, friendId].sort().join('_');
+        document.getElementById('dmFriendName').textContent = friendName;
+        privateChatView.classList.remove('hidden');
+        homeView.classList.add('hidden');
+        onValue(ref(db, `direct_messages/${activeDmChatId}`), (snap) => {
+            const box = document.getElementById('dmMessagesBox');
+            box.innerHTML = '';
+            snap.forEach(child => {
+                const msg = child.val();
+                const isMe = msg.senderId === myId;
+                const div = document.createElement('div');
+                div.className = `message ${isMe ? 'mine' : ''}`;
+                div.innerHTML = `<span class="msg-name">${msg.name}</span><div class="msg-text">${msg.text}</div>`;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    document.getElementById('sendDmBtn').addEventListener('click', () => {
+        const text = document.getElementById('dmInput').value.trim();
+        if (text && activeDmChatId) {
+            push(ref(db, `direct_messages/${activeDmChatId}`), { senderId: myId, name: myName, text, timestamp: Date.now() });
+            document.getElementById('dmInput').value = '';
+        }
+    });
+    document.getElementById('dmInput').addEventListener('keypress', e => { if(e.key === 'Enter') document.getElementById('sendDmBtn').click(); });
+    document.getElementById('closeDmBtn').addEventListener('click', () => {
+        activeDmChatId = null;
+        privateChatView.classList.add('hidden');
+        homeView.classList.remove('hidden');
+    });
+
+    // ========== ژووری ڤیدیۆ ==========
+    let roomDataGlobal = null;
+    let isOwner = false;
+    let isAdmin = false;
+    let videoPlayer = null;
+    let isSeeking = false;
+
+    document.getElementById('createRoomBtn').addEventListener('click', async () => {
+        const url = document.getElementById('newVideoInput').value.trim();
+        if(!url) return alert("تکایە لینکێک بنووسە!");
+        const roomId = Math.random().toString(36).substr(2,5).toUpperCase();
+        await set(ref(db, `rooms_ku/${roomId}`), {
+            ownerId: myId, videoUrl: url, chatLocked: false, admins: { [myId]: true },
+            state: { time: 0, status: 'paused', updatedBy: myId, timestamp: Date.now() }
+        });
+        enterRoom(roomId);
+    });
+
+    document.getElementById('joinRoomBtn').addEventListener('click', async () => {
+        const code = document.getElementById('joinRoomInput').value.trim().toUpperCase();
+        if(!code) return alert("کۆد بنووسە!");
+        const snap = await get(ref(db, `rooms_ku/${code}`));
+        snap.exists() ? enterRoom(code) : alert("ژوورەکە بوونی نییە!");
+    });
+
+    function enterRoom(roomId) {
+        currentRoomId = roomId;
+        homeView.classList.add('hidden');
+        roomView.classList.remove('hidden');
+        document.getElementById('roomCodeDisplay').textContent = roomId;
+        
+        onValue(ref(db, `rooms_ku/${roomId}`), (snap) => {
+            if (!snap.exists()) { alert("ژوور داخراوە"); leaveRoom(); return; }
+            const data = snap.val();
+            roomDataGlobal = data;
+            isOwner = (data.ownerId === myId);
+            isAdmin = (data.admins && data.admins[myId]) || isOwner;
+            document.getElementById('adminControls').classList.toggle('hidden', !isAdmin);
+            if(isAdmin) document.getElementById('updateVideoInput').value = data.videoUrl;
+            const lockSwitch = document.getElementById('chatLockSwitch');
+            if (data.chatLocked) {
+                lockSwitch.classList.add('active');
+                if(!isAdmin) { document.getElementById('chatInputArea').style.display='none'; document.getElementById('chatLockedMsg').style.display='block'; }
+            } else {
+                lockSwitch.classList.remove('active');
+                document.getElementById('chatInputArea').style.display='flex'; document.getElementById('chatLockedMsg').style.display='none';
+            }
+            if (!videoPlayer || videoPlayer.dataset.url !== data.videoUrl) loadSmartVideo(data.videoUrl);
+            if (!isAdmin && videoPlayer && videoPlayer.tagName === 'VIDEO' && data.state) {
+                if (Math.abs(videoPlayer.currentTime - data.state.time) > 2) videoPlayer.currentTime = data.state.time;
+                if (data.state.status === 'playing' && videoPlayer.paused) videoPlayer.play().catch(()=>{});
+                else if (data.state.status === 'paused' && !videoPlayer.paused) videoPlayer.pause();
+            }
+        });
+
+        onValue(ref(db, `rooms_ku/${roomId}/messages`), (snap) => {
+            const box = document.getElementById('chatBox');
+            box.innerHTML = '';
+            snap.forEach(child => {
+                const msg = child.val();
+                const isMe = msg.senderId === myId;
+                const badge = (msg.senderId === roomDataGlobal?.ownerId) ? '👑' : ((roomDataGlobal?.admins && roomDataGlobal.admins[msg.senderId]) ? '🛡️' : '');
+                const div = document.createElement('div');
+                div.className = `message ${isMe ? 'mine' : ''}`;
+                div.innerHTML = `<span class="msg-name ${isMe ? '' : 'clickable-name'}" data-uid="${msg.senderId}" data-name="${msg.name}">${badge} ${msg.name}</span><div class="msg-text">${msg.text}</div>`;
+                box.appendChild(div);
+            });
+            box.querySelectorAll('.msg-name.clickable-name').forEach(span => {
+                span.addEventListener('click', (e) => {
+                    const uid = e.target.dataset.uid;
+                    const name = e.target.dataset.name;
+                    if (isAdmin && uid && uid !== myId) showAdminPopup(e, uid, name);
+                });
+            });
+            box.scrollTop = box.scrollHeight;
+        });
+
+        loadInviteList();
+    }
+
+    function showAdminPopup(event, targetUid, targetName) {
+        if (adminPopup) adminPopup.remove();
+        adminPopup = document.createElement('div');
+        adminPopup.className = 'admin-popup';
+        const isAlreadyAdmin = roomDataGlobal.admins && roomDataGlobal.admins[targetUid];
+        adminPopup.innerHTML = `
+            <span style="color:white; margin-bottom:5px;">${targetName}</span>
+            <button id="toggleAdminBtn" class="glass-btn ${isAlreadyAdmin ? 'btn-danger' : 'btn-white'}" style="width:auto; padding:8px 15px;">
+                ${isAlreadyAdmin ? 'لابردنی ئەدمین' : 'کردن بە ئەدمین'}
+            </button>
+            <button id="closeAdminPopup" class="glass-btn btn-outline" style="width:auto; padding:5px 10px;">داخستن</button>
+        `;
+        adminPopup.style.left = event.clientX + 'px';
+        adminPopup.style.top = event.clientY + 'px';
+        document.body.appendChild(adminPopup);
+
+        adminPopup.querySelector('#toggleAdminBtn').addEventListener('click', async () => {
+            const admins = roomDataGlobal.admins || {};
+            if (isAlreadyAdmin) {
+                delete admins[targetUid];
+            } else {
+                admins[targetUid] = true;
+            }
+            await update(ref(db, `rooms_ku/${currentRoomId}`), { admins });
+            adminPopup.remove();
+            adminPopup = null;
+        });
+
+        adminPopup.querySelector('#closeAdminPopup').addEventListener('click', () => {
+            adminPopup.remove();
+            adminPopup = null;
+        });
+
+        setTimeout(() => {
+            document.addEventListener('click', function closeHandler(e) {
+                if (adminPopup && !adminPopup.contains(e.target)) {
+                    adminPopup.remove();
+                    adminPopup = null;
+                    document.removeEventListener('click', closeHandler);
+                }
+            });
+        }, 100);
+    }
+
+    let inviteListenerUnsub = null;
+    function loadInviteList() {
+        if (inviteListenerUnsub) inviteListenerUnsub();
+        const inviteListDiv = document.getElementById('inviteList');
+        inviteListenerUnsub = onValue(ref(db, `users/${myId}/friends`), (snap) => {
+            inviteListDiv.innerHTML = '';
+            if (!snap.exists()) {
+                inviteListDiv.innerHTML = '<p style="color:#aaa;">هیچ هاوڕێیەکت نییە.</p>';
+                return;
+            }
+            snap.forEach(child => {
+                const fId = child.key;
+                const fName = child.val();
+                const div = document.createElement('div');
+                div.className = 'invite-item';
+                div.innerHTML = `<span>👤 ${fName}</span> <button class="btn-invite">بانگهێشت</button>`;
+                div.querySelector('.btn-invite').addEventListener('click', () => inviteFriend(fId, fName));
+                inviteListDiv.appendChild(div);
+            });
+        });
+    }
+
+    async function inviteFriend(friendId, friendName) {
+        if (!currentRoomId) return;
+        const chatId = [myId, friendId].sort().join('_');
+        await push(ref(db, `direct_messages/${chatId}`), {
+            senderId: myId,
+            name: myName,
+            text: `🎬 ${friendName}ی ئازیز، من لە ژووری سەیرکردنی فیلمم. کۆدی ژوور: ${currentRoomId}. بۆ چوونە ژوورەوە ئەم کۆدە لە بەشی 'چوونە ناو ژوور' بنووسە.`,
+            timestamp: Date.now()
+        });
+        alert(`بانگهێشت بۆ ${friendName} نێردرا!`);
+    }
+
+    document.getElementById('inviteToggle').addEventListener('click', () => {
+        const content = document.getElementById('inviteContent');
+        const arrow = document.getElementById('inviteArrow');
+        content.classList.toggle('open');
+        arrow.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+
+    // بەشی چارەسەرکردنی داگرتن (قوفڵی ئاسنین)
+    function loadSmartVideo(url) {
+        const wrapper = document.getElementById('playerWrapper');
+        wrapper.innerHTML = '';
+        videoPlayer = null;
+
+        const cleanUrl = url.trim();
+        const isYoutube = cleanUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})/);
+        const isSafeWebpage = cleanUrl.includes('kurdsub') || cleanUrl.includes('vimeo');
+        const isTelegram = cleanUrl.match(/https?:\/\/t\.me\/([^\/\?]+)\/(\d+)/);
+
+        if (isYoutube) {
+            wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${isYoutube[1]}?autoplay=1" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
+            videoPlayer = wrapper.firstChild;
+            return;
+        }
+
+        if (isTelegram) {
+            // لینکی تێلیگرام → بەکارهێنانی Telegram Embed
+            const embedUrl = `https://t.me/${isTelegram[1]}/${isTelegram[2]}?embed=1&mode=tme`;
+            wrapper.innerHTML = `
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#000; position:relative;">
+                    <iframe src="${embedUrl}"
+                        allow="autoplay; fullscreen"
+                        style="width:100%; height:100%; border:none; border-radius:12px;"
+                        data-url="${cleanUrl}"
+                        scrolling="no"
+                        frameborder="0">
+                    </iframe>
+                    <div style="position:absolute; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(167,139,250,0.2); border:1px solid rgba(167,139,250,0.4); border-radius:20px; padding:6px 14px; font-size:0.85rem; color:#c4b5fd; white-space:nowrap; pointer-events:none;">
+                        📡 تێلیگرام · سینکی ئۆتۆماتیک کار ناکات
+                    </div>
+                </div>`;
+            videoPlayer = wrapper.querySelector('iframe');
+            return;
+        }
+
+        if (isSafeWebpage) {
+            // بەکارهێنانی sandbox بۆ ڕێگریکردنی ڕەها لە داگرتن لەناو پەنجەرە
+            wrapper.innerHTML = `<iframe src="${cleanUrl}" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="autoplay; fullscreen" style="width:100%; height:100%; border:none;" data-url="${cleanUrl}"></iframe>`;
+            videoPlayer = wrapper.firstChild;
+            return;
+        }
+
+        // بۆ هەر لینکێکی تر (mp4، filetoh، redirect): ئەوەل ڕاستەوخۆ تاقی بکەرەوە، ئەگەر نەبوو blob بەکاربهێنە
+        function buildVideoEl(src) {
             const v = document.createElement('video');
-            v.src = data.videoUrl;
-            v.dataset.url = rawUrl;
+            v.src = src;
+            v.dataset.url = cleanUrl;
             v.controls = true;
             v.preload = 'auto';
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
             v.setAttribute('controlsList', 'nodownload');
+            v.oncontextmenu = () => false;
             v.style.cssText = 'width:100%;height:100%;background:#000;';
-            v.playsInline = true;
-            wrapper.innerHTML = '';
-            wrapper.appendChild(v);
-            videoEl = v;
-            attachVideoSync(v);
-            // Update sync label visibility
-            const sl = getEl('syncLabel');
-            if (sl) sl.style.display = room.isAdmin ? 'none' : 'block';
-            return;
+            return v;
         }
 
-        // API returned error - show message
-        const hint = res.status === 413
-            ? 'فایلەکە زۆر گەورەیە بۆ Bot API (>20MB)'
-            : res.status === 500 && data.error?.includes('DUMP')
-                ? '⚠️ TELEGRAM_DUMP_CHAT_ID نەداوە لە Vercel'
-                : data.error || 'کێشەیەک هەیە';
-
-        showTgFallback(wrapper, rawUrl, hint);
-    } catch(e) {
-        showTgFallback(wrapper, rawUrl, 'کێشەی تور');
-    }
-}
-
-function showTgFallback(wrapper, rawUrl, hint) {
-    videoEl = null;
-    wrapper.innerHTML = `
-        <div class="video-placeholder" style="gap:12px;">
-            <span style="font-size:2.5rem;">📱</span>
-            <span style="font-size:0.95rem; text-align:center;">ڤیدیۆی تێلیگرام</span>
-            <span style="font-size:0.8rem;color:var(--muted);text-align:center;padding:0 20px;line-height:1.6;">${hint}</span>
-            <a href="${rawUrl}" target="_blank" style="
-                margin-top:4px; padding:11px 24px; border-radius:14px;
-                background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
-                text-decoration:none; font-size:0.95rem; font-family:inherit;
-                box-shadow:0 4px 15px rgba(124,58,237,0.45); font-weight:500;
-            ">کردنەوە لە تێلیگرام ↗</a>
-            <div style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:12px 16px; margin:4px 16px;">
-                <div style="font-size:0.8rem; color:var(--p3); margin-bottom:6px; font-weight:600;">✅ چاکسازی:</div>
-                <div style="font-size:0.78rem; color:var(--muted); line-height:1.7;">
-                    ١. لینکی ڤیدیۆی ڕاستەوخۆ (.mp4) بەکاربهێنە<br>
-                    ٢. YouTube لینک بەکاربهێنە<br>
-                    ٣. فیلمەکە بنێرە بۆ @FileToLinkiBot و لینکی mp4 ی وەربگرە
-                </div>
-            </div>
-        </div>`;
-}
-
-function startSyncInterval() {
-    stopSyncInterval();
-    syncInterval = setInterval(() => {
-        if (room.isAdmin && videoEl?.tagName === 'VIDEO' && !videoEl.paused) {
-            syncState('playing');
+        function attachSyncEvents(v) {
+            v.addEventListener('play', () => { if (isAdmin && !isSeeking) updateState('playing'); });
+            v.addEventListener('pause', () => { if (isAdmin && !isSeeking) updateState('paused'); });
+            v.addEventListener('seeked', () => { if (isAdmin) updateState(v.paused ? 'paused' : 'playing'); isSeeking = false; });
+            v.addEventListener('seeking', () => { isSeeking = true; });
+            if (!isAdmin) {
+                v.addEventListener('play', () => { if (roomDataGlobal.state.status === 'paused') { v.pause(); } });
+                v.addEventListener('pause', () => { if (roomDataGlobal.state.status === 'playing') { v.play().catch(()=>{}); } });
+            }
         }
-    }, 5000);
-}
-function stopSyncInterval() {
-    if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
-}
 
-function attachVideoSync(v) {
-    v.addEventListener('play', () => {
-        if (room.isAdmin && !isSeeking) { syncState('playing'); startSyncInterval(); }
-    });
-    v.addEventListener('pause', () => {
-        if (room.isAdmin && !isSeeking) { syncState('paused'); stopSyncInterval(); }
-    });
-    v.addEventListener('seeked', () => {
-        if (room.isAdmin) syncState(v.paused ? 'paused' : 'playing');
-        isSeeking = false;
-    });
-    v.addEventListener('seeking', () => { isSeeking = true; });
+        const vDirect = buildVideoEl(cleanUrl);
 
-    if (!room.isAdmin) {
-        v.addEventListener('play', () => { if (room.data?.state?.status === 'paused') v.pause(); });
-        v.addEventListener('pause', () => { if (room.data?.state?.status === 'playing') v.play().catch(() => {}); });
+        vDirect.onerror = async function() {
+            // لینکی ڕاستەوخۆ کار نەکرد — هەوڵی fetch+blob بدە (بۆ Heroku redirect)
+            wrapper.innerHTML = `
+                <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#c4b5fd;">
+                    <div style="width:36px;height:36px;border:3px solid rgba(167,139,250,0.2);border-top-color:#a78bfa;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                    <span style="font-size:0.9rem;">بار دەکات...</span>
+                </div>`;
+            try {
+                const resp = await fetch(cleanUrl, { redirect: 'follow' });
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const buf = await resp.arrayBuffer();
+                const ct = resp.headers.get('content-type') || 'video/mp4';
+                const blob = new Blob([buf], { type: ct.startsWith('video') ? ct : 'video/mp4' });
+                const blobUrl = URL.createObjectURL(blob);
+                wrapper.innerHTML = '';
+                const vBlob = buildVideoEl(blobUrl);
+                vBlob.onerror = () => {
+                    URL.revokeObjectURL(blobUrl);
+                    wrapper.innerHTML = `<div style="text-align:center;padding:20px;color:#ff8a8a;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;"><span style="font-size:3rem;margin-bottom:10px;">🚫</span><h3>ئەم لینکە کار ناکات</h3><p style="font-size:0.9rem;color:#aaa;margin-top:5px;">لینکی ڤیدیۆی ڕاستەقینە (.mp4) دابنێ.</p></div>`;
+                    videoPlayer = null;
+                };
+                videoPlayer = vBlob;
+                wrapper.appendChild(vBlob);
+                attachSyncEvents(vBlob);
+            } catch(err) {
+                wrapper.innerHTML = `<div style="text-align:center;padding:20px;color:#ff8a8a;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;"><span style="font-size:3rem;margin-bottom:10px;">🚫</span><h3>ئەم لینکە کار ناکات یان ڤیدیۆ نییە!</h3><p style="font-size:0.9rem;color:#aaa;margin-top:5px;">وێبسایتەکە ڕێگری کرد. تکایە لینکی ڤیدیۆی ڕاستەقینە (Stream) دابنێ.</p></div>`;
+                videoPlayer = null;
+            }
+        };
+
+        videoPlayer = vDirect;
+        wrapper.appendChild(vDirect);
+
+        attachSyncEvents(vDirect);
     }
-}
 
-function syncState(status) {
-    if (!room.id || !videoEl || videoEl.tagName !== 'VIDEO') return;
-    update(ref(db, `rooms_ku/${room.id}/state`), { time: videoEl.currentTime, status, updatedBy: me.id, timestamp: Date.now() });
-}
-
-// ===== ADMIN =====
-getEl('chatLockToggle').onclick = () => {
-    if (!room.isAdmin) return;
-    update(ref(db, `rooms_ku/${room.id}`), { chatLocked: !room.data.chatLocked });
-};
-
-getEl('updateVideoBtn').onclick = () => {
-    if (!room.isAdmin) return;
-    const url = getEl('newVideoInp').value.trim();
-    if (!url) return;
-    if (/herokuapp\.com/i.test(url)) {
-        return toast('⚠️ ئەم لینکە کارناکات — لینکی mp4 یان YouTube بنووسە');
+    function updateState(status) {
+        if (!currentRoomId || !videoPlayer || videoPlayer.tagName !== 'VIDEO') return;
+        update(ref(db, `rooms_ku/${currentRoomId}/state`), {
+            time: videoPlayer.currentTime, status, updatedBy: myId, timestamp: Date.now()
+        });
     }
-    update(ref(db, `rooms_ku/${room.id}`), { videoUrl: url });
-};
 
-// Admin popup
-let popupTargetUid = null;
-function showAdminPopup(uid, name) {
-    popupTargetUid = uid;
-    getEl('adminPopupName').textContent = name;
-    const isAlready = room.data?.admins?.[uid];
-    const btn = getEl('toggleAdminBtn');
-    btn.textContent = isAlready ? '🚫 لابردنی ئەدمین' : '🛡️ کردن بە ئەدمین';
-    btn.className = `btn ${isAlready ? 'btn-danger' : 'btn-primary'}`;
-    getEl('adminPopupOverlay').classList.remove('hidden');
-}
-
-getEl('toggleAdminBtn').onclick = async () => {
-    if (!popupTargetUid) return;
-    const admins = { ...(room.data?.admins || {}) };
-    if (admins[popupTargetUid]) delete admins[popupTargetUid];
-    else admins[popupTargetUid] = true;
-    await update(ref(db, `rooms_ku/${room.id}`), { admins });
-    getEl('adminPopupOverlay').classList.add('hidden');
-    toast('✅ نوێ کرایەوە');
-};
-
-getEl('adminPopupOverlay').onclick = (e) => {
-    if (e.target === getEl('adminPopupOverlay')) getEl('adminPopupOverlay').classList.add('hidden');
-};
-
-// ===== CHAT =====
-getEl('sendChatBtn').onclick = sendChat;
-getEl('chatInp').addEventListener('keypress', e => { if(e.key==='Enter') sendChat(); });
-function sendChat() {
-    const text = getEl('chatInp').value.trim();
-    if (!text || !room.id) return;
-    if (room.data?.chatLocked && !room.isAdmin) return toast('🔒 چات داخراوە');
-    push(ref(db, `rooms_ku/${room.id}/messages`), { senderId: me.id, name: me.name, text, timestamp: Date.now() });
-    getEl('chatInp').value = '';
-}
-
-// ===== TABS =====
-window.switchTab = function(btn) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    const panel = document.getElementById(btn.dataset.tab);
-    if (panel) panel.classList.add('active');
-};
-
-// iOS keyboard fix - prevent keyboard from covering chat input
-function fixViewport() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-window.addEventListener('resize', fixViewport);
-window.addEventListener('orientationchange', () => setTimeout(fixViewport, 300));
-fixViewport();
-
-// Fix iOS keyboard covering input fields using visualViewport
-if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-        const chatInputRow = getEl('chatInputRow');
-        const dmInputRow = document.querySelector('#dmView .chat-input-row');
-        const keyboardHeight = window.innerHeight - window.visualViewport.height;
-        
-        if (chatInputRow) {
-            chatInputRow.style.paddingBottom = keyboardHeight > 50
-                ? `${keyboardHeight + 8}px`
-                : '';
-        }
-        if (dmInputRow) {
-            dmInputRow.style.paddingBottom = keyboardHeight > 50
-                ? `${keyboardHeight + 8}px`
-                : `calc(12px + var(--safe-bot))`;
-        }
+    document.getElementById('chatLockSwitch').addEventListener('click', () => {
+        if (!isAdmin) return;
+        update(ref(db, `rooms_ku/${currentRoomId}`), { chatLocked: !roomDataGlobal.chatLocked });
     });
-}
+    document.getElementById('updateVideoBtn').addEventListener('click', () => {
+        if (!isAdmin) return;
+        const url = document.getElementById('updateVideoInput').value.trim();
+        if (url) update(ref(db, `rooms_ku/${currentRoomId}`), { videoUrl: url });
+    });
+    document.getElementById('sendChatBtn').addEventListener('click', () => {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text || !currentRoomId) return;
+        push(ref(db, `rooms_ku/${currentRoomId}/messages`), { senderId: myId, name: myName, text, timestamp: Date.now() });
+        input.value = '';
+    });
+    document.getElementById('chatInput').addEventListener('keypress', e => { if(e.key==='Enter') document.getElementById('sendChatBtn').click(); });
+    document.getElementById('leaveRoomBtn').addEventListener('click', leaveRoom);
 
-// Prevent iOS bounce
-document.addEventListener('touchmove', (e) => {
-    if (!e.target.closest('.chat-messages, .dm-messages, .home-content, .tab-panel')) {
-        e.preventDefault();
+    function leaveRoom() {
+        currentRoomId = null; videoPlayer = null;
+        if (inviteListenerUnsub) { inviteListenerUnsub(); inviteListenerUnsub = null; }
+        if (adminPopup) { adminPopup.remove(); adminPopup = null; }
+        roomView.classList.add('hidden');
+        homeView.classList.remove('hidden');
     }
-}, { passive: false });
-
-// Auto scroll chat
-const chatObs = new MutationObserver(() => {
-    const b = getEl('chatBox');
-    if (b) b.scrollTop = b.scrollHeight;
-});
-chatObs.observe(getEl('chatBox'), { childList: true });
-
 </script>
 </body>
-</html>
+    </html>
