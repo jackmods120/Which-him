@@ -305,6 +305,9 @@
         .friend-status { font-size: 0.75rem; color: var(--muted); }
         .friend-actions { display: flex; gap: 6px; }
 
+        /* ===== DM ROOM ===== */
+        #dmRoomChat { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+
         /* ===== DM VIEW ===== */
         #dmView {
             position: fixed; inset: 0; z-index: 200;
@@ -478,7 +481,7 @@
             <div class="glass" style="padding:20px;">
                 <div class="section-title">🎬 ژووری سەیرکردن</div>
                 <div class="form-group">
-                    <input type="url" id="videoUrlInp" class="inp" placeholder="لینک: YouTube، t.me/...، .mp4..." inputmode="url" autocomplete="off">
+                    <input type="url" id="videoUrlInp" class="inp" placeholder="لینک (ئیختیاری): YouTube، .mp4..." inputmode="url" autocomplete="off">
                 </div>
                 <button id="createRoomBtn" class="btn btn-primary" style="margin-bottom:12px;">
                     <span>✨</span> دروستکردنی ژوور
@@ -542,8 +545,11 @@
                     <button class="tab-btn active" data-tab="chatTab" onclick="switchTab(this)">
                         <span class="tab-icon">💬</span>چات
                     </button>
+                    <button class="tab-btn" data-tab="dmRoomTab" onclick="switchTab(this)">
+                        <span class="tab-icon">✉️</span>پەیام
+                    </button>
                     <button class="tab-btn" data-tab="membersTab" onclick="switchTab(this)">
-                        <span class="tab-icon">👥</span>هاوڕێ
+                        <span class="tab-icon">👥</span>بانگهێشت
                     </button>
                     <button class="tab-btn" data-tab="settingsTab" onclick="switchTab(this)" id="adminTabBtn" style="display:none;">
                         <span class="tab-icon">⚙️</span>ڕێکخستن
@@ -559,6 +565,28 @@
                         <button class="chat-send" id="sendChatBtn">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
                         </button>
+                    </div>
+                </div>
+
+                <!-- DM tab inside room -->
+                <div class="tab-panel" id="dmRoomTab" style="flex-direction:column; overflow:hidden;">
+                    <!-- Friend list for DM selection -->
+                    <div id="dmRoomFriendList" style="flex:1; overflow-y:auto; padding:12px 0;">
+                        <div class="empty"><span class="empty-icon">✉️</span>هاوڕێیەکت نییە بۆ پەیام</div>
+                    </div>
+                    <!-- Inline DM chat (shows when a friend is selected) -->
+                    <div id="dmRoomChat" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+                        <div style="display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--border2); background:rgba(10,10,20,0.7);">
+                            <button id="dmRoomBackBtn" style="background:none; border:none; color:var(--p); font-size:1.2rem; cursor:pointer; padding:4px;">←</button>
+                            <span id="dmRoomTitle" style="font-weight:600; font-size:0.95rem; flex:1;">—</span>
+                        </div>
+                        <div class="chat-messages" id="dmRoomBox" style="flex:1;"></div>
+                        <div class="chat-input-row" id="dmRoomInputRow">
+                            <input type="text" id="dmRoomInp" class="inp" placeholder="پەیام بنووسە..." autocomplete="off">
+                            <button class="chat-send" id="dmRoomSendBtn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -871,16 +899,92 @@ function sendDm() {
 }
 getEl('closeDmBtn').onclick = () => { getEl('dmView').style.display = 'none'; activeDm = null; };
 
+// ===== IN-ROOM DM =====
+let dmRoomActiveFid = null;
+let dmRoomActiveName = null;
+let dmRoomUnsub = null;
+
+function loadDmRoomFriends() {
+    onValue(ref(db, `users/${me.id}/friends`), (snap) => {
+        const box = getEl('dmRoomFriendList');
+        if (!snap.exists()) {
+            box.innerHTML = '<div class="empty"><span class="empty-icon">✉️</span>هیچ هاوڕێیەکت نییە</div>';
+            return;
+        }
+        box.innerHTML = '';
+        snap.forEach(ch => {
+            const fid = ch.key, fname = ch.val();
+            const d = document.createElement('div');
+            d.className = 'friend-item';
+            d.style.cssText = 'cursor:pointer;';
+            d.innerHTML = `
+                <div class="avatar">${fname.charAt(0).toUpperCase()}</div>
+                <div class="friend-info">
+                    <div class="friend-name">${fname}</div>
+                    <div class="friend-status">پەیامکردن</div>
+                </div>
+                <span style="color:var(--p); font-size:1.2rem;">›</span>
+            `;
+            d.onclick = () => openDmRoom(fid, fname);
+            box.appendChild(d);
+        });
+    });
+}
+
+function openDmRoom(fid, fname) {
+    dmRoomActiveFid = fid;
+    dmRoomActiveName = fname;
+    const dmId = [me.id, fid].sort().join('_');
+
+    getEl('dmRoomTitle').textContent = fname;
+    getEl('dmRoomFriendList').style.display = 'none';
+    const chat = getEl('dmRoomChat');
+    chat.style.display = 'flex';
+
+    const box = getEl('dmRoomBox');
+    box.innerHTML = '';
+
+    if (dmRoomUnsub) dmRoomUnsub();
+    dmRoomUnsub = onValue(ref(db, `direct_messages/${dmId}`), (snap) => {
+        box.innerHTML = '';
+        snap.forEach(ch => {
+            const msg = ch.val();
+            const mine = msg.senderId === me.id;
+            const d = document.createElement('div');
+            d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
+            d.innerHTML = `${!mine ? `<span class="msg-name">${msg.name}</span>` : ''}<div>${msg.text}</div>`;
+            box.appendChild(d);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+}
+
+getEl('dmRoomBackBtn').onclick = () => {
+    if (dmRoomUnsub) { dmRoomUnsub(); dmRoomUnsub = null; }
+    getEl('dmRoomChat').style.display = 'none';
+    getEl('dmRoomFriendList').style.display = 'block';
+    dmRoomActiveFid = null;
+};
+
+getEl('dmRoomSendBtn').onclick = sendDmRoom;
+getEl('dmRoomInp').addEventListener('keypress', e => { if(e.key==='Enter') sendDmRoom(); });
+function sendDmRoom() {
+    const text = getEl('dmRoomInp').value.trim();
+    if (!text || !dmRoomActiveFid) return;
+    const dmId = [me.id, dmRoomActiveFid].sort().join('_');
+    push(ref(db, `direct_messages/${dmId}`), { senderId: me.id, name: me.name, text, timestamp: Date.now() });
+    getEl('dmRoomInp').value = '';
+}
+
 // ===== ROOM =====
 getEl('createRoomBtn').onclick = async () => {
     const url = getEl('videoUrlInp').value.trim();
-    if (!url) return toast('تکایە لینکێک بنووسە');
-    if (/herokuapp\.com/i.test(url)) {
+    if (url && /herokuapp\.com/i.test(url)) {
         return toast('⚠️ ئەم لینکە کارناکات — لینکی mp4 یان YouTube بنووسە');
     }
     const rid = Math.random().toString(36).substr(2, 5).toUpperCase();
     await set(ref(db, `rooms_ku/${rid}`), {
-        ownerId: me.id, videoUrl: url, chatLocked: false,
+        ownerId: me.id, videoUrl: url || '', chatLocked: false,
         admins: { [me.id]: true },
         state: { time: 0, status: 'paused', updatedBy: me.id, timestamp: Date.now() }
     });
@@ -935,7 +1039,25 @@ function enterRoom(rid) {
 
         // Load video
         if (!videoEl || videoEl.dataset.url !== data.videoUrl) {
-            loadVideo(data.videoUrl);
+            if (data.videoUrl) {
+                loadVideo(data.videoUrl);
+            } else {
+                // No video yet - show placeholder for non-admins, prompt for admins
+                const wrapper = getEl('playerWrapper');
+                if (room.isAdmin) {
+                    wrapper.innerHTML = `<div class="video-placeholder" style="gap:14px;">
+                        <span style="font-size:2.5rem;">🎬</span>
+                        <span style="color:var(--p3); font-size:0.95rem;">لینکی ڤیدیۆ لە ڕێکخستن زیاد بکە</span>
+                        <span style="font-size:0.8rem;color:var(--muted);">YouTube، .mp4، یان t.me/...</span>
+                    </div>`;
+                } else {
+                    wrapper.innerHTML = `<div class="video-placeholder">
+                        <div class="spinner"></div>
+                        <span>چاوەڕێی ئەدمین...</span>
+                    </div>`;
+                }
+                videoEl = null;
+            }
         }
 
         // Sync non-admins with timestamp correction (fixes drift when joining mid-video)
@@ -981,6 +1103,7 @@ function enterRoom(rid) {
     });
 
     loadInviteList();
+    loadDmRoomFriends();
 }
 
 function loadInviteList() {
@@ -1027,6 +1150,13 @@ function leaveRoom() {
     if (inviteUnsub) { inviteUnsub(); inviteUnsub = null; }
     if (roomUnsub) { roomUnsub(); roomUnsub = null; }
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+    if (dmRoomUnsub) { dmRoomUnsub(); dmRoomUnsub = null; }
+    dmRoomActiveFid = null;
+    // Reset DM room tab state
+    const dmChat = getEl('dmRoomChat');
+    const dmList = getEl('dmRoomFriendList');
+    if (dmChat) dmChat.style.display = 'none';
+    if (dmList) dmList.style.display = 'block';
     getEl('playerWrapper').innerHTML = '<div class="video-placeholder"><span class="icon">🎬</span><span>چاوەڕێی ڤیدیۆ...</span></div>';
     showView('homeView');
 }
