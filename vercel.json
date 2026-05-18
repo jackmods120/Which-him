@@ -2,10 +2,14 @@
   "version": 2,
   "builds": [
     { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "index.html", "use": "@vercel/static" }
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "jack.ttf", "use": "@vercel/static" },
+    { "src": "web_bg.png", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/jack.ttf", "dest": "/jack.ttf" },
+    { "src": "/web_bg.png", "dest": "/web_bg.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
