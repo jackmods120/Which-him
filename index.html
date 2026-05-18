@@ -18,6 +18,40 @@
             font-display: swap;
         }
 
+        @font-face {
+            font-family: 'iOSEmoji';
+            src: url('/ios.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+            unicode-range:
+                U+200D,
+                U+20E3,
+                U+FE0F,
+                U+1F000-1F02F,
+                U+1F0A0-1F0FF,
+                U+1F100-1F1FF,
+                U+1F200-1F2FF,
+                U+1F300-1F5FF,
+                U+1F600-1F64F,
+                U+1F650-1F67F,
+                U+1F680-1F6FF,
+                U+1F700-1F77F,
+                U+1F780-1F7FF,
+                U+1F800-1F8FF,
+                U+1F900-1F9FF,
+                U+1FA00-1FA6F,
+                U+1FA70-1FAFF,
+                U+2600-26FF,
+                U+2700-27BF,
+                U+2300-23FF,
+                U+25A0-25FF,
+                U+2100-214F,
+                U+0023,
+                U+002A,
+                U+0030-0039;
+        }
+
         :root {
             --p: #a78bfa;
             --p2: #7c3aed;
@@ -42,7 +76,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
-            font-family: 'JackFont', 'Rubik', system-ui, sans-serif;
+            font-family: 'iOSEmoji', 'JackFont', 'Rubik', system-ui, sans-serif;
             background: var(--bg) url('/web_bg.png') center center / cover fixed no-repeat;
             color: var(--text);
             min-height: 100vh;
