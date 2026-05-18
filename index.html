@@ -896,6 +896,7 @@ function loadFriends() {
 function openDm(fid, fname) {
     activeDm = [me.id, fid].sort().join('_');
     getEl('dmTitle').textContent = fname;
+    getEl('dmView').classList.remove('hidden');
     getEl('dmView').style.display = 'flex';
     const box = getEl('dmBox');
     box.innerHTML = '';
@@ -921,7 +922,7 @@ function sendDm() {
     push(ref(db, `direct_messages/${activeDm}`), { senderId: me.id, name: me.name, text, timestamp: Date.now() });
     getEl('dmInp').value = '';
 }
-getEl('closeDmBtn').onclick = () => { getEl('dmView').style.display = 'none'; activeDm = null; };
+getEl('closeDmBtn').onclick = () => { getEl('dmView').classList.add('hidden'); getEl('dmView').style.display = 'none'; activeDm = null; };
 
 // ===== IN-ROOM DM =====
 let dmRoomActiveFid = null;
