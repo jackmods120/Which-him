@@ -45,22 +45,91 @@
             --muted: #9b8ec4;
             --danger: #f43f5e;
             --success: #10b981;
+            --bg-image: url('/web_bg.png');
+            --bg-overlay: rgba(10, 10, 20, 0.75);
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bot: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
         }
 
+        /* ===== THEMES ===== */
+        html[data-theme="purple"] {
+            --p: #a78bfa; --p2: #7c3aed; --p3: #c4b5fd;
+            --bg: #0a0a14; --bg2: #111120; --bg3: #1a1a2e;
+            --glass: rgba(20, 15, 40, 0.7); --glass2: rgba(167, 139, 250, 0.08);
+            --border: rgba(167, 139, 250, 0.2); --border2: rgba(255,255,255,0.08);
+            --text: #f0eeff; --muted: #9b8ec4;
+            --bg-overlay: rgba(10, 10, 20, 0.75);
+        }
+        html[data-theme="mono"] {
+            --p: #e5e5e5; --p2: #a3a3a3; --p3: #f5f5f5;
+            --bg: #050505; --bg2: #0d0d0d; --bg3: #171717;
+            --glass: rgba(15,15,15,0.7); --glass2: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.18); --border2: rgba(255,255,255,0.08);
+            --text: #f5f5f5; --muted: #8a8a8a;
+            --bg-overlay: rgba(5,5,5,0.8);
+        }
+        html[data-theme="slate"] {
+            --p: #94a3b8; --p2: #64748b; --p3: #cbd5e1;
+            --bg: #0f1115; --bg2: #161a21; --bg3: #1e232c;
+            --glass: rgba(22,26,33,0.75); --glass2: rgba(148,163,184,0.08);
+            --border: rgba(148,163,184,0.22); --border2: rgba(255,255,255,0.08);
+            --text: #eef1f5; --muted: #94a0b0;
+            --bg-overlay: rgba(15,17,21,0.78);
+        }
+        html[data-theme="navy"] {
+            --p: #60a5fa; --p2: #2563eb; --p3: #93c5fd;
+            --bg: #060b18; --bg2: #0b1324; --bg3: #101c36;
+            --glass: rgba(8,15,32,0.75); --glass2: rgba(96,165,250,0.08);
+            --border: rgba(96,165,250,0.22); --border2: rgba(255,255,255,0.08);
+            --text: #eaf1ff; --muted: #8ea3c4;
+            --bg-overlay: rgba(6,11,24,0.8);
+        }
+        html[data-theme="plum"] {
+            --p: #d8b4fe; --p2: #9333ea; --p3: #e9d5ff;
+            --bg: #0e0616; --bg2: #170a24; --bg3: #24103a;
+            --glass: rgba(22,9,36,0.75); --glass2: rgba(216,180,254,0.08);
+            --border: rgba(216,180,254,0.22); --border2: rgba(255,255,255,0.08);
+            --text: #f6eeff; --muted: #ab90c4;
+            --bg-overlay: rgba(14,6,22,0.8);
+        }
+        html[data-theme="rose"] {
+            --p: #f9a8d4; --p2: #db2777; --p3: #fbcfe8;
+            --bg: #170a11; --bg2: #23111b; --bg3: #331726;
+            --glass: rgba(35,17,27,0.75); --glass2: rgba(249,168,212,0.08);
+            --border: rgba(249,168,212,0.22); --border2: rgba(255,255,255,0.08);
+            --text: #fff0f6; --muted: #c893ab;
+            --bg-overlay: rgba(23,10,17,0.8);
+        }
+        html[data-theme="amber"] {
+            --p: #fbbf24; --p2: #d97706; --p3: #fde68a;
+            --bg: #140f05; --bg2: #1f1608; --bg3: #2c1f0c;
+            --glass: rgba(31,22,8,0.75); --glass2: rgba(251,191,36,0.08);
+            --border: rgba(251,191,36,0.22); --border2: rgba(255,255,255,0.08);
+            --text: #fff8ea; --muted: #c4a978;
+            --bg-overlay: rgba(20,15,5,0.8);
+        }
+        html[data-theme="light"] {
+            --p: #7c3aed; --p2: #6d28d9; --p3: #8b5cf6;
+            --bg: #f5f4fa; --bg2: #ffffff; --bg3: #ece9f7;
+            --glass: rgba(255,255,255,0.75); --glass2: rgba(124,58,237,0.06);
+            --border: rgba(124,58,237,0.2); --border2: rgba(20,20,30,0.08);
+            --text: #1c1a29; --muted: #6b6580;
+            --bg-overlay: rgba(245,244,250,0.82);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         html, body {
             font-family: 'iOSEmoji', 'JackFont', 'Rubik', system-ui, sans-serif;
-            background: var(--bg) url('/web_bg.png') center center / cover fixed no-repeat;
+            background: var(--bg) var(--bg-image) center center / cover fixed no-repeat;
             color: var(--text);
             min-height: 100vh;
             min-height: -webkit-fill-available;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         /* iOS safe area fix */
@@ -76,10 +145,11 @@
             content: '';
             position: fixed; inset: 0; z-index: 0;
             background: 
-                rgba(10, 10, 20, 0.75),
-                radial-gradient(ellipse 80% 50% at 20% 0%, rgba(124,58,237,0.2) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(167,139,250,0.12) 0%, transparent 60%);
+                var(--bg-overlay),
+                radial-gradient(ellipse 80% 50% at 20% 0%, color-mix(in srgb, var(--p2) 20%, transparent) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 100%, color-mix(in srgb, var(--p) 12%, transparent) 0%, transparent 60%);
             pointer-events: none;
+            transition: background 0.3s;
         }
 
         #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
@@ -455,6 +525,22 @@
 
         /* Gradient text */
         .grad { background: linear-gradient(135deg, var(--p3), var(--p)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ===== THEME SWATCH ===== */
+        .theme-swatch {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            padding: 12px 6px; border-radius: 16px; cursor: pointer;
+            border: 1.5px solid var(--border2); background: var(--glass2);
+            transition: border-color 0.2s, transform 0.15s;
+        }
+        .theme-swatch:active { transform: scale(0.95); }
+        .theme-swatch.active { border-color: var(--p); box-shadow: 0 0 0 2px color-mix(in srgb, var(--p) 30%, transparent); }
+        .theme-swatch-dot {
+            width: 34px; height: 34px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .theme-swatch-label { font-size: 0.75rem; color: var(--muted); text-align: center; }
+        .theme-swatch.active .theme-swatch-label { color: var(--text); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -465,6 +551,7 @@
 
     <!-- ===== LOGIN VIEW ===== -->
     <div id="loginView" class="view hidden">
+        <button id="themeBtnLogin" class="btn btn-ghost btn-sm" style="width:auto; position:fixed; top:calc(var(--safe-top) + 14px); left:16px; z-index:60;" title="ڕووکار">🎨</button>
         <div style="display:flex; align-items:center; justify-content:center; flex:1; padding:24px;">
             <div class="glass login-card">
                 <div class="logo">
@@ -506,6 +593,7 @@
                 <div class="user-name" id="myNameDisplay">—</div>
                 <div class="user-id" id="myIdDisplay" title="دەستبگری کۆپی بکەیت">— کۆپی</div>
             </div>
+            <button id="themeBtn" class="btn btn-ghost btn-sm" style="width:auto; margin-inline-end:8px;" title="ڕووکار">🎨</button>
             <button id="logoutBtn" class="btn btn-danger btn-sm" style="width:auto;">دەرچوون</button>
         </div>
 
@@ -554,7 +642,7 @@
         <div class="room-topbar">
             <button id="leaveRoomBtn" class="btn btn-danger btn-sm" style="width:auto;">← جێهێشتن</button>
             <div class="room-code-badge" id="roomCodeDisplay" title="دەستبگری کۆپی بکەیت">———</div>
-            <div style="width:80px;"></div>
+            <button id="themeBtnRoom" class="btn btn-ghost btn-sm" style="width:auto;" title="ڕووکار">🎨</button>
         </div>
 
         <div class="room-body">
@@ -634,7 +722,7 @@
                 </div>
 
                 <!-- Admin settings tab -->
-                <div class="tab-panel" id="settingsTab" id="adminControls" style="padding:16px; flex-direction:column; gap:14px;">
+                <div class="tab-panel" id="settingsTab" style="padding:16px; flex-direction:column; gap:14px;">
                     <div class="section-title">⚙️ ڕێکخستنی ئەدمین</div>
                     <div class="card">
                         <div class="switch-wrap">
@@ -678,6 +766,16 @@
         </div>
     </div>
 
+    <!-- Theme Picker Popup -->
+    <div id="themePopupOverlay" class="popup-overlay hidden">
+        <div class="popup-sheet">
+            <div class="popup-handle"></div>
+            <div style="font-size:1.1rem; font-weight:600; text-align:center; margin-bottom:18px;">🎨 ڕووکار هەڵبژێرە</div>
+            <div id="themeGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
+            <button onclick="document.getElementById('themePopupOverlay').classList.add('hidden')" class="btn btn-ghost">داخستن</button>
+        </div>
+    </div>
+
 </div>
 
 <script type="module">
@@ -711,6 +809,55 @@ let reqBadgeCount = 0;
 let roomUnsub = null;
 let chatUnsub = null;
 let syncInterval = null;
+
+// ===== THEMES =====
+const THEMES = [
+    { id: 'purple', name: 'مۆر',       dot: 'linear-gradient(135deg,#7c3aed,#a78bfa)' },
+    { id: 'mono',   name: 'ڕەش و سپی', dot: 'linear-gradient(135deg,#050505,#e5e5e5)' },
+    { id: 'slate',  name: 'ڕەساسی',    dot: 'linear-gradient(135deg,#334155,#94a3b8)' },
+    { id: 'navy',   name: 'شینی تاریک', dot: 'linear-gradient(135deg,#0b1324,#60a5fa)' },
+    { id: 'plum',   name: 'مۆری تاریک', dot: 'linear-gradient(135deg,#170a24,#d8b4fe)' },
+    { id: 'rose',   name: 'پەمەیی',     dot: 'linear-gradient(135deg,#831843,#f9a8d4)' },
+    { id: 'amber',  name: 'زەرد',       dot: 'linear-gradient(135deg,#78350f,#fbbf24)' },
+    { id: 'light',  name: 'ڕووناک',     dot: 'linear-gradient(135deg,#ffffff,#7c3aed)' },
+];
+const THEME_KEY = 'sinema_theme';
+
+function applyTheme(id) {
+    document.documentElement.setAttribute('data-theme', id);
+    localStorage.setItem(THEME_KEY, id);
+    renderThemeGrid();
+}
+
+function renderThemeGrid() {
+    const grid = getEl('themeGrid');
+    if (!grid) return;
+    const current = localStorage.getItem(THEME_KEY) || 'purple';
+    grid.innerHTML = THEMES.map(t => `
+        <div class="theme-swatch ${t.id === current ? 'active' : ''}" data-theme-id="${t.id}">
+            <div class="theme-swatch-dot" style="background:${t.dot};"></div>
+            <div class="theme-swatch-label">${t.name}</div>
+        </div>
+    `).join('');
+    grid.querySelectorAll('.theme-swatch').forEach(el => {
+        el.onclick = () => { applyTheme(el.dataset.themeId); toast('✅ ڕووکار گۆڕدرا'); };
+    });
+}
+
+function openThemePopup() {
+    renderThemeGrid();
+    getEl('themePopupOverlay').classList.remove('hidden');
+}
+getEl('themePopupOverlay').onclick = (e) => {
+    if (e.target === getEl('themePopupOverlay')) getEl('themePopupOverlay').classList.add('hidden');
+};
+['themeBtn', 'themeBtnRoom', 'themeBtnLogin'].forEach(id => {
+    const btn = getEl(id);
+    if (btn) btn.onclick = openThemePopup;
+});
+
+// Apply saved theme immediately on load
+applyTheme(localStorage.getItem(THEME_KEY) || 'purple');
 
 // ===== UTILS =====
 function toast(msg, dur = 2500) {
@@ -1219,7 +1366,6 @@ function loadVideo(url) {
     const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
     const tgMatch = clean.match(/https?:\/\/t\.me\/([^\/\?]+)\/(\d+)/);
     const isSafe = /kurdsub|vimeo|drive\.google/.test(clean);
-    const isMP4 = /\.(mp4|m3u8|webm|ogg|mov)(\?.*)?$/i.test(clean);
 
     if (ytMatch) {
         wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;" data-url="${clean}"></iframe>`;
@@ -1238,7 +1384,8 @@ function loadVideo(url) {
         return;
     }
 
-    // Native video + Heroku/redirect links: try direct first, fallback to fetch+blob
+    // Native video: try direct first (fast path, works for CORS-friendly hosts),
+    // then fall back to our own /api/proxy (handles CORS + Range) before giving up.
     function makeVid(src) {
         const v = document.createElement('video');
         v.src = src; v.dataset.url = clean; v.controls = true;
@@ -1249,13 +1396,27 @@ function loadVideo(url) {
         return v;
     }
 
-    async function tryFetchBlob() {
+    function showFail() {
+        wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
+            <span class="icon">🚫</span><span>ئەم لینکە کار ناکات</span>
+            <span style="font-size:0.8rem;color:var(--muted);">لینکی .mp4 ی ڕاستەقینە دابنێ</span>
+        </div>`;
+        videoEl = null;
+    }
+
+    function showLoading(msg) {
         wrapper.innerHTML = `<div class="video-placeholder">
             <div class="spinner"></div>
-            <span style="font-size:0.9rem;">فیلمەکە بار دەکات...</span>
+            <span style="font-size:0.9rem;">${msg}</span>
         </div>`;
+    }
+
+    // Last resort: fetch the whole file through the proxy and play as a blob.
+    async function tryProxyBlob() {
+        showLoading('فیلمەکە بار دەکات...');
         try {
-            const resp = await fetch(clean, { redirect: 'follow' });
+            const proxied = `/api/proxy?url=${encodeURIComponent(clean)}`;
+            const resp = await fetch(proxied, { redirect: 'follow' });
             if (!resp.ok) throw new Error('HTTP ' + resp.status);
             const buf  = await resp.arrayBuffer();
             const ct   = resp.headers.get('content-type') || 'video/mp4';
@@ -1263,26 +1424,25 @@ function loadVideo(url) {
             const bUrl = URL.createObjectURL(blob);
             wrapper.innerHTML = '';
             const vb = makeVid(bUrl);
-            vb.onerror = () => {
-                URL.revokeObjectURL(bUrl);
-                wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
-                    <span class="icon">🚫</span><span>ئەم لینکە کار ناکات</span>
-                    <span style="font-size:0.8rem;color:var(--muted);">لینکی .mp4 ی ڕاستەقینە دابنێ</span>
-                </div>`;
-                videoEl = null;
-            };
+            vb.onerror = showFail;
             videoEl = vb; wrapper.appendChild(vb); attachVideoSync(vb);
-        } catch(e) {
-            wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
-                <span class="icon">🚫</span><span>ئەم لینکە کار ناکات</span>
-                <span style="font-size:0.8rem;color:var(--muted);">لینکی .mp4 ی ڕاستەقینە دابنێ</span>
-            </div>`;
-            videoEl = null;
+        } catch (e) {
+            showFail();
         }
     }
 
+    // Step 2: play through our proxy directly (keeps streaming/seeking working via Range).
+    function tryProxyStream() {
+        wrapper.innerHTML = '';
+        const proxied = `/api/proxy?url=${encodeURIComponent(clean)}`;
+        const vp = makeVid(proxied);
+        vp.onerror = tryProxyBlob;
+        videoEl = vp; wrapper.appendChild(vp); attachVideoSync(vp);
+    }
+
+    // Step 1: try the direct link (works when the host allows cross-origin video).
     const vd = makeVid(clean);
-    vd.onerror = tryFetchBlob;
+    vd.onerror = tryProxyStream;
     videoEl = vd;
     wrapper.appendChild(vd);
     attachVideoSync(vd);
