@@ -448,8 +448,8 @@
 
         .room-topbar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 16px; background: color-mix(in srgb, var(--bg) 90%, transparent);
-            backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+            padding: 12px 16px; background: color-mix(in srgb, var(--bg) 94%, transparent);
+            backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%);
             border-bottom: 1px solid var(--border2); position: relative; z-index: 50;
             flex-shrink: 0;
             box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
@@ -551,8 +551,8 @@
         /* Bottom tabs for mobile */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
-            background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%); border-top: 1px solid var(--border2);
+            background: color-mix(in srgb, var(--bg) 95%, transparent); backdrop-filter: blur(10px) saturate(140%);
+            -webkit-backdrop-filter: blur(10px) saturate(140%); border-top: 1px solid var(--border2);
             display: flex; z-index: 100; position: fixed;
             padding-bottom: var(--safe-bot);
         }
@@ -582,9 +582,9 @@
             min-height: 0;
             display: flex;
             flex-direction: column;
-            background: color-mix(in srgb, var(--bg) 95%, transparent);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            background: color-mix(in srgb, var(--bg) 97%, transparent);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             position: relative;
             z-index: 10;
             border-top-left-radius: 28px;
@@ -1450,17 +1450,22 @@ function openDm(fid, fname) {
     getEl('dmView').classList.add('show');
     const box = getEl('dmBox');
     box.innerHTML = '';
+    const renderedDmIds = new Set();
     onValue(ref(db, `direct_messages/${activeDm}`), (snap) => {
-        box.innerHTML = '';
+        let appendedAny = false;
         snap.forEach(ch => {
+            const mid = ch.key;
+            if (renderedDmIds.has(mid)) return;
+            renderedDmIds.add(mid);
             const msg = ch.val();
             const mine = msg.senderId === me.id;
             const d = document.createElement('div');
             d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
             d.innerHTML = `${!mine ? `<span class="msg-name">${msg.name}</span>` : ''}<div>${wrapEmoji(msg.text)}</div><span class="msg-time">${formatTime(msg.timestamp)}</span>`;
             box.appendChild(d);
+            appendedAny = true;
         });
-        box.scrollTop = box.scrollHeight;
+        if (appendedAny) box.scrollTop = box.scrollHeight;
     });
 }
 
@@ -1520,17 +1525,22 @@ function openDmRoom(fid, fname) {
     box.innerHTML = '';
 
     if (dmRoomUnsub) dmRoomUnsub();
+    const renderedDmRoomIds = new Set();
     dmRoomUnsub = onValue(ref(db, `direct_messages/${dmId}`), (snap) => {
-        box.innerHTML = '';
+        let appendedAny = false;
         snap.forEach(ch => {
+            const mid = ch.key;
+            if (renderedDmRoomIds.has(mid)) return;
+            renderedDmRoomIds.add(mid);
             const msg = ch.val();
             const mine = msg.senderId === me.id;
             const d = document.createElement('div');
             d.className = `msg ${mine ? 'msg-mine' : 'msg-other'}`;
             d.innerHTML = `${!mine ? `<span class="msg-name">${msg.name}</span>` : ''}<div>${wrapEmoji(msg.text)}</div><span class="msg-time">${formatTime(msg.timestamp)}</span>`;
             box.appendChild(d);
+            appendedAny = true;
         });
-        box.scrollTop = box.scrollHeight;
+        if (appendedAny) box.scrollTop = box.scrollHeight;
     });
 }
 
@@ -1666,10 +1676,18 @@ function enterRoom(rid) {
     });
 
     if (chatUnsub) chatUnsub();
+    const chatBox = getEl('chatBox');
+    chatBox.innerHTML = '';
+    const renderedMsgIds = new Set();
     chatUnsub = onValue(ref(db, `rooms_ku/${rid}/messages`), (snap) => {
-        const box = getEl('chatBox');
-        box.innerHTML = '';
+        // Incremental render: only append messages we haven't rendered yet.
+        // Rebuilding the whole chat DOM on every new message is what causes
+        // the app to get slower and slower the longer a chat session runs.
+        let appendedAny = false;
         snap.forEach(ch => {
+            const mid = ch.key;
+            if (renderedMsgIds.has(mid)) return;
+            renderedMsgIds.add(mid);
             const msg = ch.val();
             const mine = msg.senderId === me.id;
             const isOwner = room.data && msg.senderId === room.data.ownerId;
@@ -1687,9 +1705,10 @@ function enterRoom(rid) {
                     if (room.isAdmin) showAdminPopup(msg.senderId, msg.name);
                 };
             }
-            box.appendChild(d);
+            chatBox.appendChild(d);
+            appendedAny = true;
         });
-        box.scrollTop = box.scrollHeight;
+        if (appendedAny) chatBox.scrollTop = chatBox.scrollHeight;
     });
 
     loadInviteList();
@@ -1815,6 +1834,7 @@ function loadVideo(url) {
 
     let slowLoadTimer = null;
     let stallTimer = null;
+    let hasStartedPlaying = false;
 
     const showBuffer = (msg) => {
         const ov = getEl('bufferOverlay');
@@ -1831,32 +1851,29 @@ function loadVideo(url) {
         if (slowLoadTimer) { clearTimeout(slowLoadTimer); slowLoadTimer = null; }
         if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
     };
-    const showSlowSourceError = () => {
-        clearTimers();
-        wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
-            <span class="icon">🐢</span><span>سێرڤەری ڤیدیۆکە زۆر خاوە یان وەڵام نادات</span>
-            <span style="font-size:0.85rem;color:var(--muted);text-align:center;padding:10px;">هەوڵبدەرەوە یان لینکێکی تری ڕاستەوخۆتر بەکاربهێنە (بۆ نموونە لینکی تێلیگرام یان یوتوب).</span>
-        </div>`;
-        videoEl = null;
-        setVideoInfo(null);
-    };
 
-    // If nothing happens within 20s of starting the load, tell the user the source is slow
+    // Give slow sources plenty of time before giving up — a movie link
+    // that just takes a while to start is not a broken link, and killing
+    // the player early made things worse, not better.
     slowLoadTimer = setTimeout(() => {
-        if (v.readyState < 2) { // HAVE_CURRENT_DATA not yet reached
-            showSlowSourceError();
+        if (!hasStartedPlaying && v.readyState < 2) {
+            showBuffer('سێرڤەرەکە زۆر خاوەیە... هێشتا هەوڵ دەدەین');
         }
-    }, 20000);
+    }, 15000);
 
     v.addEventListener('loadstart', () => showBuffer('بارکردن...'));
     v.addEventListener('waiting', () => {
         showBuffer('چاوەڕوانی داتا...');
-        // If buffering drags on too long mid-playback, let the user know it's the source, not a freeze
         if (stallTimer) clearTimeout(stallTimer);
         stallTimer = setTimeout(() => showBuffer('سێرڤەرەکە خاوە... چاوەڕێبە'), 8000);
     });
     v.addEventListener('canplay', () => { clearTimeout(slowLoadTimer); hideBuffer(); });
-    v.addEventListener('playing', () => { clearTimeout(slowLoadTimer); if (stallTimer) clearTimeout(stallTimer); hideBuffer(); });
+    v.addEventListener('playing', () => {
+        hasStartedPlaying = true;
+        clearTimeout(slowLoadTimer);
+        if (stallTimer) clearTimeout(stallTimer);
+        hideBuffer();
+    });
     v.addEventListener('seeking', () => showBuffer('گۆڕینی شوێن...'));
     v.addEventListener('seeked', () => hideBuffer());
 
@@ -2006,10 +2023,15 @@ if (window.visualViewport) {
     });
 }
 
+// Prevent iOS-style rubber-band overscroll outside scrollable areas,
+// without doing a DOM tree walk (closest()) on every touchmove firing —
+// we resolve the scrollable ancestor once per touch (on touchstart) instead.
+let touchAllowScroll = true;
+document.addEventListener('touchstart', (e) => {
+    touchAllowScroll = !!e.target.closest('.chat-messages, .dm-messages, .home-content, .tab-panel');
+}, { passive: true });
 document.addEventListener('touchmove', (e) => {
-    if (!e.target.closest('.chat-messages, .dm-messages, .home-content, .tab-panel')) {
-        e.preventDefault();
-    }
+    if (!touchAllowScroll) e.preventDefault();
 }, { passive: false });
 
 // ===== FULLSCREEN =====
@@ -2039,12 +2061,10 @@ document.addEventListener('fullscreenchange', updateFullscreenIcons);
 document.addEventListener('webkitfullscreenchange', updateFullscreenIcons);
 document.addEventListener('mozfullscreenchange', updateFullscreenIcons);
 
-// Auto scroll chat
-const chatObs = new MutationObserver(() => {
-    const b = getEl('chatBox');
-    if (b) b.scrollTop = b.scrollHeight;
-});
-chatObs.observe(getEl('chatBox'), { childList: true });
+// Note: chat auto-scroll is now handled directly inside the message
+// render functions (enterRoom's chat listener, openDm, openDmRoom) —
+// a global MutationObserver here was redundant and, combined with
+// full chat rebuilds, caused compounding slowdowns in long chats.
 
 </script>
 </body>
