@@ -521,6 +521,24 @@
             100% { box-shadow: 0 0 0 0 transparent; }
         }
 
+        /* ===== BUFFER / SLOW SOURCE OVERLAY ===== */
+        .buffer-overlay {
+            position: absolute; inset: 0; z-index: 7;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+            animation: bufferFadeIn 0.25s var(--ease-out);
+        }
+        .buffer-overlay.hidden { display: none; }
+        .buffer-overlay span {
+            font-size: 0.85rem; font-weight: 600; color: #fff;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+            background: rgba(10,10,16,0.5); padding: 6px 16px; border-radius: 999px;
+            backdrop-filter: blur(10px);
+        }
+        @keyframes bufferFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         /* Floating controls on video */
         .video-overlay {
             position: absolute; bottom: 0; left: 0; right: 0;
@@ -974,6 +992,11 @@
                     <div id="syncPill" class="sync-pill">
                         <span class="sync-pill-dot"></span>
                         <span id="syncPillText">هاوکات دەکرێت</span>
+                    </div>
+                    <!-- Buffering / slow source indicator -->
+                    <div id="bufferOverlay" class="buffer-overlay hidden">
+                        <div class="spinner"></div>
+                        <span id="bufferText">بارکردن...</span>
                     </div>
                     <!-- Blocks video controls for non-admins -->
                     <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
@@ -1632,7 +1655,9 @@ function enterRoom(rid) {
             if (st.status === 'playing') {
                 targetTime += (Date.now() - st.timestamp) / 1000;
             }
-            if (Math.abs(videoEl.currentTime - targetTime) > 2.5) {
+            // Skip forcing a seek while the video hasn't buffered enough yet —
+            // seeking a not-ready/slow source repeatedly just causes more stalling.
+            if (videoEl.readyState >= 2 && Math.abs(videoEl.currentTime - targetTime) > 3) {
                 videoEl.currentTime = Math.max(0, targetTime);
             }
             if (st.status === 'playing' && videoEl.paused) videoEl.play().catch(() => {});
@@ -1712,6 +1737,8 @@ function leaveRoom() {
     if (vcb) vcb.style.display = 'none';
     const pill = getEl('syncPill');
     if (pill) pill.classList.remove('show', 'watching');
+    const bufOv = getEl('bufferOverlay');
+    if (bufOv) bufOv.classList.add('hidden');
     if (inviteUnsub) { inviteUnsub(); inviteUnsub = null; }
     if (roomUnsub) { roomUnsub(); roomUnsub = null; }
     if (chatUnsub) { chatUnsub(); chatUnsub = null; }
@@ -1744,6 +1771,8 @@ function loadVideo(url) {
     const wrapper = getEl('playerWrapper');
     wrapper.innerHTML = '';
     videoEl = null;
+    const bufOv = getEl('bufferOverlay');
+    if (bufOv) bufOv.classList.add('hidden');
 
     const clean = url.trim();
     const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
@@ -1775,17 +1804,64 @@ function loadVideo(url) {
     // NATIVE VIDEO LINK (MP4, etc)
     setVideoInfo('🎞️ ڕاستەوخۆ', clean);
     const v = document.createElement('video');
-    v.src = clean; 
-    v.dataset.url = clean; 
+    v.dataset.url = clean;
     v.controls = true;
-    v.preload = 'auto'; 
+    v.preload = 'metadata';
     v.playsInline = true;
-    v.setAttribute('playsinline', ''); 
+    v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
     v.setAttribute('controlsList', 'nodownload');
     v.style.cssText = 'width:100%;height:100%;background:#000;';
-    
+
+    let slowLoadTimer = null;
+    let stallTimer = null;
+
+    const showBuffer = (msg) => {
+        const ov = getEl('bufferOverlay');
+        const txt = getEl('bufferText');
+        if (!ov) return;
+        if (txt && msg) txt.textContent = msg;
+        ov.classList.remove('hidden');
+    };
+    const hideBuffer = () => {
+        const ov = getEl('bufferOverlay');
+        if (ov) ov.classList.add('hidden');
+    };
+    const clearTimers = () => {
+        if (slowLoadTimer) { clearTimeout(slowLoadTimer); slowLoadTimer = null; }
+        if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; }
+    };
+    const showSlowSourceError = () => {
+        clearTimers();
+        wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
+            <span class="icon">🐢</span><span>سێرڤەری ڤیدیۆکە زۆر خاوە یان وەڵام نادات</span>
+            <span style="font-size:0.85rem;color:var(--muted);text-align:center;padding:10px;">هەوڵبدەرەوە یان لینکێکی تری ڕاستەوخۆتر بەکاربهێنە (بۆ نموونە لینکی تێلیگرام یان یوتوب).</span>
+        </div>`;
+        videoEl = null;
+        setVideoInfo(null);
+    };
+
+    // If nothing happens within 20s of starting the load, tell the user the source is slow
+    slowLoadTimer = setTimeout(() => {
+        if (v.readyState < 2) { // HAVE_CURRENT_DATA not yet reached
+            showSlowSourceError();
+        }
+    }, 20000);
+
+    v.addEventListener('loadstart', () => showBuffer('بارکردن...'));
+    v.addEventListener('waiting', () => {
+        showBuffer('چاوەڕوانی داتا...');
+        // If buffering drags on too long mid-playback, let the user know it's the source, not a freeze
+        if (stallTimer) clearTimeout(stallTimer);
+        stallTimer = setTimeout(() => showBuffer('سێرڤەرەکە خاوە... چاوەڕێبە'), 8000);
+    });
+    v.addEventListener('canplay', () => { clearTimeout(slowLoadTimer); hideBuffer(); });
+    v.addEventListener('playing', () => { clearTimeout(slowLoadTimer); if (stallTimer) clearTimeout(stallTimer); hideBuffer(); });
+    v.addEventListener('seeking', () => showBuffer('گۆڕینی شوێن...'));
+    v.addEventListener('seeked', () => hideBuffer());
+
     v.onerror = () => {
+        clearTimers();
         wrapper.innerHTML = `<div class="video-placeholder" style="color:var(--danger);">
             <span class="icon">🚫</span><span>لینکی ڤیدیۆکە کێشەی هەیە</span>
             <span style="font-size:0.85rem;color:var(--muted);text-align:center;padding:10px;">هەوڵبدە لینکی ڕاستەوخۆی تر یان لینکی تێلیگرام بەکاربهێنیت.</span>
@@ -1794,6 +1870,7 @@ function loadVideo(url) {
         setVideoInfo(null);
     };
 
+    v.src = clean;
     videoEl = v;
     wrapper.appendChild(v);
     attachVideoSync(v);
