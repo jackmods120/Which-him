@@ -118,6 +118,22 @@
             --text: #1c1a29; --muted: #6b6580;
             --bg-overlay: rgba(245,244,250,0.88);
         }
+        html[data-theme="orange"] {
+            --p: #fb923c; --p2: #ea580c; --p3: #fed7aa;
+            --bg: #160d05; --bg2: #201207; --bg3: #2e1a0c;
+            --glass: rgba(32,18,7,0.75); --glass2: rgba(251,146,60,0.08);
+            --border: rgba(251,146,60,0.24); --border2: rgba(255,255,255,0.08);
+            --text: #fff4ea; --muted: #c79a76;
+            --bg-overlay: rgba(22,13,5,0.85);
+        }
+        html[data-theme="green"] {
+            --p: #4ade80; --p2: #16a34a; --p3: #bbf7d0;
+            --bg: #051309; --bg2: #081d0f; --bg3: #0d2a17;
+            --glass: rgba(8,29,15,0.75); --glass2: rgba(74,222,128,0.08);
+            --border: rgba(74,222,128,0.24); --border2: rgba(255,255,255,0.08);
+            --text: #edfff3; --muted: #85b596;
+            --bg-overlay: rgba(5,19,9,0.85);
+        }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -222,7 +238,9 @@
         .btn-white:hover { background: #eee; }
         .btn-ghost { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
         .btn-ghost:hover { border-color: var(--p); background: var(--glass2); }
-        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; box-shadow: 0 4px 16px color-mix(in srgb, var(--danger) 35%, transparent); }
+        .btn-danger-outline { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border: 1.5px solid color-mix(in srgb, var(--danger) 35%, transparent); }
+        .btn-danger-outline:hover { background: color-mix(in srgb, var(--danger) 18%, transparent); }
         .btn-success { background: var(--success); color: #fff; }
         .btn-google { background: #fff; color: #333; }
 
@@ -287,23 +305,52 @@
         }
 
         /* ===== ROOM VIEW ===== */
-        #roomView { padding: 0; flex: 1; }
+        #roomView {
+            padding: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
 
         .room-topbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px; background: color-mix(in srgb, var(--bg) 90%, transparent);
             backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-bottom: 1px solid var(--border2); position: sticky; top: 0; z-index: 50;
+            border-bottom: 1px solid var(--border2); position: relative; z-index: 50;
+            flex-shrink: 0;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
         }
         .room-code-badge {
             background: var(--glass2); border: 1px solid var(--border);
             border-radius: 12px; padding: 6px 14px;
             font-size: 1.1rem; font-weight: 700; letter-spacing: 3px; color: var(--p);
-            cursor: pointer; transition: transform 0.15s var(--ease-spring);
+            cursor: pointer; transition: transform 0.15s var(--ease-spring), box-shadow 0.2s;
+            box-shadow: 0 0 0 0 color-mix(in srgb, var(--p) 0%, transparent);
         }
         .room-code-badge:active { transform: scale(0.94); }
 
-        .video-section { position: relative; background: #000; width: 100%; z-index: 1; }
+        .video-section { position: relative; background: #000; width: 100%; z-index: 1; flex-shrink: 0; }
+        .video-info-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px;
+            background: linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, transparent), color-mix(in srgb, var(--bg) 88%, transparent));
+            border-bottom: 1px solid var(--border2);
+        }
+        .video-info-badge {
+            flex-shrink: 0; font-size: 0.72rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 999px;
+            background: var(--glass2); border: 1px solid var(--border);
+            color: var(--p3); letter-spacing: 0.3px;
+        }
+        .video-info-text {
+            flex: 1; font-size: 0.85rem; font-weight: 500; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            direction: ltr; text-align: right;
+        }
         .video-wrapper {
             width: 100%; aspect-ratio: 16/9; background: #000;
             display: flex; align-items: center; justify-content: center;
@@ -312,6 +359,7 @@
         .video-wrapper video, .video-wrapper iframe {
             width: 100%; height: 100%; border: none; outline: none; object-fit: contain;
         }
+        .video-stage { position: relative; width: 100%; }
 
         /* ===== SYNC STATUS PILL (signature element) ===== */
         .sync-pill {
@@ -371,18 +419,19 @@
         .tab-btn.active .tab-icon { transform: translateY(-2px) scale(1.08); }
         .tab-btn:active { transform: scale(0.92); }
 
-        .tab-panel { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+        .tab-panel { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(64px + var(--safe-bot)); }
         .tab-panel.active { display: flex; animation: tabIn 0.3s var(--ease-out); }
         @keyframes tabIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
         .room-body {
             display: flex; flex-direction: column; flex: 1;
-            padding-bottom: calc(60px + var(--safe-bot));
+            min-height: 0;
         }
 
         /* ===== REDESIGNED CHAT ===== */
         .chat-panel {
             flex: 1;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             background: color-mix(in srgb, var(--bg) 95%, transparent);
@@ -603,7 +652,8 @@
                 border-left: 1px solid var(--border2); 
             }
             .bottom-nav { display: none; }
-            .tab-panel { display: flex; }
+            .tab-panel { display: flex; padding-bottom: 0; }
+            .tab-panel.active { display: flex; }
         }
 
         /* ios video fix */
@@ -615,18 +665,18 @@
             bottom: 10px;
             right: 10px;
             z-index: 10;
-            width: 36px; height: 36px;
-            background: rgba(0,0,0,0.55);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 10px;
+            width: 38px; height: 38px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 11px;
             color: #fff;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: background 0.2s, transform 0.18s var(--ease-spring);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        .fullscreen-btn:hover { background: color-mix(in srgb, var(--p2) 60%, transparent); }
+        .fullscreen-btn:hover { background: color-mix(in srgb, var(--p2) 65%, transparent); border-color: color-mix(in srgb, var(--p) 50%, transparent); }
         .fullscreen-btn:active { transform: scale(0.88); }
 
         /* Gradient text */
@@ -746,7 +796,7 @@
     <div id="roomView" class="view hidden">
         <!-- Top bar -->
         <div class="room-topbar">
-            <button id="leaveRoomBtn" class="btn btn-danger btn-sm" style="width:auto;">← جێهێشتن</button>
+            <button id="leaveRoomBtn" class="btn btn-danger-outline btn-sm" style="width:auto;">← جێهێشتن</button>
             <div class="room-code-badge" id="roomCodeDisplay" title="دەستبگری کۆپی بکەیت">———</div>
             <button id="themeBtnRoom" class="btn btn-ghost btn-sm" style="width:auto;" title="ڕووکار">🎨</button>
         </div>
@@ -754,24 +804,30 @@
         <div class="room-body">
             <!-- Left: Video -->
             <div class="video-section">
-                <div class="video-wrapper" id="playerWrapper">
-                    <div class="video-placeholder">
-                        <span class="icon">🎬</span>
-                        <span>چاوەڕێی ڤیدیۆ...</span>
+                <div class="video-info-bar" id="videoInfoBar" style="display:none;">
+                    <span class="video-info-badge" id="videoSourceBadge">🎬</span>
+                    <span class="video-info-text" id="videoSourceText">—</span>
+                </div>
+                <div class="video-stage" id="videoStage">
+                    <div class="video-wrapper" id="playerWrapper">
+                        <div class="video-placeholder">
+                            <span class="icon">🎬</span>
+                            <span>چاوەڕێی ڤیدیۆ...</span>
+                        </div>
                     </div>
+                    <!-- Sync status pill (signature element) -->
+                    <div id="syncPill" class="sync-pill">
+                        <span class="sync-pill-dot"></span>
+                        <span id="syncPillText">هاوکات دەکرێت</span>
+                    </div>
+                    <!-- Blocks video controls for non-admins -->
+                    <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
+                    <!-- Fullscreen button -->
+                    <button id="fullscreenBtn" class="fullscreen-btn" title="پڕ شاشە">
+                        <svg id="fsEnterIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                        <svg id="fsExitIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
+                    </button>
                 </div>
-                <!-- Sync status pill (signature element) -->
-                <div id="syncPill" class="sync-pill">
-                    <span class="sync-pill-dot"></span>
-                    <span id="syncPillText">هاوکات دەکرێت</span>
-                </div>
-                <!-- Blocks video controls for non-admins -->
-                <div id="videoControlBlock" style="display:none; position:absolute; inset:0; z-index:8; cursor:not-allowed;"></div>
-                <!-- Fullscreen button -->
-                <button id="fullscreenBtn" class="fullscreen-btn" title="پڕ شاشە">
-                    <svg id="fsEnterIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                    <svg id="fsExitIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></svg>
-                </button>
             </div>
 
 
@@ -883,7 +939,7 @@
         <div class="popup-sheet">
             <div class="popup-handle"></div>
             <div style="font-size:1.1rem; font-weight:600; text-align:center; margin-bottom:18px;">🎨 ڕووکار هەڵبژێرە</div>
-            <div id="themeGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px;"></div>
+            <div id="themeGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; max-height:56vh; overflow-y:auto; padding:2px;"></div>
             <button onclick="document.getElementById('themePopupOverlay').classList.add('hidden')" class="btn btn-ghost">داخستن</button>
         </div>
     </div>
@@ -931,6 +987,8 @@ const THEMES = [
     { id: 'plum',   name: 'مۆری تاریک', dot: 'linear-gradient(135deg,#170a24,#d8b4fe)' },
     { id: 'rose',   name: 'پەمەیی',     dot: 'linear-gradient(135deg,#831843,#f9a8d4)' },
     { id: 'amber',  name: 'زەرد',       dot: 'linear-gradient(135deg,#78350f,#fbbf24)' },
+    { id: 'orange', name: 'پرتەقاڵی',   dot: 'linear-gradient(135deg,#ea580c,#fb923c)' },
+    { id: 'green',  name: 'سەوز',       dot: 'linear-gradient(135deg,#16a34a,#4ade80)' },
     { id: 'light',  name: 'ڕووناک',     dot: 'linear-gradient(135deg,#ffffff,#7c3aed)' },
 ];
 const THEME_KEY = 'sinema_theme';
@@ -1387,6 +1445,7 @@ function enterRoom(rid) {
                     </div>`;
                 }
                 videoEl = null;
+                setVideoInfo(null);
             }
         }
 
@@ -1487,42 +1546,58 @@ function leaveRoom() {
     if (dmChat) dmChat.style.display = 'none';
     if (dmList) dmList.style.display = 'block';
     getEl('playerWrapper').innerHTML = '<div class="video-placeholder"><span class="icon">🎬</span><span>چاوەڕێی ڤیدیۆ...</span></div>';
+    setVideoInfo(null);
     showView('homeView');
 }
 
 getEl('leaveRoomBtn').onclick = leaveRoom;
 
 // ===== VIDEO LOADER =====
+function setVideoInfo(badge, text) {
+    const bar = getEl('videoInfoBar');
+    const badgeEl = getEl('videoSourceBadge');
+    const textEl = getEl('videoSourceText');
+    if (!bar) return;
+    if (!badge) { bar.style.display = 'none'; return; }
+    badgeEl.textContent = badge;
+    textEl.textContent = text;
+    bar.style.display = 'flex';
+}
+
 function loadVideo(url) {
     const wrapper = getEl('playerWrapper');
     wrapper.innerHTML = '';
     videoEl = null;
 
     const clean = url.trim();
-    const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    const ytMatch = clean.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/);
     const tgMatch = clean.match(/https?:\/\/t\.me\/([^\/\?]+)\/(\d+)/);
     const isSafe = /kurdsub|vimeo|drive\.google/.test(clean);
 
     if (ytMatch) {
-        wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;background:#000;" data-url="${clean}"></iframe>`;
+        setVideoInfo('▶️ یوتوب', clean);
+        wrapper.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0&playsinline=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;background:#000;" data-url="${clean}"></iframe>`;
         videoEl = wrapper.firstChild;
         return;
     }
 
     if (tgMatch) {
         // Direct Telegram Embed - NO BOT REQUIRED!
+        setVideoInfo('✈️ تێلیگرام', clean);
         wrapper.innerHTML = `<iframe src="https://t.me/${tgMatch[1]}/${tgMatch[2]}?embed=1&autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%;height:100%;border:none;background:#000;" data-url="${clean}"></iframe>`;
         videoEl = wrapper.firstChild;
         return;
     }
 
     if (isSafe) {
+        setVideoInfo('🔗 embed', clean);
         wrapper.innerHTML = `<iframe src="${clean}" sandbox="allow-scripts allow-same-origin allow-presentation allow-forms" allow="autoplay; fullscreen" style="width:100%;height:100%;border:none;background:#000;" data-url="${clean}"></iframe>`;
         videoEl = wrapper.firstChild;
         return;
     }
 
     // NATIVE VIDEO LINK (MP4, etc)
+    setVideoInfo('🎞️ ڕاستەوخۆ', clean);
     const v = document.createElement('video');
     v.src = clean; 
     v.dataset.url = clean; 
@@ -1540,6 +1615,7 @@ function loadVideo(url) {
             <span style="font-size:0.85rem;color:var(--muted);text-align:center;padding:10px;">هەوڵبدە لینکی ڕاستەوخۆی تر یان لینکی تێلیگرام بەکاربهێنیت.</span>
         </div>`;
         videoEl = null;
+        setVideoInfo(null);
     };
 
     videoEl = v;
