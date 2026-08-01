@@ -1495,22 +1495,24 @@ async function loadTelegramVideo(channel, msgId, rawUrl, wrapper) {
 function showTgFallback(wrapper, rawUrl, hint) {
     videoEl = null;
     wrapper.innerHTML = `
-        <div class="video-placeholder" style="gap:12px;">
-            <span style="font-size:2.5rem;">📱</span>
-            <span style="font-size:0.95rem; text-align:center;">ڤیدیۆی تێلیگرام</span>
-            <span style="font-size:0.8rem;color:var(--muted);text-align:center;padding:0 20px;line-height:1.6;">${hint}</span>
-            <a href="${rawUrl}" target="_blank" style="
-                margin-top:4px; padding:11px 24px; border-radius:14px;
-                background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
+        <div class="video-placeholder" style="gap:14px; padding:20px;">
+            <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,var(--p2),var(--p)); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(124,58,237,0.35);">
+                <span style="font-size:1.8rem;">📱</span>
+            </div>
+            <span style="font-size:1rem; font-weight:600; text-align:center;">ناتوانرێت ئەم ڤیدیۆیە لێرە کرێشن بکرێت</span>
+            <span style="font-size:0.82rem;color:var(--muted);text-align:center;padding:0 16px;line-height:1.7; max-width:320px;">${hint}</span>
+            <a href="${rawUrl}" target="_blank" rel="noopener" style="
+                margin-top:2px; padding:12px 28px; border-radius:14px;
+                background:linear-gradient(135deg,var(--p2),var(--p)); color:#fff;
                 text-decoration:none; font-size:0.95rem; font-family:inherit;
-                box-shadow:0 4px 15px rgba(124,58,237,0.45); font-weight:500;
+                box-shadow:0 4px 15px rgba(124,58,237,0.4); font-weight:600;
+                display:flex; align-items:center; gap:8px;
             ">کردنەوە لە تێلیگرام ↗</a>
-            <div style="background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); border-radius:12px; padding:12px 16px; margin:4px 16px;">
-                <div style="font-size:0.8rem; color:var(--p3); margin-bottom:6px; font-weight:600;">✅ چاکسازی:</div>
-                <div style="font-size:0.78rem; color:var(--muted); line-height:1.7;">
-                    ١. لینکی ڤیدیۆی ڕاستەوخۆ (.mp4) بەکاربهێنە<br>
-                    ٢. YouTube لینک بەکاربهێنە<br>
-                    ٣. فیلمەکە بنێرە بۆ @FileToLinkiBot و لینکی mp4 ی وەربگرە
+            <div style="background:var(--glass2); border:1px solid var(--border); border-radius:14px; padding:14px 18px; margin-top:6px; max-width:340px;">
+                <div style="font-size:0.82rem; color:var(--p3); margin-bottom:8px; font-weight:600;">💡 بۆ سەیرکردنی ڕاستەوخۆ لە ژوورەکە:</div>
+                <div style="font-size:0.78rem; color:var(--muted); line-height:1.8;">
+                    ١. لینکی .mp4 ی ڕاستەوخۆ بەکاربهێنە<br>
+                    ٢. یان لینکی YouTube بەکاربهێنە
                 </div>
             </div>
         </div>`;
