@@ -9,22 +9,25 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'url parameter required' });
     }
 
-    // تەنها لینکی تێلیگرام و ڤیدیۆ ڕێگە بدرێت
-    const allowed = [
-        't.me', 'telegram.org', 'cdn4.telegram-cdn.org',
-        'video.twimg.com', 'cdn.discordapp.com'
+    // بلۆککردنی داواکاری بۆ ناوونیشانی ناوخۆیی (SSRF-ی ڕێگری لێبکرێت)
+    const blockedHostPatterns = [
+        /^localhost$/i, /^127\./, /^0\.0\.0\.0$/, /^10\./,
+        /^192\.168\./, /^172\.(1[6-9]|2\d|3[01])\./,
+        /^169\.254\./, /^\[?::1\]?$/
     ];
 
-    let isAllowed = false;
+    let parsed;
     try {
-        const parsed = new URL(url);
-        isAllowed = allowed.some(d => parsed.hostname.includes(d));
+        parsed = new URL(url);
     } catch {
         return res.status(400).json({ error: 'Invalid URL' });
     }
 
-    if (!isAllowed) {
-        return res.status(403).json({ error: 'Domain not allowed' });
+    if (!/^https?:$/.test(parsed.protocol)) {
+        return res.status(400).json({ error: 'Only http/https URLs allowed' });
+    }
+    if (blockedHostPatterns.some(re => re.test(parsed.hostname))) {
+        return res.status(403).json({ error: 'This host is not allowed' });
     }
 
     try {
